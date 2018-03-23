@@ -4,8 +4,9 @@
   "description": "Backend for Integrate platform, with RESTful API",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "test": "nyc --reporter=html --reporter=text --all mocha",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -18,7 +19,10 @@
   },
   "homepage": "https://github.com/SferaDev/Integrate-Backend#readme",
   "devDependencies": {
-    "nodemon": "^1.17.2"
+    "coveralls": "^3.0.0",
+    "mocha": "^5.0.5",
+    "nodemon": "^1.17.2",
+    "nyc": "^11.6.0"
   },
   "dependencies": {
     "body-parser": "^1.18.2",

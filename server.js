@@ -15,8 +15,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Load models and routes
-const test = require('./backend/models/testModel');
-const routes = require('./backend/routes/testRoutes');
+const test = require('./src/models/testModel');
+const routes = require('./src/routes/testRoutes');
 
 // Start app
 routes(app);
