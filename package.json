@@ -1,0 +1,29 @@
+{
+  "name": "integrate-backend",
+  "version": "1.0.0",
+  "description": "Backend for Integrate platform, with RESTful API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/SferaDev/Integrate-Backend.git"
+  },
+  "author": "Aleix Balletbó",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SferaDev/Integrate-Backend/issues"
+  },
+  "homepage": "https://github.com/SferaDev/Integrate-Backend#readme",
+  "devDependencies": {
+    "nodemon": "^1.17.2"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.3",
+    "express.js": "^1.0.0",
+    "mongoose": "^5.0.11"
+  }
+}
