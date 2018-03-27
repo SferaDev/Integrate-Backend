@@ -5,3 +5,7 @@
 
 ### Node.js ###
 node_modules/
+
+### Code Coverage ###
+.nyc_output
+coverage

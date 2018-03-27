@@ -5,9 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon server.js",
-    "test": "mocha",
-    "cover": "istanbul cover _mocha",
-    "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
+    "test": "nyc --reporter=html --reporter=text mocha",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -21,10 +20,9 @@
   "homepage": "https://github.com/SferaDev/Integrate-Backend#readme",
   "devDependencies": {
     "coveralls": "^3.0.0",
-    "istanbul": "^0.4.5",
     "mocha": "^5.0.5",
-    "mocha-lcov-reporter": "^1.3.0",
-    "nodemon": "^1.17.2"
+    "nodemon": "^1.17.2",
+    "nyc": "^11.6.0"
   },
   "dependencies": {
     "body-parser": "^1.18.2",
