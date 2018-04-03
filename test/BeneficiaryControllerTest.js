@@ -1,22 +1,31 @@
 'use strict';
 
+// Chai: Assertion library
 const chai = require('chai');
-chai.use(require('chai-http'));
 const expect = chai.expect;
+chai.use(require('chai-http'));
+
+// Nock: Intercept http calls and provide a hard-response
 const nock = require('nock');
+
+// Sinon: Mocks and stubs
 const sinon = require('sinon');
 
+// App definitions
 const app = require('../server.js');
 const Beneficiary = require('../src/models/BeneficiaryModel');
-const successResponse = require('./response/successResponse');
+const successResponse = require('./response/BeneficiaryAdministrationResponse');
 
+// Test group
 describe('Operations that involve beneficiaries', function() {
 
     beforeEach(function () {
+        // Before each: Intercept prototype 'save' calls
         sinon.stub(Beneficiary.prototype, 'save');
     });
 
     afterEach(function () {
+        // After each: Clean up prototype 'save' results
         Beneficiary.prototype.save.restore();
     });
 
@@ -25,6 +34,7 @@ describe('Operations that involve beneficiaries', function() {
             .get('/beneficiaries')
             .reply(200, successResponse);
 
+        // Set mock behaviour as null
         Beneficiary.prototype.save.yields(null);
 
         return chai.request(app)
