@@ -1,21 +1,24 @@
 'use strict';
 
 const axios = require('axios');
+const mongoose = require('mongoose');
 
-var mongoose = require('mongoose'),
-    Beneficiary = mongoose.model('Beneficiary');
+const Beneficiary = mongoose.model('Beneficiary');
+
+const ERROR_NIF_DUPLICATED = 11000;
+const STATUS_CONNECTION_OK = 200;
+const STATUS_SERVER_ERROR = 500;
 
 exports.loadBeneficiaries = function(req, res) {
     axios.get(process.env.LOCAL_ADMINISTRATION_URI + '/beneficiaries')
         .then(function (response) {
-            var status = 200;
+            var status = STATUS_CONNECTION_OK;
             var body = {status:'SUCCESS'};
             response.data.forEach(function (beneficiary) {
                 var newBeneficiary = new Beneficiary(beneficiary);
                 newBeneficiary.save(function (error) {
-                    var nifDuplicatedErrorCode = 11000;
-                    if (error && error.code !== nifDuplicatedErrorCode) {
-                        status = 500;
+                    if (error && error.code !== ERROR_NIF_DUPLICATED) {
+                        status = STATUS_SERVER_ERROR;
                         body = error;
                     }
                 });
