@@ -6,8 +6,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Connect to the database
-mongoose.Promise = global.Promise;
 const mongodb_uri = process.env.MONGODB_URI || 'mongodb://localhost/Integrate';
+mongoose.Promise = global.Promise;
 mongoose.connect(mongodb_uri, function (error) {
     if (error) console.error(error);
     else console.log('mongo connected');
@@ -29,4 +29,5 @@ app.listen(port);
 // Load finish
 console.log('Integrate server started on: ' + port);
 
+// Export app as module for testing framework
 module.exports = app;
