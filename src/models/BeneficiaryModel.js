@@ -1,9 +1,9 @@
 'use strict';
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-var BeneficiarySchema = new Schema({
+const BeneficiarySchema = new Schema({
     nif: {
         type: String,
         required: true,
@@ -30,4 +30,5 @@ var BeneficiarySchema = new Schema({
     }
 });
 
+// Export Beneficiary model as module
 module.exports = mongoose.model('Beneficiary', BeneficiarySchema);
