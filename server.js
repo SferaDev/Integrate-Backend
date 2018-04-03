@@ -6,8 +6,12 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Connect to the database
+const mongodb_uri = process.env.MONGODB_URI || 'mongodb://localhost/Integrate';
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/Test');
+mongoose.connect(mongodb_uri, function (error) {
+    if (error) console.error(error);
+    else console.log('mongo connected');
+});
 
 // Apply body-parser directives
 const bodyParser = require('body-parser');
@@ -15,8 +19,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Load models and routes
-const test = require('./src/models/testModel');
-const routes = require('./src/routes/testRoutes');
+const test = require('./src/models/BeneficiaryModel');
+const routes = require('./src/routes/Routes');
 
 // Start app
 routes(app);
@@ -24,3 +28,6 @@ app.listen(port);
 
 // Load finish
 console.log('Integrate server started on: ' + port);
+
+// Export app as module for testing framework
+module.exports = app;
