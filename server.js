@@ -7,7 +7,8 @@ const port = process.env.PORT || 3000;
 
 // Connect to the database
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.MONGODB_URI, function (error) {
+const mongodb_uri = process.env.MONGODB_URI || 'mongodb://localhost/Integrate';
+mongoose.connect(mongodb_uri, function (error) {
     if (error) console.error(error);
     else console.log('mongo connected');
 });
