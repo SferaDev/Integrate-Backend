@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/SferaDev/Integrate-Backend#readme",
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
     "express.js": "^1.0.0",
