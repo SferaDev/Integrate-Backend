@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = function(app) {
     const beneficiaryController = require('../controllers/BeneficiaryController');
 
