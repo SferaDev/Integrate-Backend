@@ -1,5 +1,3 @@
-'use strict';
-
 const axios = require('axios');
 const mongoose = require('mongoose');
 
@@ -12,10 +10,10 @@ const STATUS_SERVER_ERROR = 500;
 exports.loadBeneficiaries = function(req, res) {
     axios.get(process.env.LOCAL_ADMINISTRATION_URI + '/beneficiaries')
         .then(function (response) {
-            var status = STATUS_CONNECTION_OK;
-            var body = {status:'SUCCESS'};
+            let status = STATUS_CONNECTION_OK;
+            let body = {status: 'SUCCESS'};
             response.data.forEach(function (beneficiary) {
-                var newBeneficiary = new Beneficiary(beneficiary);
+                let newBeneficiary = new Beneficiary(beneficiary);
                 newBeneficiary.save(function (error) {
                     if (error && error.code !== ERROR_NIF_DUPLICATED) {
                         status = STATUS_SERVER_ERROR;
