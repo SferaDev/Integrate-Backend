@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const schedule = require('node-schedule');
 
 // Load Express.js
 const app = express();
@@ -11,6 +12,19 @@ mongoose.Promise = global.Promise;
 mongoose.connect(mongodb_uri, function (error) {
     if (error) console.error(error);
     else console.log('mongo connected');
+
+    // Load beneficiaries for first time
+    let BeneficiaryController = require('./src/controllers/BeneficiaryController');
+    let loadBeneficiariesCallback = function (err, message) {
+        if (err) console.error(message);
+        else console.log(message);
+    };
+    BeneficiaryController.loadBeneficiaries(loadBeneficiariesCallback);
+
+    // Reload beneficiaries everyday at midnight
+    schedule.scheduleJob('0 0 * * *', function () {
+        BeneficiaryController.loadBeneficiaries(loadBeneficiariesCallback);
+    });
 });
 
 // Apply body-parser directives
@@ -19,7 +33,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Load models and routes
-const test = require('./src/models/BeneficiaryModel');
+const beneficiary = require('./src/models/BeneficiaryModel');
 const routes = require('./src/routes/Routes');
 
 // Start app
