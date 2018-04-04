@@ -13,7 +13,7 @@ const sinon = require('sinon');
 
 // App definitions
 const app = require('../server.js');
-const Beneficiary = require('../src/models/BeneficiaryModel');
+const beneficiary = require('../src/models/BeneficiaryModel');
 const successResponse = require('./response/BeneficiaryAdministrationResponse');
 
 // Test group
@@ -21,12 +21,12 @@ describe('Operations that involve beneficiaries', function() {
 
     beforeEach(function () {
         // Before each: Intercept prototype 'save' calls
-        sinon.stub(Beneficiary.prototype, 'save');
+        sinon.stub(beneficiary.prototype, 'save');
     });
 
     afterEach(function () {
         // After each: Clean up prototype 'save' results
-        Beneficiary.prototype.save.restore();
+        beneficiary.prototype.save.restore();
     });
 
     it('should add beneficiaries successfully', function () {
@@ -35,7 +35,7 @@ describe('Operations that involve beneficiaries', function() {
             .reply(200, successResponse);
 
         // Set mock behaviour as null
-        Beneficiary.prototype.save.yields(null);
+        beneficiary.prototype.save.yields(null);
 
         return chai.request(app)
             .post('/beneficiaries')
@@ -50,7 +50,7 @@ describe('Operations that involve beneficiaries', function() {
             .get('/beneficiaries')
             .reply(200, successResponse);
 
-        Beneficiary.prototype.save.yields({code:11000});
+        beneficiary.prototype.save.yields({code:11000});
 
         return chai.request(app)
             .post('/beneficiaries')
@@ -65,7 +65,7 @@ describe('Operations that involve beneficiaries', function() {
             .get('/beneficiaries')
             .reply(200, successResponse);
 
-        Beneficiary.prototype.save.yields({code:11111, err:'Internal error'});
+        beneficiary.prototype.save.yields({code:11111, err:'Internal error'});
 
         return chai.request(app)
             .post('/beneficiaries')
@@ -86,6 +86,10 @@ describe('Operations that involve beneficiaries', function() {
                 expect(err).to.have.status(400);
                 expect(err.body.message).to.equal('ERROR');
             })
+    });
+
+    it('should store hashed password', function () {
+        // TODO: Test save method comparing text/plain password with hashed password
     });
 
 });
