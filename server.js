@@ -7,11 +7,11 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Connect to the database
-const mongodb_uri = process.env.MONGODB_URI || 'mongodb://localhost/Integrate';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/Integrate';
 mongoose.Promise = global.Promise;
-mongoose.connect(mongodb_uri, function (error) {
+mongoose.connect(MONGODB_URI, function (error) {
     if (error) console.error(error);
-    else console.log('mongo connected');
+    else console.log('MongoDB connected');
 
     // Load beneficiaries for first time
     let BeneficiaryController = require('./src/controllers/BeneficiaryController');

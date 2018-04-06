@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const bcrypt = require('bcrypt');
 
-const BeneficiarySchema = new Schema({
+const beneficiarySchema = new Schema({
     nif: {
         type: String,
         required: true,
@@ -28,5 +29,16 @@ const BeneficiarySchema = new Schema({
     }
 });
 
+beneficiarySchema.pre('save', function(next) {
+    if (!this.isModified('password')) return next();
+    this.password = bcrypt.hashSync(this.password, 10);
+    next();
+});
+
+// Compare Password async with a callback(error, isMatch)
+beneficiarySchema.methods.comparePassword = function(candidatePassword) {
+    return bcrypt.compareSync(candidatePassword, this.password);
+};
+
 // Export Beneficiary model as module
-module.exports = mongoose.model('Beneficiary', BeneficiarySchema);
+module.exports = mongoose.model('Beneficiary', beneficiarySchema);
