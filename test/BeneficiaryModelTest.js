@@ -1,7 +1,6 @@
 // Chai: Assertion library
 const chai = require('chai');
 const expect = chai.expect;
-chai.use(require('chai-http'));
 
 // Nock: Intercept http calls and provide a hard-response
 const nock = require('nock');
@@ -10,84 +9,27 @@ const nock = require('nock');
 const sinon = require('sinon');
 
 // App definitions
-const app = require('../server.js');
-const beneficiary = require('../src/models/BeneficiaryModel');
-const successResponse = require('./response/BeneficiaryAdministrationResponse');
+// TODO: Empty
 
 // Test group
-describe('Operations that involve beneficiaries', function() {
+describe('Test group for BeneficiaryModel', function() {
 
-    beforeEach(function () {
-        // Before each: Intercept prototype 'save' calls
-        sinon.stub(beneficiary.prototype, 'save');
+    before(function () {
+        // Connect to a test database
+        mongoose.connect('mongodb://localhost/testDatabase');
+        const db = mongoose.connection;
+        db.on('error', console.error.bind(console, 'connection error'));
+        db.once('open', function() {
+            console.log('We are connected to test database!');
+            done();
+        });
     });
 
-    afterEach(function () {
-        // After each: Clean up prototype 'save' results
-        beneficiary.prototype.save.restore();
-    });
-
-    it('should add beneficiaries successfully', function () {
-        nock(process.env.LOCAL_ADMINISTRATION_URI)
-            .get('/beneficiaries')
-            .reply(200, successResponse);
-
-        // Set mock behaviour as null
-        beneficiary.prototype.save.yields(null);
-
-        return chai.request(app)
-            .post('/beneficiaries')
-            .then(function (res) {
-                expect(res).to.have.status(200);
-                expect(res.body.status).to.equal('SUCCESS');
-            })
-    });
-
-    it('should deal with duplicated beneficiaries', function () {
-        nock(process.env.LOCAL_ADMINISTRATION_URI)
-            .get('/beneficiaries')
-            .reply(200, successResponse);
-
-        beneficiary.prototype.save.yields({code:11000});
-
-        return chai.request(app)
-            .post('/beneficiaries')
-            .then(function (res) {
-                expect(res).to.have.status(200);
-                expect(res.body.status).to.equal('SUCCESS');
-            })
-    });
-
-    it('should detect database errors', function () {
-        nock(process.env.LOCAL_ADMINISTRATION_URI)
-            .get('/beneficiaries')
-            .reply(200, successResponse);
-
-        beneficiary.prototype.save.yields({code:11111, err:'Internal error'});
-
-        return chai.request(app)
-            .post('/beneficiaries')
-            .then(function (res) {
-                expect(res).to.have.status(500);
-                expect(res.body.err).to.equal('Internal error');
-            })
-    });
-
-    it('should detect external server error', function () {
-        nock(process.env.LOCAL_ADMINISTRATION_URI)
-            .get('/beneficiaries')
-            .reply(400,{message:'ERROR'});
-
-        return chai.request(app)
-            .post('/beneficiaries')
-            .catch(function (err) {
-                expect(err).to.have.status(400);
-                expect(err.body.message).to.equal('ERROR');
-            })
-    });
-
-    it('should store hashed password', function () {
-        // TODO: Test save method comparing text/plain password with hashed password
+    after(function () {
+        // Drop test database
+        mongoose.connection.db.dropDatabase(function(){
+            mongoose.connection.close(done);
+        });
     });
 
 });

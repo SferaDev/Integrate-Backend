@@ -3,10 +3,11 @@ const mongoose = require('mongoose');
 
 const Beneficiary = mongoose.model('Beneficiary');
 
+const LOCAL_ADMINISTRATION_URI = process.env.LOCAL_ADMINISTRATION_URI || 'localhost/administration';
 const ERROR_NIF_DUPLICATED = 11000;
 
 exports.loadBeneficiaries = function(callback) {
-    axios.get(process.env.LOCAL_ADMINISTRATION_URI)
+    axios.get(LOCAL_ADMINISTRATION_URI)
         .then(function (response) {
             let message = 'Beneficiaries loaded successfuly';
             let err = null;
