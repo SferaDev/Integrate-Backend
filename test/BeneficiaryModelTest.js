@@ -1,5 +1,7 @@
 // Mongoose: MongoDB connector
 const mongoose = require('mongoose');
+const Mockgoose = require('mockgoose').Mockgoose;
+const mockgoose = new Mockgoose(mongoose);
 
 // Chai: Assertion library
 const chai = require('chai');
@@ -12,23 +14,20 @@ const beneficiary = require('../src/models/BeneficiaryModel');
 describe('Test group for BeneficiaryModel', function() {
     before(function (done) {
         // Connect to a test database
-        mongoose.Promise = global.Promise;
-        mongoose.connect('mongodb://localhost/Test', function (error) {
-            if (error) console.error(error);
-            done();
+        mockgoose.prepareStorage().then(function() {
+            mongoose.Promise = global.Promise;
+            mongoose.connect('mongodb://localhost/Integrate', function (error) {
+                if (error) console.error(error);
+                done();
+            });
         });
     });
 
-    beforeEach(function (done) {
+    afterEach(function (done) {
         // Drop test database
-        mongoose.connection.db.dropDatabase();
-        done();
-    });
-
-    after(function (done) {
-        // Drop test database
-        mongoose.connection.db.dropDatabase();
-        done();
+        mockgoose.helper.reset().then(() => {
+            done()
+        });
     });
 
     describe('Test group for password storage', function () {
