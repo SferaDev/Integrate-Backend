@@ -30,25 +30,14 @@ const beneficiarySchema = new Schema({
 });
 
 beneficiarySchema.pre('save', function(next) {
-    let user = this;
-    if (!user.isModified('password')) return next();
-
-    bcrypt.genSalt(10, function(err, salt) {
-        if (err) return next(err);
-        bcrypt.hash(user.password, salt, function(err, hash) {
-            if (err) return next(err);
-            user.password = hash;
-            next();
-        });
-    });
+    if (!this.isModified('password')) return next();
+    this.password = bcrypt.hashSync(this.password, 10);
+    next();
 });
 
 // Compare Password async with a callback(error, isMatch)
-beneficiarySchema.methods.comparePassword = function(candidatePassword, callback) {
-    bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
-        if (err) return callback(err);
-        callback(null, isMatch);
-    });
+beneficiarySchema.methods.comparePassword = function(candidatePassword) {
+    return bcrypt.compareSync(candidatePassword, this.password);
 };
 
 // Export Beneficiary model as module

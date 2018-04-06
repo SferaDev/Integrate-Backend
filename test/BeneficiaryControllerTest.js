@@ -17,7 +17,7 @@ const beneficiaryController = require('../src/controllers/BeneficiaryController'
 const successResponse = require('./response/BeneficiaryAdministrationResponse');
 
 // Test group
-describe('Operations that involve beneficiaries', function() {
+describe('Test group for BeneficiaryController', function() {
 
     before(function () {
         // Before each: Intercept prototype 'save' calls
@@ -29,66 +29,68 @@ describe('Operations that involve beneficiaries', function() {
         beneficiary.prototype.save.restore();
     });
 
-    it('should add beneficiaries successfully', function () {
-        nock(LOCAL_ADMINISTRATION_URI)
-            .get('')
-            .reply(200, successResponse);
+    describe('Test group for loadBeneficiaries function', function () {
+        it('should add beneficiaries successfully', function () {
+            nock(LOCAL_ADMINISTRATION_URI)
+                .get('')
+                .reply(200, successResponse);
 
-        // Set mock behaviour as null
-        beneficiary.prototype.save.yields(null);
+            // Set mock behaviour as null
+            beneficiary.prototype.save.yields(null);
 
-        let callback = function (err, message) {
-            expect(err).to.equal(null);
-            expect(message).to.equal('Beneficiaries loaded successfuly');
-            sinon.assert.called(beneficiary.prototype.save);
-        };
+            let callback = function (err, message) {
+                expect(err).to.equal(null);
+                expect(message).to.equal('Beneficiaries loaded successfuly');
+                sinon.assert.called(beneficiary.prototype.save);
+            };
 
-        beneficiaryController.loadBeneficiaries(callback);
-    });
+            beneficiaryController.loadBeneficiaries(callback);
+        });
 
-    it('should deal with duplicated beneficiaries', function () {
-        nock(LOCAL_ADMINISTRATION_URI)
-            .get('')
-            .reply(200, successResponse);
+        it('should deal with duplicated beneficiaries', function () {
+            nock(LOCAL_ADMINISTRATION_URI)
+                .get('')
+                .reply(200, successResponse);
 
-        beneficiary.prototype.save.yields({code:11000});
+            beneficiary.prototype.save.yields({code:11000});
 
-        let callback = function (err, message) {
-            expect(err).to.equal(null);
-            expect(message).to.equal('Beneficiaries loaded successfuly');
-            sinon.assert.called(beneficiary.prototype.save);
-        };
+            let callback = function (err, message) {
+                expect(err).to.equal(null);
+                expect(message).to.equal('Beneficiaries loaded successfuly');
+                sinon.assert.called(beneficiary.prototype.save);
+            };
 
-        beneficiaryController.loadBeneficiaries(callback);
-    });
+            beneficiaryController.loadBeneficiaries(callback);
+        });
 
-    it('should detect database errors', function () {
-        nock(LOCAL_ADMINISTRATION_URI)
-            .get('')
-            .reply(200, successResponse);
+        it('should detect database errors', function () {
+            nock(LOCAL_ADMINISTRATION_URI)
+                .get('')
+                .reply(200, successResponse);
 
-        beneficiary.prototype.save.yields({code:11111, err:'Internal error'});
+            beneficiary.prototype.save.yields({code:11111, err:'Internal error'});
 
-        let callback = function (err, message) {
-            expect(err.code).to.equal(11111);
-            expect(message).to.equal('Error on saving beneficiary');
-            sinon.assert.called(beneficiary.prototype.save);
-        };
+            let callback = function (err, message) {
+                expect(err.code).to.equal(11111);
+                expect(message).to.equal('Error on saving beneficiary');
+                sinon.assert.called(beneficiary.prototype.save);
+            };
 
-        beneficiaryController.loadBeneficiaries(callback);
-    });
+            beneficiaryController.loadBeneficiaries(callback);
+        });
 
-    it('should detect external server error', function () {
-        nock(LOCAL_ADMINISTRATION_URI)
-            .get('')
-            .reply(500,{message:'ERROR'});
+        it('should detect external server error', function () {
+            nock(LOCAL_ADMINISTRATION_URI)
+                .get('')
+                .reply(500,{message:'ERROR'});
 
-        let callback = function (err, message) {
-            expect(err.response.status).to.equal(500);
-            expect(message).to.equal('Error on fetching beneficiaries from local administration');
-        };
+            let callback = function (err, message) {
+                expect(err.response.status).to.equal(500);
+                expect(message).to.equal('Error on fetching beneficiaries from local administration');
+            };
 
-        beneficiaryController.loadBeneficiaries(callback);
+            beneficiaryController.loadBeneficiaries(callback);
+        });
     });
 
 });
