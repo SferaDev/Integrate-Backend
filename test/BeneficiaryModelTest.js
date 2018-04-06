@@ -1,6 +1,5 @@
 // Mongoose: MongoDB connector
 const mongoose = require('mongoose');
-const Mockgoose = require('mockgoose').Mockgoose;
 
 // Chai: Assertion library
 const chai = require('chai');
