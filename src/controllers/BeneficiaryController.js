@@ -1,31 +1,28 @@
-'use strict';
-
 const axios = require('axios');
 const mongoose = require('mongoose');
 
 const Beneficiary = mongoose.model('Beneficiary');
 
 const ERROR_NIF_DUPLICATED = 11000;
-const STATUS_CONNECTION_OK = 200;
-const STATUS_SERVER_ERROR = 500;
 
-exports.loadBeneficiaries = function(req, res) {
-    axios.get(process.env.LOCAL_ADMINISTRATION_URI + '/beneficiaries')
+exports.loadBeneficiaries = function(callback) {
+    axios.get(process.env.LOCAL_ADMINISTRATION_URI)
         .then(function (response) {
-            let status = STATUS_CONNECTION_OK;
-            let body = {status: 'SUCCESS'};
+            let message = 'Beneficiaries loaded successfuly';
+            let err = null;
             response.data.forEach(function (beneficiary) {
                 let newBeneficiary = new Beneficiary(beneficiary);
                 newBeneficiary.save(function (error) {
                     if (error && error.code !== ERROR_NIF_DUPLICATED) {
-                        status = STATUS_SERVER_ERROR;
-                        body = error;
+                        err = error;
+                        message = 'Error on saving beneficiary';
                     }
                 });
             });
-            res.status(status).send(body);
+            callback(err, message);
         })
         .catch(function (error) {
-            res.status(error.response.status).send(error.response.data);
+            let message = 'Error on fetching beneficiaries from local administration';
+            callback(error,message);
         });
 };
