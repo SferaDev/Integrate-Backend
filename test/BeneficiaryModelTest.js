@@ -19,7 +19,13 @@ describe('Test group for BeneficiaryModel', function() {
         });
     });
 
-    afterEach(function (done) {
+    beforeEach(function (done) {
+        // Drop test database
+        mongoose.connection.db.dropDatabase();
+        done();
+    });
+
+    after(function (done) {
         // Drop test database
         mongoose.connection.db.dropDatabase();
         done();
