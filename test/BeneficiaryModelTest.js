@@ -12,6 +12,7 @@ const beneficiary = require('../src/models/BeneficiaryModel');
 
 // Test group
 describe('Test group for BeneficiaryModel', function() {
+    /*
     before(function (done) {
         // Connect to a test database
         mockgoose.prepareStorage().then(function() {
@@ -22,6 +23,7 @@ describe('Test group for BeneficiaryModel', function() {
             });
         });
     });
+    */
 
     afterEach(function (done) {
         // Drop test database
