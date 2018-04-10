@@ -1,1 +1,1 @@
-require('./BeneficiaryModel');
+require('./UserModel');
