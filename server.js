@@ -1,6 +1,9 @@
-const express = require('express');
 const mongoose = require('mongoose');
+const Mockgoose = require('mockgoose').Mockgoose;
+const mockgoose = new Mockgoose(mongoose);
 const schedule = require('node-schedule');
+
+const express = require('express');
 
 // Load Express.js
 const app = express();
@@ -8,24 +11,35 @@ const port = process.env.PORT || 3000;
 
 // Connect to the database
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/Integrate';
+const ENV = process.env.NODE_ENV || 'test';
+
 mongoose.Promise = global.Promise;
-mongoose.connect(MONGODB_URI, function (error) {
-    if (error) console.error(error);
-    else console.log('MongoDB connected');
+if (ENV === 'production') {
+    mongoose.connect(MONGODB_URI, function (error) {
+        if (error) console.error(error);
+        else console.log('MongoDB connected');
 
-    // Load beneficiaries for first time
-    let BeneficiaryController = require('./src/controllers/BeneficiaryController');
-    let loadBeneficiariesCallback = function (err, message) {
-        if (err) console.error(message);
-        else console.log(message);
-    };
-    BeneficiaryController.loadBeneficiaries(loadBeneficiariesCallback);
-
-    // Reload beneficiaries everyday at midnight
-    schedule.scheduleJob('0 0 * * *', function () {
+        // Load beneficiaries for first time
+        let BeneficiaryController = require('./src/controllers/BeneficiaryController');
+        let loadBeneficiariesCallback = function (err, message) {
+            if (err) console.error(message);
+            else console.log(message);
+        };
         BeneficiaryController.loadBeneficiaries(loadBeneficiariesCallback);
+
+        // Reload beneficiaries everyday at midnight
+        schedule.scheduleJob('0 0 * * *', function () {
+            BeneficiaryController.loadBeneficiaries(loadBeneficiariesCallback);
+        });
     });
-});
+} else {
+    mockgoose.prepareStorage().then(function() {
+        mongoose.connect(MONGODB_URI, function (error) {
+            if (error) console.error(error);
+            else console.log('MongoDB connected');
+        });
+    });
+}
 
 // Apply body-parser directives
 const bodyParser = require('body-parser');
