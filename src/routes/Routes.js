@@ -30,4 +30,7 @@ module.exports = function(app) {
     });
 
     app.use('/me', apiRoutes);
+
+    app.route('/login')
+        .post(beneficiaryController.loginBeneficiary);
 };
