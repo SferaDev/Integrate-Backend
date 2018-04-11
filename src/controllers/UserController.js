@@ -1,7 +1,6 @@
 import {beneficiaryModel, userModel} from "../models/UserModel";
 
 const axios = require('axios');
-const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const base64url = require('base64url');
 
@@ -40,7 +39,7 @@ exports.loginUser = function (req, res) {
     userModel.findOne({ email: req.query.email }, function (err, user) {
         if (err) throw err;
         if (user === null) res.send({ code: ERROR_USER_DOESNT_EXIST, status: 'User doesn\'t exist' });
-        if (user.comparePassword(req.query.password)) {
+        else if (user.comparePassword(req.query.password)) {
             let token = base64url.encode(jwt.sign({
                 userId: user.email,
                 userType: user.__type
