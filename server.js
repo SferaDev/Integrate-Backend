@@ -20,7 +20,7 @@ if (ENV === 'production') {
         else console.log('MongoDB connected');
 
         // Load beneficiaries for first time
-        let BeneficiaryController = require('./src/controllers/BeneficiaryController');
+        let BeneficiaryController = require('./src/controllers/UserController');
         let loadBeneficiariesCallback = function (err, message) {
             if (err) console.error(message);
             else console.log(message);
@@ -46,12 +46,15 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Load models and routes
+// Load models
 let models = require('./src/models/Models');
-let routes = require('./src/routes/Routes');
+
+// Load routes
+app.use('/', require('./src/routes/RootRoute'));
+app.use('/login', require('./src/routes/LoginRoute'));
+app.use('/me', require('./src/routes/APIRoute'));
 
 // Start app
-routes(app);
 app.listen(port);
 
 // Load finish

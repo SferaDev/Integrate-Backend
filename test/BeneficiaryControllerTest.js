@@ -1,3 +1,5 @@
+import {beneficiaryModel} from "../src/models/UserModel";
+
 // Chai: Assertion library
 const chai = require('chai');
 const expect = chai.expect;
@@ -9,11 +11,10 @@ const nock = require('nock');
 const sinon = require('sinon');
 
 // Constants
-const LOCAL_ADMINISTRATION_URI = process.env.LOCAL_ADMINISTRATION_URI || 'localhost/administration';
+const LOCAL_ADMINISTRATION_URI = process.env.LOCAL_ADMINISTRATION_URI || 'localhost';
 
 // App definitions
-const beneficiary = require('../src/models/BeneficiaryModel');
-const beneficiaryController = require('../src/controllers/BeneficiaryController');
+const userController = require('../src/controllers/UserController');
 const successResponse = require('./response/BeneficiaryAdministrationResponse');
 
 // Test group
@@ -21,12 +22,12 @@ describe('Test group for BeneficiaryController', function() {
 
     before(function () {
         // Before each: Intercept prototype 'save' calls
-        sinon.stub(beneficiary.prototype, 'save');
+        sinon.stub(beneficiaryModel.prototype, 'save');
     });
 
     after(function () {
         // After each: Clean up prototype 'save' results
-        beneficiary.prototype.save.restore();
+        beneficiaryModel.prototype.save.restore();
     });
 
     describe('Test group for loadBeneficiaries function', function () {
@@ -36,15 +37,15 @@ describe('Test group for BeneficiaryController', function() {
                 .reply(200, successResponse);
 
             // Set mock behaviour as null
-            beneficiary.prototype.save.yields(null);
+            beneficiaryModel.prototype.save.yields(null);
 
             let callback = function (err, message) {
                 expect(err).to.equal(null);
                 expect(message).to.equal('Beneficiaries loaded successfuly');
-                sinon.assert.called(beneficiary.prototype.save);
+                sinon.assert.called(beneficiaryModel.prototype.save);
             };
 
-            beneficiaryController.loadBeneficiaries(callback);
+            userController.loadBeneficiaries(callback);
         });
 
         it('should deal with duplicated beneficiaries', function () {
@@ -52,15 +53,15 @@ describe('Test group for BeneficiaryController', function() {
                 .get('')
                 .reply(200, successResponse);
 
-            beneficiary.prototype.save.yields({code:11000});
+            beneficiaryModel.prototype.save.yields({code:11000});
 
             let callback = function (err, message) {
                 expect(err).to.equal(null);
                 expect(message).to.equal('Beneficiaries loaded successfuly');
-                sinon.assert.called(beneficiary.prototype.save);
+                sinon.assert.called(beneficiaryModel.prototype.save);
             };
 
-            beneficiaryController.loadBeneficiaries(callback);
+            userController.loadBeneficiaries(callback);
         });
 
         it('should detect database errors', function () {
@@ -68,15 +69,15 @@ describe('Test group for BeneficiaryController', function() {
                 .get('')
                 .reply(200, successResponse);
 
-            beneficiary.prototype.save.yields({code:11111, err:'Internal error'});
+            beneficiaryModel.prototype.save.yields({code:11111, err:'Internal error'});
 
             let callback = function (err, message) {
                 expect(err.code).to.equal(11111);
                 expect(message).to.equal('Error on saving beneficiary');
-                sinon.assert.called(beneficiary.prototype.save);
+                sinon.assert.called(beneficiaryModel.prototype.save);
             };
 
-            beneficiaryController.loadBeneficiaries(callback);
+            userController.loadBeneficiaries(callback);
         });
 
         it('should detect external server error', function () {
@@ -89,7 +90,7 @@ describe('Test group for BeneficiaryController', function() {
                 expect(message).to.equal('Error on fetching beneficiaries from local administration');
             };
 
-            beneficiaryController.loadBeneficiaries(callback);
+            userController.loadBeneficiaries(callback);
         });
     });
 
