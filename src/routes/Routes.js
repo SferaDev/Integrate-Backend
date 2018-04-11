@@ -5,4 +5,7 @@ module.exports = function(app) {
     app.route('/beneficiaries')
         .post(beneficiaryController.loadBeneficiaries)
     */
+    const goodController = require('../controllers/GoodController');
+    app.route('/me/goods')
+        .post(goodController.addGood)
 };

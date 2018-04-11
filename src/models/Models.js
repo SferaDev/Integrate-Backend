@@ -1,1 +1,2 @@
 require('./BeneficiaryModel');
+require('./GoodModel');
