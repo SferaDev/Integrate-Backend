@@ -1,4 +1,4 @@
-import {userSchema, beneficiarySchema} from "../models/UserModel";
+import {beneficiaryModel, userModel} from "../models/UserModel";
 
 const axios = require('axios');
 const mongoose = require('mongoose');
@@ -20,7 +20,7 @@ exports.loadBeneficiaries = function(callback) {
             let message = 'Beneficiaries loaded successfuly';
             let err = null;
             response.data.forEach(function (beneficiary) {
-                let newBeneficiary = new beneficiarySchema(beneficiary);
+                let newBeneficiary = new beneficiaryModel(beneficiary);
                 newBeneficiary.save(function (error) {
                     if (error && error.code !== ERROR_NIF_DUPLICATED) {
                         err = error;
@@ -37,7 +37,7 @@ exports.loadBeneficiaries = function(callback) {
 };
 
 exports.loginUser = function (req, res) {
-    userSchema.findOne({ email: req.query.email }, function (err, user) {
+    userModel.findOne({ email: req.query.email }, function (err, user) {
         if (err) throw err;
         if (user === null) res.send({ code: ERROR_USER_DOESNT_EXIST, status: 'User doesn\'t exist' });
         user.comparePassword(req.query.password, function (err, isCorrect) {

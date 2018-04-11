@@ -5,7 +5,7 @@ const baseOptions = {
     timestamps: true
 };
 
-export const userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     nif: {
         type: String,
         required: true,
@@ -34,7 +34,7 @@ userSchema.methods.comparePassword = function(candidatePassword) {
 
 export const userModel = mongoose.model('User', userSchema);
 
-export const beneficiarySchema = userModel.discriminator('Beneficiary', new mongoose.Schema({
+export const beneficiaryModel = userModel.discriminator('Beneficiary', new mongoose.Schema({
     firstName: {
         type: String,
         required: true
@@ -45,7 +45,7 @@ export const beneficiarySchema = userModel.discriminator('Beneficiary', new mong
     }
 }));
 
-export const entitySchema = userModel.discriminator('Entity', new mongoose.Schema({
+export const entityModel = userModel.discriminator('Entity', new mongoose.Schema({
     salesmanFirstName: {
         type: String,
         required: true

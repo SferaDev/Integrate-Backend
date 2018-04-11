@@ -1,4 +1,4 @@
-import {beneficiarySchema, userSchema} from "../src/models/UserModel";
+import {beneficiaryModel, userSchema} from "../src/models/UserModel";
 
 // Mongoose: MongoDB connector
 const mongoose = require('mongoose');
@@ -53,7 +53,7 @@ describe('Test group for BeneficiaryModel', function () {
 
     describe('Test group for password storage', function () {
         it('should store a hashed password', function (done) {
-            let beneficiaryItem = new beneficiarySchema({
+            let beneficiaryItem = new beneficiaryModel({
                 nif: '00000000F',
                 firstName: 'Sergey',
                 lastName: 'Brin',
@@ -69,7 +69,7 @@ describe('Test group for BeneficiaryModel', function () {
         });
 
         it('should compare a correct plain text password with a hashed one', function (done) {
-            let beneficiaryItem = new beneficiarySchema({
+            let beneficiaryItem = new beneficiaryModel({
                 nif: '00000000F',
                 firstName: 'Sergey',
                 lastName: 'Brin',
@@ -84,7 +84,7 @@ describe('Test group for BeneficiaryModel', function () {
         });
 
         it('should compare an incorrect plain text password with a hashed one', function (done) {
-            let beneficiaryItem = new beneficiarySchema({
+            let beneficiaryItem = new beneficiaryModel({
                 nif: '00000000F',
                 firstName: 'Sergey',
                 lastName: 'Brin',
@@ -100,7 +100,7 @@ describe('Test group for BeneficiaryModel', function () {
         });
 
         it('should not update password when editing element', function (done) {
-            let beneficiaryItem = new beneficiarySchema({
+            let beneficiaryItem = new beneficiaryModel({
                 nif: '00000000F',
                 firstName: 'Sergey',
                 lastName: 'Brin',

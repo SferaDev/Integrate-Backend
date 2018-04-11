@@ -1,4 +1,4 @@
-import {beneficiarySchema} from "../src/models/UserModel";
+import {beneficiaryModel} from "../src/models/UserModel";
 
 // Chai: Assertion library
 const chai = require('chai');
@@ -22,12 +22,12 @@ describe('Test group for BeneficiaryController', function() {
 
     before(function () {
         // Before each: Intercept prototype 'save' calls
-        sinon.stub(beneficiarySchema.prototype, 'save');
+        sinon.stub(beneficiaryModel.prototype, 'save');
     });
 
     after(function () {
         // After each: Clean up prototype 'save' results
-        beneficiarySchema.prototype.save.restore();
+        beneficiaryModel.prototype.save.restore();
     });
 
     describe('Test group for loadBeneficiaries function', function () {
@@ -37,12 +37,12 @@ describe('Test group for BeneficiaryController', function() {
                 .reply(200, successResponse);
 
             // Set mock behaviour as null
-            beneficiarySchema.prototype.save.yields(null);
+            beneficiaryModel.prototype.save.yields(null);
 
             let callback = function (err, message) {
                 expect(err).to.equal(null);
                 expect(message).to.equal('Beneficiaries loaded successfuly');
-                sinon.assert.called(beneficiarySchema.prototype.save);
+                sinon.assert.called(beneficiaryModel.prototype.save);
             };
 
             userController.loadBeneficiaries(callback);
@@ -53,12 +53,12 @@ describe('Test group for BeneficiaryController', function() {
                 .get('')
                 .reply(200, successResponse);
 
-            beneficiarySchema.prototype.save.yields({code:11000});
+            beneficiaryModel.prototype.save.yields({code:11000});
 
             let callback = function (err, message) {
                 expect(err).to.equal(null);
                 expect(message).to.equal('Beneficiaries loaded successfuly');
-                sinon.assert.called(beneficiarySchema.prototype.save);
+                sinon.assert.called(beneficiaryModel.prototype.save);
             };
 
             userController.loadBeneficiaries(callback);
@@ -69,12 +69,12 @@ describe('Test group for BeneficiaryController', function() {
                 .get('')
                 .reply(200, successResponse);
 
-            beneficiarySchema.prototype.save.yields({code:11111, err:'Internal error'});
+            beneficiaryModel.prototype.save.yields({code:11111, err:'Internal error'});
 
             let callback = function (err, message) {
                 expect(err.code).to.equal(11111);
                 expect(message).to.equal('Error on saving beneficiary');
-                sinon.assert.called(beneficiarySchema.prototype.save);
+                sinon.assert.called(beneficiaryModel.prototype.save);
             };
 
             userController.loadBeneficiaries(callback);
