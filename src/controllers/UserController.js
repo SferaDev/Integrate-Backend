@@ -40,16 +40,13 @@ exports.loginUser = function (req, res) {
     userModel.findOne({ email: req.query.email }, function (err, user) {
         if (err) throw err;
         if (user === null) res.send({ code: ERROR_USER_DOESNT_EXIST, status: 'User doesn\'t exist' });
-        user.comparePassword(req.query.password, function (err, isCorrect) {
-            if (err) throw err;
-            if (isCorrect) {
-                let token = base64url.encode(jwt.sign({
-                    userId: user.email,
-                    userType: user.__type
-                }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
-                res.send({ token: token });
-            } else res.send({ code: ERROR_INVALID_PASSWORD, status: 'Invalid password' })
-        })
+        if (user.comparePassword(req.query.password)) {
+            let token = base64url.encode(jwt.sign({
+                userId: user.email,
+                userType: user.__type
+            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            res.send({ token: token });
+        } else res.send({ code: ERROR_INVALID_PASSWORD, status: 'Invalid password' })
     }).catch(function (error) {
         res.status(STATUS_SERVER_ERROR).send(error);
     });
