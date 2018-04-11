@@ -7,10 +7,14 @@ const mockgoose = new Mockgoose(mongoose);
 
 // Chai: Assertion library
 const chai = require('chai');
+chai.use(require('chai-http'));
 const expect = chai.expect;
+
+const app = require('../server');
 
 // Test group
 describe('Test group for BeneficiaryModel', function () {
+    /*
     before(function (done) {
         // Connect to a test database
         mockgoose.prepareStorage().then(function () {
@@ -21,6 +25,7 @@ describe('Test group for BeneficiaryModel', function () {
             });
         });
     });
+    */
 
     afterEach(function (done) {
         // Drop test database
@@ -29,19 +34,24 @@ describe('Test group for BeneficiaryModel', function () {
         });
     });
 
-    /**describe('Test group for user tokens', function () {
+    describe('Test group for user tokens', function () {
         before(function (done) {
             // Create a dummy user
-            let newUser = new userSchema({
+            let beneficiaryItem = new beneficiaryModel({
                 nif: '12345678F',
+                firstName: 'Sergey',
+                lastName: 'Brin',
                 email: 'sbrin@google.com',
                 password: 'myPAsswd!'
             });
-            newUser.save();
+
+            beneficiaryItem.save(function () {
+                done();
+            });
         });
 
-        it('should retrieve a valid token', function (done) {
-            chai.request(app)
+        it('should retrieve a valid token', function () {
+            return chai.request(app)
                 .get('/login?email=sbrin@google.com&password=myPAsswd!')
                 .then(function (res) {
                     expect(res).to.have.status(200);
@@ -49,7 +59,7 @@ describe('Test group for BeneficiaryModel', function () {
                 });
         });
 
-    });**/
+    });
 
     describe('Test group for password storage', function () {
         it('should store a hashed password', function (done) {
