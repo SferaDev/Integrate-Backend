@@ -36,7 +36,7 @@ if (ENV === 'production') {
     mockgoose.prepareStorage().then(function() {
         mongoose.connect(MONGODB_URI, function (error) {
             if (error) console.error(error);
-            else console.log('MongoDB connected');
+            else console.log('Mockgoose connected');
         });
     });
 }
@@ -45,9 +45,6 @@ if (ENV === 'production') {
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
-// Load models
-let models = require('./src/models/Models');
 
 // Load routes
 app.use('/', require('./src/routes/RootRoute'));

@@ -1,2 +1,0 @@
-require('./UserModel');
-require('./GoodModel');
