@@ -11,7 +11,7 @@ const nock = require('nock');
 const sinon = require('sinon');
 
 // Constants
-const LOCAL_ADMINISTRATION_URI = process.env.LOCAL_ADMINISTRATION_URI || 'localhost';
+const LOCAL_ADMINISTRATION_URI = process.env.LOCAL_ADMINISTRATION_URI || 'http://localhost:3000/administration';
 
 // App definitions
 const userController = require('../src/controllers/UserController');
