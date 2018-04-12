@@ -40,4 +40,12 @@ router.post('/goods/', function (req, res) {
     goodController.addGood(req,res);
 });
 
+router.delete('/goods/:id', function (req, res) {
+    goodController.deleteGood(req,res);
+});
+
+router.put('/goods/:id', function (req, res) {
+    goodController.updateGood(req,res);
+});
+
 module.exports = router;

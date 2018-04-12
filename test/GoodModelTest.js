@@ -12,7 +12,6 @@ const expect = chai.expect;
 
 // Test group
 describe('Test group for GoodModel', function() {
-
     let userId;
 
     before(function (done) {
