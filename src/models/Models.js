@@ -1,1 +1,2 @@
 require('./UserModel');
+require('./GoodModel');

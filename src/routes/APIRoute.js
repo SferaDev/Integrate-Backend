@@ -5,6 +5,8 @@ const router = express.Router();
 
 const TOKEN_SECRET = process.env.TOKEN_SECRET || 'randomTokenSecret';
 
+const goodController = require('../controllers/GoodController');
+
 router.use(function(req, res, next) {
     // check header or url parameters or post parameters for token
     let token = req.body.token || req.query.token || req.headers['x-access-token'];
@@ -32,6 +34,10 @@ router.use(function(req, res, next) {
 
 router.get('/', function(req, res) {
     res.send({ success: true });
+});
+
+router.post('/goods/', function (req, res) {
+    goodController.addGood(req,res);
 });
 
 module.exports = router;
