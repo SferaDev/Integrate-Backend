@@ -19,9 +19,11 @@ const TOKEN_SECRET = process.env.TOKEN_SECRET || 'randomTokenSecret';
 
 describe('Operations that involve goods', function () {
 
+    let entityItem;
+
     beforeEach(function (done) {
         // Create a dummy user
-        let entityItem = new entityModel({
+        entityItem = new entityModel({
             nif: '12345678F',
             salesmanFirstName: 'Joan',
             salesmanLastName: 'Puig',
@@ -98,4 +100,24 @@ describe('Operations that involve goods', function () {
                 Good.prototype.save.restore();
             });
     });
+
+    /*
+    it('should delete existant good successfully', function () {
+        let goodItem = new good({
+            'userId': entityItem._id,
+            'userType': 'Entity',
+            'productName': 'productTest',
+            'picture': 'picture.png',
+            'initialPrice':'100',
+            'discountType':'%',
+            'discount':'10',
+            'category':'food',
+            'reusePeriod':'7',
+            'pendingUnits':'100'
+        });
+        goodItem.save();
+
+
+    })
+    */
 });
