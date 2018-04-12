@@ -60,7 +60,6 @@ describe('Test group for GoodModel', function() {
     it('should store a valid good', function () {
         let goodItem = new good({
             'userId': userId,
-            'userType': 'Entity',
             'productName': 'productTest',
             'picture': 'picture.png',
             'initialPrice':'100',
@@ -80,7 +79,6 @@ describe('Test group for GoodModel', function() {
     it('should not store a good without required attributes', function () {
         let goodItem = new good({
             'userId': userId,
-            'userType': 'Entity',
             'productName': 'productTest',
             'picture': 'picture.png',
             'initialPrice':'100',
