@@ -7,7 +7,6 @@ exports.addGood = function (req, res) {
             if (err == null)
                 req.body.userId = entity._id;
             let newGood = new goodModel(req.body);
-            console.log(newGood);
             newGood.save(function (err, good) {
                 if (err)
                     res.status(500).send(err);
