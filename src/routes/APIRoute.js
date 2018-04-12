@@ -6,6 +6,7 @@ const router = express.Router();
 const TOKEN_SECRET = process.env.TOKEN_SECRET || 'randomTokenSecret';
 
 const goodController = require('../controllers/GoodController');
+const userController = require('../controllers/UserController');
 
 router.use(function (req, res, next) {
     // check header or url parameters or post parameters for token
@@ -46,6 +47,10 @@ router.delete('/goods/:id', function (req, res) {
 
 router.put('/goods/:id', function (req, res) {
     goodController.updateGood(req, res);
+});
+
+router.get('/entities/', function (req, res) {
+    userController.getEntities(req, res);
 });
 
 module.exports = router;

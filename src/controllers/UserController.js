@@ -1,4 +1,4 @@
-import {beneficiaryModel, userModel} from "../models/UserModel";
+import {beneficiaryModel, userModel, entityModel} from "../models/UserModel";
 
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
@@ -48,5 +48,14 @@ exports.loginUser = function (req, res) {
         } else res.send({code: ERROR_INVALID_PASSWORD, status: 'Invalid password'})
     }).catch(function (error) {
         res.status(STATUS_SERVER_ERROR).send(error);
+    });
+};
+
+exports.getEntities = function (req, res) {
+    entityModel.find(function (err, entities) {
+        if (err)
+            res.status(500).send(err);
+        else
+            res.status(200).send(entities);
     });
 };
