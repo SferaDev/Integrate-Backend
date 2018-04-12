@@ -1,4 +1,5 @@
 import {entityModel} from "../src/models/UserModel";
+import {goodModel} from "../src/models/GoodModel";
 
 const chai = require('chai');
 chai.use(require('chai-http'));
@@ -13,7 +14,6 @@ const base64url = require('base64url');
 const jwt = require('jsonwebtoken');
 
 const app = require('../server');
-const Good = require('../src/models/GoodModel');
 
 const TOKEN_SECRET = process.env.TOKEN_SECRET || 'randomTokenSecret';
 
@@ -53,8 +53,8 @@ describe('Operations that involve goods', function () {
             userType: 'Entity'
         }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
-        sinon.stub(Good.prototype, 'save');
-        Good.prototype.save.yields(null);
+        sinon.stub(goodModel.prototype, 'save');
+        goodModel.prototype.save.yields(null);
         return chai.request(app)
             .post('/me/goods?token=' + token)
             .send({
@@ -69,7 +69,7 @@ describe('Operations that involve goods', function () {
             })
             .then(function (res) {
                 expect(res).to.have.status(201);
-                Good.prototype.save.restore();
+                goodModel.prototype.save.restore();
             });
     });
 
@@ -79,8 +79,8 @@ describe('Operations that involve goods', function () {
             userType: 'Entity'
         }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
-        sinon.stub(Good.prototype, 'save');
-        Good.prototype.save.yields({code:11111, err:'Internal error'});
+        sinon.stub(goodModel.prototype, 'save');
+        goodModel.prototype.save.yields({code:11111, err:'Internal error'});
         return chai.request(app)
             .post('/me/goods?token=' + token)
             .send({
@@ -95,7 +95,7 @@ describe('Operations that involve goods', function () {
             })
             .then(function (res) {
                 expect(res).to.have.status(500);
-                Good.prototype.save.restore();
+                goodModel.prototype.save.restore();
             });
     });
 });
