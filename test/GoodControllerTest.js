@@ -101,9 +101,8 @@ describe('Operations that involve goods', function () {
             });
     });
 
-    /*
     it('should delete existant good successfully', function () {
-        let goodItem = new good({
+        let goodItem = new Good({
             'userId': entityItem._id,
             'userType': 'Entity',
             'productName': 'productTest',
@@ -117,7 +116,33 @@ describe('Operations that involve goods', function () {
         });
         goodItem.save();
 
+        let token = base64url.encode(jwt.sign({
+            userId: 'joanpuig@google.com',
+            userType: 'Entity'
+        }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
+        return chai.request(app)
+            .delete('/me/goods/' + goodItem._id + '?token=' + token)
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(200);
+            });
+    });
+
+    it ('should detect database errors', function () {
+        let token = base64url.encode(jwt.sign({
+            userId: 'joanpuig@google.com',
+            userType: 'Entity'
+        }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+        sinon.stub(Good, 'findByIdAndRemove');
+        Good.findByIdAndRemove.yields({code:11111, err:'Internal error'});
+        return chai.request(app)
+            .delete('/me/goods/' + 1 + '?token=' + token)
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(500);
+                Good.findByIdAndRemove.restore();
+            });
     })
-    */
 });
