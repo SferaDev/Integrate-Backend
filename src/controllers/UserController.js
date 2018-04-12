@@ -53,9 +53,7 @@ exports.loginUser = function (req, res) {
 
 exports.getEntities = function (req, res) {
     entityModel.find(function (err, entities) {
-        if (err)
-            res.status(500).send(err);
-        else
-            res.status(200).send(entities);
+        if (err) res.status(500).send(err);
+        else res.status(200).send(entities);
     });
 };
