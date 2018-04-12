@@ -4,7 +4,7 @@ const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const base64url = require('base64url');
 
-const LOCAL_ADMINISTRATION_URI = process.env.LOCAL_ADMINISTRATION_URI || 'localhost';
+const LOCAL_ADMINISTRATION_URI = process.env.LOCAL_ADMINISTRATION_URI || 'http://localhost:3000/administration';
 const TOKEN_SECRET = process.env.TOKEN_SECRET || 'randomTokenSecret';
 
 const ERROR_NIF_DUPLICATED = 11000;
@@ -28,8 +28,7 @@ exports.loadBeneficiaries = function (callback) {
                 });
             });
             callback(err, message);
-        })
-        .catch(function (error) {
+        }).catch(function (error) {
             let message = 'Error on fetching beneficiaries from local administration';
             callback(error, message);
         });
