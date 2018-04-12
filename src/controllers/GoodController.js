@@ -20,7 +20,7 @@ exports.addGood = function (req, res) {
 exports.deleteGood = function (req, res) {
     if (req.userType === 'Entity') {
         let id = req.params.id;
-        Good.findByIdAndRemove(id, function (err) {
+        goodModel.findByIdAndRemove(id, function (err) {
             if (err)
                 res.status(500).send(err);
             else
@@ -32,7 +32,7 @@ exports.deleteGood = function (req, res) {
 exports.updateGood = function (req, res) {
     if (req.userType === 'Entity') {
         let id = req.params.id;
-        Good.findByIdAndUpdate(id, req.body, {new:true}, function (err, good) {
+        goodModel.findByIdAndUpdate(id, req.body, {new:true}, function (err, good) {
             if (err)
                 res.status(500).send(err);
             else
