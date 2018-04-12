@@ -1,6 +1,7 @@
-// Mongoose: MongoDB connector
 import {entityModel} from "../src/models/UserModel";
+import {goodModel} from "../src/models/GoodModel";
 
+// Mongoose: MongoDB connector
 const mongoose = require('mongoose');
 const Mockgoose = require('mockgoose').Mockgoose;
 const mockgoose = new Mockgoose(mongoose);
@@ -9,12 +10,8 @@ const mockgoose = new Mockgoose(mongoose);
 const chai = require('chai');
 const expect = chai.expect;
 
-// App definitions
-const good = require('../src/models/GoodModel');
-
 // Test group
 describe('Test group for GoodModel', function() {
-
     let userId;
 
     before(function (done) {
@@ -58,7 +55,7 @@ describe('Test group for GoodModel', function() {
     });
 
     it('should store a valid good', function () {
-        let goodItem = new good({
+        let goodItem = new goodModel({
             'userId': userId,
             'productName': 'productTest',
             'picture': 'picture.png',
@@ -77,7 +74,7 @@ describe('Test group for GoodModel', function() {
     });
 
     it('should not store a good without required attributes', function () {
-        let goodItem = new good({
+        let goodItem = new goodModel({
             'userId': userId,
             'productName': 'productTest',
             'picture': 'picture.png',

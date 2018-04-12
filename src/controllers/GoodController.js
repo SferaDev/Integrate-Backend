@@ -1,14 +1,12 @@
 import {entityModel} from "../models/UserModel";
-
-const mongoose = require('mongoose');
-const Good = mongoose.model('Good');
+import {goodModel} from "../models/GoodModel";
 
 exports.addGood = function (req, res) {
     if (req.userType === 'Entity') {
         entityModel.findOne({email: req.userId}, function (err, entity) {
             if (err == null)
                 req.body.userId = entity._id;
-            let newGood = new Good(req.body);
+            let newGood = new goodModel(req.body);
             newGood.save(function (err, good) {
                 if (err)
                     res.status(500).send(err);
