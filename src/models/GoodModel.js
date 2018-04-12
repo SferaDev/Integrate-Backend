@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
-const goodSchema = new Schema({
+export const goodModel = mongoose.model('Good', new mongoose.Schema({
     userId: {
         // TODO
         //type: {type: Schema.Types.ObjectId, ref: 'Entity'},
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         required: true
     },
     productName: {
@@ -39,7 +38,4 @@ const goodSchema = new Schema({
         type: Number,
         required: true
     }
-}, {timestamps: true});
-
-// Export Good model as module
-module.exports = mongoose.model('Good', goodSchema);
+}, {timestamps: true}));
