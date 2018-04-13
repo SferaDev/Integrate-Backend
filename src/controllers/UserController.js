@@ -54,12 +54,6 @@ exports.loginUser = function (req, res) {
 exports.getEntities = function (req, res) {
     entityModel.find({}, {name: 1, description: 1, addressName: 1, addressLatitude: 1, addressLongitude: 1, phone: 1, picture: 1}, function (err, entities) {
         if (err) res.status(500).send(err);
-        else {
-            let response = [];
-            for (let entity of entities) {
-                response.push(entity);
-            }
-            res.status(200).send(response);
-        }
+        else res.status(200).send(entities);
     });
 };
