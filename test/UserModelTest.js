@@ -54,12 +54,51 @@ describe('Test group for BeneficiaryModel', function () {
             });
         });
 
-        it('should retrieve a non empty token', function () {
+        it('should retrieve a non empty token (email)', function () {
             return chai.request(app)
                 .get('/login?email=sbrin@google.com&password=myPAsswd!')
                 .then(function (res) {
                     expect(res).to.have.status(200);
                     expect(res.body.token).not.to.equal(null);
+                });
+        });
+
+        it('should retrieve a non empty token (nif)', function () {
+            return chai.request(app)
+                .get('/login?nif=12345678F&password=myPAsswd!')
+                .then(function (res) {
+                    expect(res).to.have.status(200);
+                    expect(res.body.token).not.to.equal(null);
+                });
+        });
+
+        it('should not retrieve a non empty token (two identifiers)', function () {
+            return chai.request(app)
+                .get('/login?email=sbrin@google.com&nif=12345678F&password=myPAsswd!')
+                .then(function (res) {
+                    expect(res).to.have.status(401);
+                    expect(res.body.code).to.equal(14000);
+                    expect(res.body.status).to.equal('Wrong parameters');
+                });
+        });
+
+        it('should not retrieve a non empty token (no identifiers)', function () {
+            return chai.request(app)
+                .get('/login?password=myPAsswd!')
+                .then(function (res) {
+                    expect(res).to.have.status(401);
+                    expect(res.body.code).to.equal(14000);
+                    expect(res.body.status).to.equal('Wrong parameters');
+                });
+        });
+
+        it('should not retrieve a non empty token (no password)', function () {
+            return chai.request(app)
+                .get('/login?email=sbrin@google.com&nif=12345678F')
+                .then(function (res) {
+                    expect(res).to.have.status(401);
+                    expect(res.body.code).to.equal(14000);
+                    expect(res.body.status).to.equal('Wrong parameters');
                 });
         });
 
