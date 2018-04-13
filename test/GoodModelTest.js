@@ -35,6 +35,7 @@ describe('Test group for GoodModel', function() {
             password: 'myPAsswd!',
             name: 'Colmado',
             description: 'Botiga de queviures',
+            addressName: 'C/ Jordi Girona',
             addressLatitude: 41.145634,
             addressLongitude: 2.235324,
             phone: '675849324',
