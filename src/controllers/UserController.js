@@ -52,22 +52,12 @@ exports.loginUser = function (req, res) {
 };
 
 exports.getEntities = function (req, res) {
-    entityModel.find(function (err, entities) {
+    entityModel.find({}, {name: 1, description: 1, addressName: 1, addressLatitude: 1, addressLongitude: 1, phone: 1, picture: 1}, function (err, entities) {
         if (err) res.status(500).send(err);
         else {
             let response = [];
             for (let entity of entities) {
-                let projection = {
-                    _id: entity._id,
-                    name: entity.name,
-                    description: entity.description,
-                    addressName: entity.addressName,
-                    addressLatitude: entity.addressLatitude,
-                    addressLongitude: entity.addressLongitude,
-                    phone: entity.phone,
-                    picture: entity.picture
-                };
-                response.push(projection);
+                response.push(entity);
             }
             res.status(200).send(response);
         }
