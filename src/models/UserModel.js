@@ -65,6 +65,10 @@ export const entityModel = userModel.discriminator('Entity', new mongoose.Schema
         type: String,
         required: true
     },
+    addressName: {
+        type: String,
+        required: true
+    },
     addressLatitude: {
         type: Number,
         required: true
