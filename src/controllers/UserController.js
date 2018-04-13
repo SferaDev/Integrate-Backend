@@ -1,4 +1,4 @@
-import {beneficiaryModel, userModel, entityModel} from "../models/UserModel";
+import {beneficiaryModel, entityModel, userModel} from "../models/UserModel";
 
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
@@ -10,6 +10,7 @@ const TOKEN_SECRET = process.env.TOKEN_SECRET || 'randomTokenSecret';
 const ERROR_NIF_DUPLICATED = 11000;
 const ERROR_INVALID_PASSWORD = 12000;
 const ERROR_USER_DOESNT_EXIST = 13000;
+const ERROR_WRONG_PARAMETERS = 14000;
 
 const STATUS_SERVER_ERROR = 500;
 const STATUS_UNAUTHORIZED = 401;
@@ -30,15 +31,24 @@ exports.loadBeneficiaries = function (callback) {
             });
             callback(err, message);
         }).catch(function (error) {
-            let message = 'Error on fetching beneficiaries from local administration';
-            callback(error, message);
-        });
+        let message = 'Error on fetching beneficiaries from local administration';
+        callback(error, message);
+    });
 };
 
 exports.loginUser = function (req, res) {
-    userModel.findOne({email: req.query.email}, function (err, user) {
+    if ((req.query.email !== undefined && req.query.nif !== undefined) || req.query.password === undefined ||
+        (req.query.email === undefined && req.query.nif === undefined) )
+        res.status(STATUS_UNAUTHORIZED).send({
+            code: ERROR_WRONG_PARAMETERS,
+            status: 'Wrong parameters'
+        });
+    else userModel.findOne({$or: [{email: req.query.email}, {nif: req.query.nif}]}, function (err, user) {
         if (err) throw err;
-        if (user === null) res.status(STATUS_UNAUTHORIZED).send({code: ERROR_USER_DOESNT_EXIST, status: 'User doesn\'t exist'});
+        if (user === null) res.status(STATUS_UNAUTHORIZED).send({
+            code: ERROR_USER_DOESNT_EXIST,
+            status: 'User doesn\'t exist'
+        });
         else if (user.comparePassword(req.query.password)) {
             let token = base64url.encode(jwt.sign({
                 userId: user.email,
@@ -52,7 +62,15 @@ exports.loginUser = function (req, res) {
 };
 
 exports.getEntities = function (req, res) {
-    entityModel.find({}, {name: 1, description: 1, addressName: 1, addressLatitude: 1, addressLongitude: 1, phone: 1, picture: 1}, function (err, entities) {
+    entityModel.find({}, {
+        name: 1,
+        description: 1,
+        addressName: 1,
+        addressLatitude: 1,
+        addressLongitude: 1,
+        phone: 1,
+        picture: 1
+    }, function (err, entities) {
         if (err) res.status(500).send(err);
         else res.status(200).send(entities);
     });
