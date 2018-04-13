@@ -67,7 +67,7 @@ describe('Test group for BeneficiaryModel', function () {
             return chai.request(app)
                 .get('/login?email=sbrin@google.com&password=muuu!')
                 .then(function (res) {
-                    expect(res).to.have.status(200);
+                    expect(res).to.have.status(401);
                     expect(res.body.code).to.equal(12000);
                     expect(res.body.status).to.equal('Invalid password');
                 });
@@ -77,7 +77,7 @@ describe('Test group for BeneficiaryModel', function () {
             return chai.request(app)
                 .get('/login?email=mikerooss@google.com&password=nullPass!')
                 .then(function (res) {
-                    expect(res).to.have.status(200);
+                    expect(res).to.have.status(401);
                     expect(res.body.code).to.equal(13000);
                     expect(res.body.status).to.equal('User doesn\'t exist');
                 });
