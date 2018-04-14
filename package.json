@@ -4,26 +4,43 @@
   "description": "Backend for Integrate platform, with RESTful API",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "nodemon --use-strict server.js --exec babel-node",
+    "test": "nyc --reporter=html --reporter=text --all mocha --require babel-core/register --timeout 120000 --exit",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/SferaDev/Integrate-Backend.git"
   },
-  "author": "Aleix Balletbó",
+  "author": "Integrate",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/SferaDev/Integrate-Backend/issues"
   },
   "homepage": "https://github.com/SferaDev/Integrate-Backend#readme",
-  "devDependencies": {
-    "nodemon": "^1.17.2"
-  },
   "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "base64url": "^2.0.0",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
     "express.js": "^1.0.0",
-    "mongoose": "^5.0.11"
+    "jsonwebtoken": "^8.2.1",
+    "mongoose": "^5.0.11",
+    "node-schedule": "^1.3.0",
+    "nodemon": "^1.17.2"
+  },
+  "devDependencies": {
+    "axios": "^0.18.0",
+    "chai": "^4.1.2",
+    "chai-http": "^4.0.0",
+    "coveralls": "^3.0.0",
+    "mocha": "^5.0.5",
+    "mockgoose": "^7.3.5",
+    "nock": "^9.2.3",
+    "nyc": "^11.6.0",
+    "sinon": "^4.5.0"
   }
 }
