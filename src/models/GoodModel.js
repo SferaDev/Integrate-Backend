@@ -2,9 +2,8 @@ const mongoose = require('mongoose');
 
 export const goodModel = mongoose.model('Good', new mongoose.Schema({
     userId: {
-        // TODO
-        //type: {type: Schema.Types.ObjectId, ref: 'Entity'},
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'Entity',
         required: true
     },
     productName: {
