@@ -1,4 +1,4 @@
-import {entityModel} from "../src/models/UserModel";
+import {beneficiaryModel, entityModel} from "../src/models/UserModel";
 import {goodModel} from "../src/models/GoodModel";
 
 // Mongoose: MongoDB connector
@@ -55,7 +55,7 @@ describe('Test group for GoodModel', function() {
         });
     });
 
-    it('should store a valid good', function () {
+    it('should store a valid good', function (done) {
         let goodItem = new goodModel({
             'userId': userId,
             'productName': 'productTest',
@@ -71,10 +71,11 @@ describe('Test group for GoodModel', function() {
         goodItem.save(function (err, good) {
             expect(err).to.equal(null);
             expect(good).to.equal(goodItem);
+            done();
         });
     });
 
-    it('should not store a good without required attributes', function () {
+    it('should not store a good without required attributes', function (done) {
         let goodItem = new goodModel({
             'userId': userId,
             'productName': 'productTest',
@@ -88,6 +89,36 @@ describe('Test group for GoodModel', function() {
 
         goodItem.save(function (err) {
             expect(err).not.to.equal(null);
+            done();
+        });
+    });
+
+    it ('should not store a good with a reference to a non Entity user', function (done) {
+
+        let beneficiaryItem = new beneficiaryModel({
+            nif: '00000000F',
+            firstName: 'Sergey',
+            lastName: 'Brin',
+            email: 'sbrin@google.com',
+            password: 'randomPassword'
+        });
+
+        beneficiaryItem.save(function (err, beneficiary) {
+            let goodItem = new goodModel({
+                'userId': beneficiary._id,
+                'productName': 'productTest',
+                'picture': 'picture.png',
+                'initialPrice':'100',
+                'discountType':'%',
+                'discount':'10',
+                'category':'food',
+                'reusePeriod':'7',
+                'pendingUnits':'100'
+            });
+            goodItem.save(function (err) {
+                expect(err).not.to.equal(null);
+                done();
+            });
         });
     });
 
