@@ -1,21 +1,23 @@
-import {entityModel} from "../src/models/UserModel";
-import {goodModel} from "../src/models/GoodModel";
+import {entityModel} from "../src/models/entityModel";
+import {goodModel} from "../src/models/goodModel";
 
-const chai = require('chai');
-chai.use(require('chai-http'));
-const expect = chai.expect;
-const sinon = require('sinon');
+import chai from "chai";
+import chai_http from "chai-http";
 
-const mongoose = require('mongoose');
-const Mockgoose = require('mockgoose').Mockgoose;
+import sinon from "sinon";
+import mongoose from "mongoose";
+import {Mockgoose} from "mockgoose";
+
+import base64url from "base64url";
+import jwt from "jsonwebtoken";
+
+import app from "../server";
+import {ERROR_DEFAULT, STATUS_CREATED, STATUS_OK, STATUS_SERVER_ERROR, TOKEN_SECRET} from "../src/constants";
+
 const mockgoose = new Mockgoose(mongoose);
 
-const base64url = require('base64url');
-const jwt = require('jsonwebtoken');
-
-const app = require('../server');
-
-const TOKEN_SECRET = process.env.TOKEN_SECRET || 'randomTokenSecret';
+chai.use(chai_http);
+const expect = chai.expect;
 
 describe('Operations that involve goods', function () {
     let entityItem;
@@ -71,7 +73,7 @@ describe('Operations that involve goods', function () {
                     'pendingUnits':'100'
                 })
                 .then(function (res) {
-                    expect(res).to.have.status(201);
+                    expect(res).to.have.status(STATUS_CREATED);
                     goodModel.prototype.save.restore();
                 });
         });
@@ -83,7 +85,7 @@ describe('Operations that involve goods', function () {
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(goodModel.prototype, 'save');
-            goodModel.prototype.save.yields({code:11111, err:'Internal error'});
+            goodModel.prototype.save.yields({code:ERROR_DEFAULT, err:'Internal error'});
             return chai.request(app)
                 .post('/me/goods?token=' + token)
                 .send({
@@ -97,7 +99,7 @@ describe('Operations that involve goods', function () {
                     'pendingUnits':'100'
                 })
                 .then(function (res) {
-                    expect(res).to.have.status(500);
+                    expect(res).to.have.status(STATUS_SERVER_ERROR);
                     goodModel.prototype.save.restore();
                 });
         });
@@ -126,7 +128,7 @@ describe('Operations that involve goods', function () {
                     .delete('/me/goods/' + good._id + '?token=' + token)
                     .send()
                     .then(function (res) {
-                        expect(res).to.have.status(200);
+                        expect(res).to.have.status(STATUS_OK);
                         done();
                     });
             });
@@ -139,12 +141,12 @@ describe('Operations that involve goods', function () {
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(goodModel, 'findByIdAndRemove');
-            goodModel.findByIdAndRemove.yields({code:11111, err:'Internal error'});
+            goodModel.findByIdAndRemove.yields({code:ERROR_DEFAULT, err:'Internal error'});
             return chai.request(app)
                 .delete('/me/goods/' + 1 + '?token=' + token)
                 .send()
                 .then(function (res) {
-                    expect(res).to.have.status(500);
+                    expect(res).to.have.status(STATUS_SERVER_ERROR);
                     goodModel.findByIdAndRemove.restore();
                 });
         });
@@ -175,7 +177,7 @@ describe('Operations that involve goods', function () {
                     .put('/me/goods/' + good._id + '?token=' + token)
                     .send(goodItem)
                     .then(function (res) {
-                        expect(res).to.have.status(200);
+                        expect(res).to.have.status(STATUS_OK);
                         expect(res.body.discount).to.equal(20);
                         done();
                     });
@@ -189,12 +191,12 @@ describe('Operations that involve goods', function () {
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(goodModel, 'findByIdAndUpdate');
-            goodModel.findByIdAndUpdate.yields({code:11111, err:'Internal error'});
+            goodModel.findByIdAndUpdate.yields({code:ERROR_DEFAULT, err:'Internal error'});
             return chai.request(app)
                 .put('/me/goods/' + 1 + '?token=' + token)
                 .send()
                 .then(function (res) {
-                    expect(res).to.have.status(500);
+                    expect(res).to.have.status(STATUS_SERVER_ERROR);
                     goodModel.findByIdAndUpdate.restore();
                 });
         });

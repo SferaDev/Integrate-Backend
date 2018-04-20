@@ -1,12 +1,11 @@
+import {STATUS_FORBIDDEN, TOKEN_SECRET} from "../constants";
+import * as goodController from "../controllers/goodController";
+import * as entityController from "../controllers/entityController";
+
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const base64url = require('base64url');
 const router = express.Router();
-
-const TOKEN_SECRET = process.env.TOKEN_SECRET || 'randomTokenSecret';
-
-const goodController = require('../controllers/GoodController');
-const userController = require('../controllers/UserController');
 
 router.use(function (req, res, next) {
     // check header or url parameters or post parameters for token
@@ -26,7 +25,7 @@ router.use(function (req, res, next) {
             }
         });
     } else {
-        return res.status(403).send({
+        return res.status(STATUS_FORBIDDEN).send({
             success: false,
             message: 'No token provided.'
         });
@@ -50,7 +49,7 @@ router.put('/goods/:id', function (req, res) {
 });
 
 router.get('/entities/', function (req, res) {
-    userController.getEntities(req, res);
+    entityController.getEntities(req, res);
 });
 
 module.exports = router;

@@ -1,21 +1,20 @@
-import {beneficiaryModel} from "../src/models/UserModel";
+import {beneficiaryModel} from "../src/models/beneficiaryModel";
+import * as userController from "../src/controllers/beneficiaryController";
+import * as successResponse from "./response/BeneficiaryAdministrationResponse";
+import {
+    ERROR_DEFAULT,
+    ERROR_NIF_DUPLICATED,
+    LOCAL_ADMINISTRATION_URI,
+    STATUS_OK,
+    STATUS_SERVER_ERROR
+} from "../src/constants";
 
-// Chai: Assertion library
-const chai = require('chai');
+import chai from "chai";
+
+import nock from "nock";
+
+import sinon from "sinon";
 const expect = chai.expect;
-
-// Nock: Intercept http calls and provide a hard-response
-const nock = require('nock');
-
-// Sinon: Mocks and stubs
-const sinon = require('sinon');
-
-// Constants
-const LOCAL_ADMINISTRATION_URI = process.env.LOCAL_ADMINISTRATION_URI || 'http://localhost:3000/administration';
-
-// App definitions
-const userController = require('../src/controllers/UserController');
-const successResponse = require('./response/BeneficiaryAdministrationResponse');
 
 // Test group
 describe('Test group for BeneficiaryController', function() {
@@ -34,7 +33,7 @@ describe('Test group for BeneficiaryController', function() {
         it('should add beneficiaries successfully', function () {
             nock(LOCAL_ADMINISTRATION_URI)
                 .get('')
-                .reply(200, successResponse);
+                .reply(STATUS_OK, successResponse.default);
 
             // Set mock behaviour as null
             beneficiaryModel.prototype.save.yields(null);
@@ -51,9 +50,9 @@ describe('Test group for BeneficiaryController', function() {
         it('should deal with duplicated beneficiaries', function () {
             nock(LOCAL_ADMINISTRATION_URI)
                 .get('')
-                .reply(200, successResponse);
+                .reply(STATUS_OK, successResponse.default);
 
-            beneficiaryModel.prototype.save.yields({code:11000});
+            beneficiaryModel.prototype.save.yields({code:ERROR_NIF_DUPLICATED});
 
             let callback = function (err, message) {
                 expect(err).to.equal(null);
@@ -67,12 +66,12 @@ describe('Test group for BeneficiaryController', function() {
         it('should detect database errors', function () {
             nock(LOCAL_ADMINISTRATION_URI)
                 .get('')
-                .reply(200, successResponse);
+                .reply(STATUS_OK, successResponse.default);
 
-            beneficiaryModel.prototype.save.yields({code:11111, err:'Internal error'});
+            beneficiaryModel.prototype.save.yields({code:ERROR_DEFAULT, err:'Internal error'});
 
             let callback = function (err, message) {
-                expect(err.code).to.equal(11111);
+                expect(err.code).to.equal(ERROR_DEFAULT);
                 expect(message).to.equal('Error on saving beneficiary');
                 sinon.assert.called(beneficiaryModel.prototype.save);
             };
@@ -83,10 +82,10 @@ describe('Test group for BeneficiaryController', function() {
         it('should detect external server error', function () {
             nock(LOCAL_ADMINISTRATION_URI)
                 .get('')
-                .reply(500,{message:'ERROR'});
+                .reply(STATUS_SERVER_ERROR,{message:'ERROR'});
 
             let callback = function (err, message) {
-                expect(err.response.status).to.equal(500);
+                expect(err.response.status).to.equal(STATUS_SERVER_ERROR);
                 expect(message).to.equal('Error on fetching beneficiaries from local administration');
             };
 
