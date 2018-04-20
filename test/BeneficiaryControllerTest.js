@@ -9,11 +9,9 @@ import {
     STATUS_SERVER_ERROR
 } from "../src/constants";
 
-import chai from "chai";
-
 import nock from "nock";
-
 import sinon from "sinon";
+import chai from "chai";
 const expect = chai.expect;
 
 // Test group
