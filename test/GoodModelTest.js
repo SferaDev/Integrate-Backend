@@ -4,7 +4,6 @@ import {beneficiaryModel} from "../src/models/beneficiaryModel";
 
 import mongoose from "mongoose";
 import {Mockgoose} from "mockgoose";
-
 import chai from "chai";
 
 const mockgoose = new Mockgoose(mongoose);
