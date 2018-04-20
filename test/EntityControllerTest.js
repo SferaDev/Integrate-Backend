@@ -1,20 +1,18 @@
-import {entityModel} from "../src/models/UserModel";
+import app from "../server";
+import {ERROR_DEFAULT, STATUS_OK, STATUS_SERVER_ERROR, TOKEN_SECRET} from "../src/constants";
+import {entityModel} from "../src/models/entityModel";
 
-// Chai: Assertion library
-const chai = require('chai');
-chai.use(require('chai-http'));
+import chai from "chai";
+import chai_http from "chai-http";
+import sinon from "sinon";
+import mongoose from "mongoose";
+import {Mockgoose} from "mockgoose";
+import base64url from "base64url";
+import jwt from "jsonwebtoken";
+
+chai.use(chai_http);
 const expect = chai.expect;
-const sinon = require('sinon');
-
-const mongoose = require('mongoose');
-const Mockgoose = require('mockgoose').Mockgoose;
 const mockgoose = new Mockgoose(mongoose);
-
-const base64url = require('base64url');
-const jwt = require('jsonwebtoken');
-const TOKEN_SECRET = process.env.TOKEN_SECRET || 'randomTokenSecret';
-
-const app = require('../server');
 
 // Test group
 describe('Operations that involve entities', function() {
@@ -46,7 +44,7 @@ describe('Operations that involve entities', function() {
                 .get('/me/entities?token=' + token)
                 .send()
                 .then(function (res) {
-                    expect(res).to.have.status(200);
+                    expect(res).to.have.status(STATUS_OK);
                     expect(res.body.length).to.equal(1);
                     mockgoose.helper.reset().then(() => {
                         done();
@@ -62,12 +60,12 @@ describe('Operations that involve entities', function() {
         }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
         sinon.stub(entityModel, 'find');
-        entityModel.find.yields({code:11111, err:'Internal error'});
+        entityModel.find.yields({code:ERROR_DEFAULT, err:'Internal error'});
         return chai.request(app)
             .get('/me/entities?token=' + token)
             .send()
             .then(function (res) {
-                expect(res).to.have.status(500);
+                expect(res).to.have.status(STATUS_SERVER_ERROR);
                 entityModel.find.restore();
             });
     });

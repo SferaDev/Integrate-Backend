@@ -4,6 +4,7 @@ import {Mockgoose} from "mockgoose";
 import nodemailer from "nodemailer";
 import schedule from "node-schedule";
 import {EMAIL_PASS, EMAIL_SERVICE, EMAIL_USER, ENV, MONGODB_URI, PORT} from "./src/constants";
+import loadBeneficiaries from "./src/controllers/beneficiaryController";
 
 // Load Express.js
 const app = express();
@@ -17,16 +18,15 @@ if (ENV === 'production') {
         else console.log('MongoDB connected');
 
         // Load beneficiaries for first time
-        let BeneficiaryController = require('./src/controllers/UserController');
         let loadBeneficiariesCallback = function (err, message) {
             if (err) console.error(message);
             else console.log(message);
         };
-        BeneficiaryController.loadBeneficiaries(loadBeneficiariesCallback);
+        loadBeneficiaries(loadBeneficiariesCallback);
 
         // Reload beneficiaries everyday at midnight
         schedule.scheduleJob('0 0 * * *', function () {
-            BeneficiaryController.loadBeneficiaries(loadBeneficiariesCallback);
+            loadBeneficiaries(loadBeneficiariesCallback);
         });
     });
 } else {
@@ -51,9 +51,9 @@ app.use(function(req, res, next) {
 });
 
 // Load routes
-app.use('/', require('./src/routes/RootRoute'));
-app.use('/login', require('./src/routes/LoginRoute'));
-app.use('/me', require('./src/routes/APIRoute'));
+app.use('/', require('./src/routes/rootRoute'));
+app.use('/login', require('./src/routes/loginRoute'));
+app.use('/me', require('./src/routes/apiRoute'));
 
 // Start app
 app.listen(PORT);

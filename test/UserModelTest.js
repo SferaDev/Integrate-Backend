@@ -1,21 +1,23 @@
-import {beneficiaryModel, userModel, userSchema} from "../src/models/UserModel";
+import app from "../server";
+import {beneficiaryModel} from "../src/models/beneficiaryModel";
+import {
+    ERROR_INVALID_PASSWORD, ERROR_USER_DOESNT_EXIST,
+    ERROR_WRONG_PARAMETERS, STATUS_FORBIDDEN,
+    STATUS_OK,
+    STATUS_UNAUTHORIZED,
+    TOKEN_SECRET
+} from "../src/constants";
 
-// Mongoose: MongoDB connector
-const mongoose = require('mongoose');
-const Mockgoose = require('mockgoose').Mockgoose;
-const mockgoose = new Mockgoose(mongoose);
+import mongoose from "mongoose";
+import {Mockgoose} from "mockgoose";
+import base64url from "base64url";
+import jwt from "jsonwebtoken";
+import chai from "chai";
+import chai_http from "chai-http";
 
-// Chai: Assertion library
-const chai = require('chai');
-chai.use(require('chai-http'));
+chai.use(chai_http);
 const expect = chai.expect;
-
-const base64url = require('base64url');
-const jwt = require('jsonwebtoken');
-
-const app = require('../server');
-
-const TOKEN_SECRET = process.env.TOKEN_SECRET || 'randomTokenSecret';
+const mockgoose = new Mockgoose(mongoose);
 
 // Test group
 describe('Test group for BeneficiaryModel', function () {
@@ -58,7 +60,7 @@ describe('Test group for BeneficiaryModel', function () {
             return chai.request(app)
                 .get('/login?email=sbrin@google.com&password=myPAsswd!')
                 .then(function (res) {
-                    expect(res).to.have.status(200);
+                    expect(res).to.have.status(STATUS_OK);
                     expect(res.body.token).not.to.equal(null);
                 });
         });
@@ -67,7 +69,7 @@ describe('Test group for BeneficiaryModel', function () {
             return chai.request(app)
                 .get('/login?nif=12345678F&password=myPAsswd!')
                 .then(function (res) {
-                    expect(res).to.have.status(200);
+                    expect(res).to.have.status(STATUS_OK);
                     expect(res.body.token).not.to.equal(null);
                 });
         });
@@ -76,8 +78,8 @@ describe('Test group for BeneficiaryModel', function () {
             return chai.request(app)
                 .get('/login?email=sbrin@google.com&nif=12345678F&password=myPAsswd!')
                 .then(function (res) {
-                    expect(res).to.have.status(401);
-                    expect(res.body.code).to.equal(14000);
+                    expect(res).to.have.status(STATUS_UNAUTHORIZED);
+                    expect(res.body.code).to.equal(ERROR_WRONG_PARAMETERS);
                     expect(res.body.status).to.equal('Wrong parameters');
                 });
         });
@@ -86,8 +88,8 @@ describe('Test group for BeneficiaryModel', function () {
             return chai.request(app)
                 .get('/login?password=myPAsswd!')
                 .then(function (res) {
-                    expect(res).to.have.status(401);
-                    expect(res.body.code).to.equal(14000);
+                    expect(res).to.have.status(STATUS_UNAUTHORIZED);
+                    expect(res.body.code).to.equal(ERROR_WRONG_PARAMETERS);
                     expect(res.body.status).to.equal('Wrong parameters');
                 });
         });
@@ -96,8 +98,8 @@ describe('Test group for BeneficiaryModel', function () {
             return chai.request(app)
                 .get('/login?email=sbrin@google.com&nif=12345678F')
                 .then(function (res) {
-                    expect(res).to.have.status(401);
-                    expect(res.body.code).to.equal(14000);
+                    expect(res).to.have.status(STATUS_UNAUTHORIZED);
+                    expect(res.body.code).to.equal(ERROR_WRONG_PARAMETERS);
                     expect(res.body.status).to.equal('Wrong parameters');
                 });
         });
@@ -106,8 +108,8 @@ describe('Test group for BeneficiaryModel', function () {
             return chai.request(app)
                 .get('/login?email=sbrin@google.com&password=muuu!')
                 .then(function (res) {
-                    expect(res).to.have.status(401);
-                    expect(res.body.code).to.equal(12000);
+                    expect(res).to.have.status(STATUS_UNAUTHORIZED);
+                    expect(res.body.code).to.equal(ERROR_INVALID_PASSWORD);
                     expect(res.body.status).to.equal('Invalid password');
                 });
         });
@@ -116,8 +118,8 @@ describe('Test group for BeneficiaryModel', function () {
             return chai.request(app)
                 .get('/login?email=mikerooss@google.com&password=nullPass!')
                 .then(function (res) {
-                    expect(res).to.have.status(401);
-                    expect(res.body.code).to.equal(13000);
+                    expect(res).to.have.status(STATUS_UNAUTHORIZED);
+                    expect(res.body.code).to.equal(ERROR_USER_DOESNT_EXIST);
                     expect(res.body.status).to.equal('User doesn\'t exist');
                 });
         });
@@ -126,7 +128,7 @@ describe('Test group for BeneficiaryModel', function () {
             return chai.request(app)
                 .get('/me')
                 .then(function (res) {
-                    expect(res).to.have.status(403);
+                    expect(res).to.have.status(STATUS_FORBIDDEN);
                     expect(res.body.success).to.equal(false);
                     expect(res.body.message).to.equal('No token provided.');
                 })
@@ -140,7 +142,7 @@ describe('Test group for BeneficiaryModel', function () {
             return chai.request(app)
                 .get('/me?token=' + token)
                 .then(function (res) {
-                    expect(res).to.have.status(200);
+                    expect(res).to.have.status(STATUS_OK);
                     expect(res.body.success).to.equal(true);
                 });
         });

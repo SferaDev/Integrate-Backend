@@ -1,13 +1,12 @@
-import {beneficiaryModel, entityModel} from "../src/models/UserModel";
-import {goodModel} from "../src/models/GoodModel";
+import {entityModel} from "../src/models/entityModel";
+import {goodModel} from "../src/models/goodModel";
+import {beneficiaryModel} from "../src/models/beneficiaryModel";
 
-// Mongoose: MongoDB connector
-const mongoose = require('mongoose');
-const Mockgoose = require('mockgoose').Mockgoose;
+import mongoose from "mongoose";
+import {Mockgoose} from "mockgoose";
+import chai from "chai";
+
 const mockgoose = new Mockgoose(mongoose);
-
-// Chai: Assertion library
-const chai = require('chai');
 const expect = chai.expect;
 
 // Test group
