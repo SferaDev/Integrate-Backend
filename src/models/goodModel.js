@@ -1,4 +1,4 @@
-import {entityModel} from "../models/UserModel";
+import {entityModel} from "../models/entityModel";
 const mongoose = require('mongoose');
 
 export const goodModel = mongoose.model('Good', new mongoose.Schema({
