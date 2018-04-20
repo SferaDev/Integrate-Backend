@@ -4,7 +4,7 @@ import {Mockgoose} from "mockgoose";
 import nodemailer from "nodemailer";
 import schedule from "node-schedule";
 import {EMAIL_PASS, EMAIL_SERVICE, EMAIL_USER, ENV, MONGODB_URI, PORT} from "./src/constants";
-import * as beneficiaryController from "./src/controllers/beneficiaryController";
+import loadBeneficiaries from "./src/controllers/beneficiaryController";
 
 // Load Express.js
 const app = express();
@@ -22,11 +22,11 @@ if (ENV === 'production') {
             if (err) console.error(message);
             else console.log(message);
         };
-        beneficiaryController.loadBeneficiaries(loadBeneficiariesCallback);
+        loadBeneficiaries(loadBeneficiariesCallback);
 
         // Reload beneficiaries everyday at midnight
         schedule.scheduleJob('0 0 * * *', function () {
-            beneficiaryController.loadBeneficiaries(loadBeneficiariesCallback);
+            loadBeneficiaries(loadBeneficiariesCallback);
         });
     });
 } else {
