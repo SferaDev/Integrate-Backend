@@ -104,10 +104,9 @@ describe('Operations that involve goods', function () {
     });
 
     describe('Delete good', function () {
-        it('should delete existant good successfully', function () {
+        it('should delete existant good successfully', function (done) {
             let goodItem = new goodModel({
                 'userId': entityItem._id,
-                'userType': 'Entity',
                 'productName': 'productTest',
                 'picture': 'picture.png',
                 'initialPrice':'100',
@@ -117,19 +116,20 @@ describe('Operations that involve goods', function () {
                 'reusePeriod':'7',
                 'pendingUnits':'100'
             });
-            goodItem.save();
+            goodItem.save(function (err, good) {
+                let token = base64url.encode(jwt.sign({
+                    userId: 'joanpuig@google.com',
+                    userType: 'Entity'
+                }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
-            let token = base64url.encode(jwt.sign({
-                userId: 'joanpuig@google.com',
-                userType: 'Entity'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
-
-            return chai.request(app)
-                .delete('/me/goods/' + goodItem._id + '?token=' + token)
-                .send()
-                .then(function (res) {
-                    expect(res).to.have.status(200);
-                });
+                chai.request(app)
+                    .delete('/me/goods/' + good._id + '?token=' + token)
+                    .send()
+                    .then(function (res) {
+                        expect(res).to.have.status(200);
+                        done();
+                    });
+            });
         });
 
         it ('should detect database errors', function () {
@@ -151,10 +151,9 @@ describe('Operations that involve goods', function () {
     });
 
     describe('Update good', function () {
-        it('should update existant good successfully', function () {
+        it('should update existant good successfully', function (done) {
             let goodItem = new goodModel({
                 'userId': entityItem._id,
-                'userType': 'Entity',
                 'productName': 'productTest',
                 'picture': 'picture.png',
                 'initialPrice':'100',
@@ -164,22 +163,23 @@ describe('Operations that involve goods', function () {
                 'reusePeriod':'7',
                 'pendingUnits':'100'
             });
-            goodItem.save();
+            goodItem.save(function (err, good) {
+                let token = base64url.encode(jwt.sign({
+                    userId: 'joanpuig@google.com',
+                    userType: 'Entity'
+                }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
-            let token = base64url.encode(jwt.sign({
-                userId: 'joanpuig@google.com',
-                userType: 'Entity'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+                goodItem.discount = 20;
 
-            goodItem.discount = 20;
-
-            return chai.request(app)
-                .put('/me/goods/' + goodItem._id + '?token=' + token)
-                .send(goodItem)
-                .then(function (res) {
-                    expect(res).to.have.status(200);
-                    expect(res.body.discount).to.equal(20);
-                });
+                chai.request(app)
+                    .put('/me/goods/' + good._id + '?token=' + token)
+                    .send(goodItem)
+                    .then(function (res) {
+                        expect(res).to.have.status(200);
+                        expect(res.body.discount).to.equal(20);
+                        done();
+                    });
+            });
         });
 
         it ('should detect database errors', function () {

@@ -1,10 +1,24 @@
+import {entityModel} from "../models/UserModel";
 const mongoose = require('mongoose');
 
 export const goodModel = mongoose.model('Good', new mongoose.Schema({
     userId: {
-        // TODO
-        //type: {type: Schema.Types.ObjectId, ref: 'Entity'},
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'Entity',
+        validate: {
+            isAsync: true,
+            validator: function (id, cb) {
+                entityModel.findOne({_id:id}, function (err, entity) {
+                    let correct = true;
+                    let message = null;
+                    if (!entity) {
+                        correct = false;
+                        message = "The owner must be a registered Entity";
+                    }
+                    cb(correct, message);
+                });
+            }
+        },
         required: true
     },
     productName: {
