@@ -1,18 +1,15 @@
-const mongoose = require('mongoose');
-const Mockgoose = require('mockgoose').Mockgoose;
-const mockgoose = new Mockgoose(mongoose);
-const schedule = require('node-schedule');
-
-const express = require('express');
+import express from "express";
+import mongoose from "mongoose";
+import {Mockgoose} from "mockgoose";
+import nodemailer from "nodemailer";
+import schedule from "node-schedule";
+import {EMAIL_PASS, EMAIL_SERVICE, EMAIL_USER, ENV, MONGODB_URI, PORT} from "./src/constants";
 
 // Load Express.js
 const app = express();
-const port = process.env.PORT || 3000;
 
 // Connect to the database
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/Integrate';
-const ENV = process.env.NODE_ENV || 'test';
-
+const mockgoose = new Mockgoose(mongoose);
 mongoose.Promise = global.Promise;
 if (ENV === 'production') {
     mongoose.connect(MONGODB_URI, function (error) {
@@ -59,10 +56,10 @@ app.use('/login', require('./src/routes/LoginRoute'));
 app.use('/me', require('./src/routes/APIRoute'));
 
 // Start app
-app.listen(port);
+app.listen(PORT);
 
 // Load finish
-console.log('Integrate server started on: ' + port);
+console.log('Integrate server started on: ' + PORT);
 
 // Export app as module for testing framework
 module.exports = app;
