@@ -1,22 +1,18 @@
+import app from "../server";
+import {ERROR_DEFAULT, STATUS_OK, STATUS_SERVER_ERROR, TOKEN_SECRET} from "../src/constants";
 import {entityModel} from "../src/models/entityModel";
 
 import chai from "chai";
 import chai_http from "chai-http";
-
 import sinon from "sinon";
 import mongoose from "mongoose";
 import {Mockgoose} from "mockgoose";
-
 import base64url from "base64url";
 import jwt from "jsonwebtoken";
 
-import app from "../server";
-import {ERROR_DEFAULT, STATUS_OK, STATUS_SERVER_ERROR, TOKEN_SECRET} from "../src/constants";
-
-const mockgoose = new Mockgoose(mongoose);
-
 chai.use(chai_http);
 const expect = chai.expect;
+const mockgoose = new Mockgoose(mongoose);
 
 // Test group
 describe('Operations that involve entities', function() {
