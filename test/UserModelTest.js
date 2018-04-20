@@ -1,15 +1,5 @@
-import {beneficiaryModel} from "../src/models/beneficiaryModel";
-
-import mongoose from "mongoose";
-import {Mockgoose} from "mockgoose";
-
-import chai from "chai";
-import chai_http from "chai-http";
-
-import base64url from "base64url";
-import jwt from "jsonwebtoken";
-
 import app from "../server";
+import {beneficiaryModel} from "../src/models/beneficiaryModel";
 import {
     ERROR_INVALID_PASSWORD, ERROR_USER_DOESNT_EXIST,
     ERROR_WRONG_PARAMETERS, STATUS_FORBIDDEN,
@@ -18,11 +8,16 @@ import {
     TOKEN_SECRET
 } from "../src/constants";
 
-const mockgoose = new Mockgoose(mongoose);
+import mongoose from "mongoose";
+import {Mockgoose} from "mockgoose";
+import base64url from "base64url";
+import jwt from "jsonwebtoken";
+import chai from "chai";
+import chai_http from "chai-http";
 
 chai.use(chai_http);
 const expect = chai.expect;
-
+const mockgoose = new Mockgoose(mongoose);
 
 // Test group
 describe('Test group for BeneficiaryModel', function () {
