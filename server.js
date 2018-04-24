@@ -38,6 +38,15 @@ if (ENV === 'production') {
     });
 }
 
+// Create mail service
+export const mailTransporter = nodemailer.createTransport({
+    service: EMAIL_SERVICE,
+    auth: {
+        user: EMAIL_USER,
+        pass: EMAIL_PASS
+    }
+});
+
 // Apply body-parser directives
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
