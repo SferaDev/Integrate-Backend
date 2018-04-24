@@ -1,10 +1,10 @@
+import express from "express";
+import jwt from "jsonwebtoken";
+import base64url from "base64url";
 import {STATUS_FORBIDDEN, TOKEN_SECRET} from "../constants";
 import * as goodController from "../controllers/goodController";
 import * as entityController from "../controllers/entityController";
 
-const express = require('express');
-const jwt = require('jsonwebtoken');
-const base64url = require('base64url');
 const router = express.Router();
 
 router.use(function (req, res, next) {
@@ -35,7 +35,7 @@ router.use(function (req, res, next) {
 /**
  * @api {get} /me Token validation
  * @apiVersion 1.0.0
- * @apiGroup Authenticated
+ * @apiGroup Authentication
  */
 router.get('/', function (req, res) {
     res.send({success: true});
@@ -44,7 +44,7 @@ router.get('/', function (req, res) {
 /**
  * @api {post} /goods Add new Good
  * @apiVersion 1.0.0
- * @apiGroup Authenticated
+ * @apiGroup Goods
  */
 router.post('/goods/', function (req, res) {
     goodController.addGood(req, res);
@@ -53,7 +53,7 @@ router.post('/goods/', function (req, res) {
 /**
  * @api {delete} /goods/:id Delete existing Good
  * @apiVersion 1.0.0
- * @apiGroup Authenticated
+ * @apiGroup Goods
  */
 router.delete('/goods/:id', function (req, res) {
     goodController.deleteGood(req, res);
@@ -62,7 +62,7 @@ router.delete('/goods/:id', function (req, res) {
 /**
  * @api {put} /goods/:id Update existing Good
  * @apiVersion 1.0.0
- * @apiGroup Authenticated
+ * @apiGroup Goods
  */
 router.put('/goods/:id', function (req, res) {
     goodController.updateGood(req, res);
@@ -71,7 +71,7 @@ router.put('/goods/:id', function (req, res) {
 /**
  * @api {get} /entities List all entities
  * @apiVersion 1.0.0
- * @apiGroup Authenticated
+ * @apiGroup Entities
  */
 router.get('/entities/', function (req, res) {
     entityController.getEntities(req, res);
