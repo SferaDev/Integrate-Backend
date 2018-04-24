@@ -1,51 +1,12 @@
 import express from "express";
-import mongoose from "mongoose";
-import {Mockgoose} from "mockgoose";
-import nodemailer from "nodemailer";
-import schedule from "node-schedule";
-import {EMAIL_PASS, EMAIL_SERVICE, EMAIL_USER, ENV, MONGODB_URI, PORT} from "./src/constants";
-import loadBeneficiaries from "./src/controllers/beneficiaryController";
+import {PORT} from "./src/constants";
+import database from "./common/database";
 
 // Load Express.js
 const app = express();
 
-// Connect to the database
-const mockgoose = new Mockgoose(mongoose);
-mongoose.Promise = global.Promise;
-if (ENV === 'production') {
-    mongoose.connect(MONGODB_URI, function (error) {
-        if (error) console.error(error);
-        else console.log('MongoDB connected');
-
-        // Load beneficiaries for first time
-        let loadBeneficiariesCallback = function (err, message) {
-            if (err) console.error(message);
-            else console.log(message);
-        };
-        loadBeneficiaries(loadBeneficiariesCallback);
-
-        // Reload beneficiaries everyday at midnight
-        schedule.scheduleJob('0 0 * * *', function () {
-            loadBeneficiaries(loadBeneficiariesCallback);
-        });
-    });
-} else {
-    mockgoose.prepareStorage().then(function() {
-        mongoose.connect(MONGODB_URI, function (error) {
-            if (error) console.error(error);
-            else console.log('Mockgoose connected');
-        });
-    });
-}
-
-// Create mail service
-export const mailTransporter = nodemailer.createTransport({
-    service: EMAIL_SERVICE,
-    auth: {
-        user: EMAIL_USER,
-        pass: EMAIL_PASS
-    }
-});
+// Load project common modules
+database();
 
 // Apply body-parser directives
 const bodyParser = require('body-parser');
