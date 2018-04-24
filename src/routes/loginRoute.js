@@ -6,7 +6,7 @@ import * as userController from "../controllers/userController"
 /**
  * @api {get} /login Login user
  * @apiVersion 1.0.0
- * @apiGroup Login
+ * @apiGroup Public
  *
  * @apiParam {String} email User email
  * @apiParam {String} nif User NIF
@@ -16,7 +16,6 @@ import * as userController from "../controllers/userController"
  *
  * @apiError {Integer} code Error code
  * @apiError {String} status Error details
- *
  */
 router.get('/', function (req, res) {
     userController.loginUser(req, res);

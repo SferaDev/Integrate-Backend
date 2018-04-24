@@ -32,22 +32,47 @@ router.use(function (req, res, next) {
     }
 });
 
+/**
+ * @api {get} /me Token validation
+ * @apiVersion 1.0.0
+ * @apiGroup Authenticated
+ */
 router.get('/', function (req, res) {
     res.send({success: true});
 });
 
+/**
+ * @api {post} /goods Add new Good
+ * @apiVersion 1.0.0
+ * @apiGroup Authenticated
+ */
 router.post('/goods/', function (req, res) {
     goodController.addGood(req, res);
 });
 
+/**
+ * @api {delete} /goods/:id Delete existing Good
+ * @apiVersion 1.0.0
+ * @apiGroup Authenticated
+ */
 router.delete('/goods/:id', function (req, res) {
     goodController.deleteGood(req, res);
 });
 
+/**
+ * @api {put} /goods/:id Update existing Good
+ * @apiVersion 1.0.0
+ * @apiGroup Authenticated
+ */
 router.put('/goods/:id', function (req, res) {
     goodController.updateGood(req, res);
 });
 
+/**
+ * @api {get} /entities List all entities
+ * @apiVersion 1.0.0
+ * @apiGroup Authenticated
+ */
 router.get('/entities/', function (req, res) {
     entityController.getEntities(req, res);
 });
