@@ -21,7 +21,7 @@ app.use(function(req, res, next) {
 });
 
 // Load routes
-app.use('/', require('./src/routes/rootRoute'));
+app.use('/', express.static('apidoc'));
 app.use('/login', require('./src/routes/loginRoute'));
 app.use('/me', require('./src/routes/apiRoute'));
 
