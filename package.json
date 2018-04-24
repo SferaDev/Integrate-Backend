@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon --use-strict server.js --exec babel-node",
-    "test": "nyc --reporter=html --reporter=text --all mocha --require babel-core/register --timeout 120000 --exit",
-    "coveralls": "nyc report --reporter=text-lcov | coveralls"
+    "test": "nyc --reporter=html --reporter=text --root 'src/' mocha --require babel-core/register --timeout 120000 --exit",
+    "coveralls": "nyc report --reporter=text-lcov --root 'src/' | coveralls"
   },
   "repository": {
     "type": "git",
@@ -41,6 +41,7 @@
     "mocha": "^5.0.5",
     "mockgoose": "^7.3.5",
     "nock": "^9.2.3",
+    "nodemailer-mock": "^1.3.13",
     "nyc": "^11.6.0",
     "sinon": "^4.5.0"
   }
