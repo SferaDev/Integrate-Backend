@@ -1,5 +1,12 @@
 [
     {
+        "nif": "1234",
+        "firstName": "Ad",
+        "lastName": "min",
+        "email": "admin@integrate.com",
+        "password": "1234"
+    },
+    {
         "nif": "12345678Q",
         "firstName": "Hana",
         "lastName": "Bibi",
