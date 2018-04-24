@@ -42,6 +42,15 @@ router.get('/', function (req, res) {
 });
 
 /**
+ * @api {get} /goods List all goods
+ * @apiVersion 1.0.0
+ * @apiGroup Goods
+ */
+router.get('/goods/', function(req,res){
+    goodController.getGoods(req, res);
+});
+
+/**
  * @api {post} /goods Add new Good
  * @apiVersion 1.0.0
  * @apiGroup Goods

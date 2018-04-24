@@ -47,6 +47,54 @@ describe('Operations that involve goods', function () {
         });
     });
 
+    describe('List all goods', function() {
+        it('should list all goods successfully', function(done) {
+            let goodItem = new goodModel({
+                'userId': entityItem._id,
+                'productName': 'productTest',
+                'picture': 'picture.png',
+                'initialPrice':'100',
+                'discountType':'%',
+                'discount':'10',
+                'category':'food',
+                'reusePeriod':'7',
+                'pendingUnits':'100'
+            });
+            goodItem.save(function () {
+                let token = base64url.encode(jwt.sign({
+                    userId: 'joanpuig@google.com',
+                    userType: 'Beneficiary'
+                }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+                chai.request(app)
+                    .get('/me/goods/?token=' + token)
+                    .send()
+                    .then(function (res) {
+                        expect(res).to.have.status(STATUS_OK);
+                        expect(res.body[0].productName).to.equal('productTest');
+                        done();
+                    });
+            });
+        });
+
+        it ('should detect database errors', function () {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Beneficiary'
+            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            sinon.stub(goodModel, 'find');
+            goodModel.find.yields({code:ERROR_DEFAULT, err:'Internal error'});
+            return chai.request(app)
+                .get('/me/goods/?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_SERVER_ERROR);
+                    goodModel.find.restore();
+                });
+        });
+    });
+
     describe('Add new good', function () {
         it('should add good successfully', function () {
             let token = base64url.encode(jwt.sign({

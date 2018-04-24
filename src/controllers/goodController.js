@@ -2,6 +2,15 @@ import {entityModel} from "../models/entityModel";
 import {goodModel} from "../models/goodModel";
 import {STATUS_CREATED, STATUS_OK, STATUS_SERVER_ERROR} from "../constants";
 
+exports.getGoods = function (req, res) {
+    if (req.userType === 'Beneficiary') {
+        goodModel.find(function(err, goods) {
+            if (err) res.status(STATUS_SERVER_ERROR).send(err);
+            else res.status(STATUS_OK).send(goods);
+        });
+    }
+};
+
 exports.addGood = function (req, res) {
     if (req.userType === 'Entity') {
         entityModel.findOne({email: req.userId}, function (err, entity) {
