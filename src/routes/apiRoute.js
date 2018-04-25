@@ -78,6 +78,15 @@ router.put('/goods/:id', function (req, res) {
 });
 
 /**
+ * @api {get} /goods/favourites List favourite goods
+ * @apiVersion 1.0.0
+ * @apiGroup Goods
+ */
+router.get('/goods/favourites', function (req, res) {
+    goodController.getFavouriteGoods(req, res)
+});
+
+/**
  * @api {get} /entities List all entities
  * @apiVersion 1.0.0
  * @apiGroup Entities

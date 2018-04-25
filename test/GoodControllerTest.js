@@ -10,6 +10,7 @@ import mongoose from "mongoose";
 import {Mockgoose} from "mockgoose";
 import base64url from "base64url";
 import jwt from "jsonwebtoken";
+import {beneficiaryModel} from "../src/models/beneficiaryModel";
 
 chai.use(chai_http);
 const expect = chai.expect;
@@ -92,6 +93,92 @@ describe('Operations that involve goods', function () {
                     expect(res).to.have.status(STATUS_SERVER_ERROR);
                     goodModel.find.restore();
                 });
+        });
+    });
+
+    describe('List favourite goods', function () {
+        it('should list all favourite goods successfully', function (done) {
+            let goodItem = new goodModel({
+                'userId': entityItem._id,
+                'productName': 'productTest',
+                'picture': 'picture.png',
+                'initialPrice':'100',
+                'discountType':'%',
+                'discount':'10',
+                'category':'food',
+                'reusePeriod':'7',
+                'pendingUnits':'100'
+            });
+            goodItem.save(function (err, good) {
+                let beneficiaryItem = new beneficiaryModel({
+                    nif: '12345678F',
+                    firstName: 'Sergey',
+                    lastName: 'Brin',
+                    email: 'sbrin@google.com',
+                    password: 'myPAsswd!',
+                    favouriteGoods: [good._id]
+                });
+
+                beneficiaryItem.save(function () {
+                    let token = base64url.encode(jwt.sign({
+                        userId: 'sbrin@google.com',
+                        userType: 'Beneficiary'
+                    }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+                    chai.request(app)
+                        .get('/me/goods/favourites/?token=' + token)
+                        .send()
+                        .then(function (res) {
+                            expect(res).to.have.status(STATUS_OK);
+                            expect(res.body[0].productName).to.equal('productTest');
+                            done();
+                        });
+                });
+            });
+        });
+
+        it ('should detect database errors when finding beneficiary', function () {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Beneficiary'
+            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            sinon.stub(beneficiaryModel, 'findOne');
+            beneficiaryModel.findOne.yields({code:ERROR_DEFAULT, err:'Internal error'});
+            return chai.request(app)
+                .get('/me/goods/favourites/?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_SERVER_ERROR);
+                    beneficiaryModel.findOne.restore();
+                });
+        });
+
+        it ('should detect database errors when finding goods', function () {
+            let beneficiaryItem = new beneficiaryModel({
+                nif: '12345678F',
+                firstName: 'Sergey',
+                lastName: 'Brin',
+                email: 'sbrin@google.com',
+                password: 'myPAsswd!'
+            });
+
+            beneficiaryItem.save(function () {
+                let token = base64url.encode(jwt.sign({
+                    userId: 'sbrin@google.com',
+                    userType: 'Beneficiary'
+                }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+                sinon.stub(goodModel, 'find');
+                goodModel.find.yields({code: ERROR_DEFAULT, err: 'Internal error'});
+                return chai.request(app)
+                    .get('/me/goods/?token=' + token)
+                    .send()
+                    .then(function (res) {
+                        expect(res).to.have.status(STATUS_SERVER_ERROR);
+                        goodModel.find.restore();
+                    });
+            });
         });
     });
 

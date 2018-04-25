@@ -1,4 +1,5 @@
 import {entityModel} from "../models/entityModel";
+import {beneficiaryModel} from "../models/beneficiaryModel";
 import {goodModel} from "../models/goodModel";
 import {STATUS_CREATED, STATUS_OK, STATUS_SERVER_ERROR} from "../constants";
 
@@ -7,6 +8,20 @@ exports.getGoods = function (req, res) {
         goodModel.find(function(err, goods) {
             if (err) res.status(STATUS_SERVER_ERROR).send(err);
             else res.status(STATUS_OK).send(goods);
+        });
+    }
+};
+
+exports.getFavouriteGoods = function (req, res) {
+    if (req.userType === 'Beneficiary') {
+        beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
+            if (err) res.status(STATUS_SERVER_ERROR).send(err);
+            else {
+                goodModel.find({_id: {$in: beneficiary.favouriteGoods}}, function (err, goods) {
+                if (err) res.status(STATUS_SERVER_ERROR).send(err);
+                else res.status(STATUS_OK).send(goods);
+                });
+            }
         });
     }
 };
