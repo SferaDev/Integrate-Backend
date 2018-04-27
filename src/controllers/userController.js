@@ -27,7 +27,7 @@ exports.loginUser = function (req, res) {
         else if (user.comparePassword(req.query.password)) {
             let token = base64url.encode(jwt.sign({
                 userId: user.email,
-                userType: user.__type
+                userType: user.__t
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
             res.send({token: token});
         } else res.status(STATUS_UNAUTHORIZED).send({code: ERROR_INVALID_PASSWORD, status: 'Invalid password'})
