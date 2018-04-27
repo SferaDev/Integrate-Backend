@@ -13,7 +13,7 @@ const base64url = require('base64url');
 
 exports.loginUser = function (req, res) {
     if ((req.query.email !== undefined && req.query.nif !== undefined) || req.query.password === undefined ||
-        (req.query.email === undefined && req.query.nif === undefined) )
+        (req.query.email === undefined && req.query.nif === undefined))
         res.status(STATUS_UNAUTHORIZED).send({
             code: ERROR_WRONG_PARAMETERS,
             status: 'Wrong parameters'
