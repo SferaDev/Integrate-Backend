@@ -41,8 +41,7 @@ exports.addGood = function (req, res) {
                 else res.status(STATUS_CREATED).send(good);
             });
         });
-    }
-    else {
+    } else {
         res.status(STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
     }
 };
@@ -54,8 +53,7 @@ exports.deleteGood = function (req, res) {
             if (err) res.status(STATUS_SERVER_ERROR).send(err);
             else res.status(STATUS_OK).send({message: "Good with id: " + id + " successfuly deleted"});
         });
-    }
-    else {
+    } else {
         res.status(STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
     }
 };
@@ -67,8 +65,7 @@ exports.updateGood = function (req, res) {
             if (err) res.status(STATUS_SERVER_ERROR).send(err);
             else res.status(STATUS_OK).send(good);
         });
-    }
-    else {
+    } else {
         res.status(STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
     }
 };
