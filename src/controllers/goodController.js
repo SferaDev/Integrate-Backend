@@ -5,12 +5,11 @@ import {STATUS_CREATED, STATUS_FORBIDDEN, STATUS_OK, STATUS_SERVER_ERROR} from "
 
 exports.getGoods = function (req, res) {
     if (req.userType === 'Beneficiary') {
-        goodModel.find(function(err, goods) {
+        goodModel.find(function (err, goods) {
             if (err) res.status(STATUS_SERVER_ERROR).send(err);
             else res.status(STATUS_OK).send(goods);
         });
-    }
-    else {
+    } else {
         res.status(STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
     }
 };
@@ -21,13 +20,12 @@ exports.getFavouriteGoods = function (req, res) {
             if (err) res.status(STATUS_SERVER_ERROR).send(err);
             else {
                 goodModel.find({_id: {$in: beneficiary.favouriteGoods}}, function (err, goods) {
-                if (err) res.status(STATUS_SERVER_ERROR).send(err);
-                else res.status(STATUS_OK).send(goods);
+                    if (err) res.status(STATUS_SERVER_ERROR).send(err);
+                    else res.status(STATUS_OK).send(goods);
                 });
             }
         });
-    }
-    else {
+    } else {
         res.status(STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
     }
 };

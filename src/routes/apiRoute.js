@@ -46,7 +46,7 @@ router.get('/', function (req, res) {
  * @apiVersion 1.0.0
  * @apiGroup Goods
  */
-router.get('/goods/', function(req,res){
+router.get('/goods/', function (req, res) {
     goodController.getGoods(req, res);
 });
 

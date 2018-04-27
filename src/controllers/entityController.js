@@ -15,8 +15,7 @@ exports.getEntities = function (req, res) {
             if (err) res.status(STATUS_SERVER_ERROR).send(err);
             else res.status(STATUS_OK).send(entities);
         });
-    }
-    else {
+    } else {
         res.status(STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
     }
 };
