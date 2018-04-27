@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import {PORT} from "./src/constants";
 import database from "./common/database";
 
@@ -14,12 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Enable CORS
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, token");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    next();
-});
+app.use(cors());
 
 // Load routes
 app.use('/', express.static('apidoc'));
