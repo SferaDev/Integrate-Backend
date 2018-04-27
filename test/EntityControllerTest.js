@@ -37,7 +37,7 @@ describe('Operations that involve entities', function() {
             //get token
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
-                userType: 'Entity'
+                userType: 'Beneficiary'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
             //test get entities
             return chai.request(app)
@@ -56,7 +56,7 @@ describe('Operations that involve entities', function() {
     it('should detect database errors', function () {
         let token = base64url.encode(jwt.sign({
             userId: 'joanpuig@google.com',
-            userType: 'Entity'
+            userType: 'Beneficiary'
         }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
         sinon.stub(entityModel, 'find');

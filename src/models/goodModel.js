@@ -1,4 +1,5 @@
 import {entityModel} from "../models/entityModel";
+
 const mongoose = require('mongoose');
 
 export const goodModel = mongoose.model('Good', new mongoose.Schema({
@@ -8,7 +9,7 @@ export const goodModel = mongoose.model('Good', new mongoose.Schema({
         validate: {
             isAsync: true,
             validator: function (id, cb) {
-                entityModel.findOne({_id:id}, function (err, entity) {
+                entityModel.findOne({_id: id}, function (err, entity) {
                     let correct = true;
                     let message = null;
                     if (!entity) {
