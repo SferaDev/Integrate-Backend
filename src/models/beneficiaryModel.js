@@ -9,5 +9,9 @@ export const beneficiaryModel = userModel.discriminator('Beneficiary', new mongo
     lastName: {
         type: String,
         required: true
-    }
+    },
+    favouriteGoods: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Good'
+    }]
 }));
