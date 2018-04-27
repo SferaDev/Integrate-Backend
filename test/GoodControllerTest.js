@@ -1,5 +1,12 @@
 import app from "../server";
-import {ERROR_DEFAULT, STATUS_CREATED, STATUS_OK, STATUS_SERVER_ERROR, TOKEN_SECRET} from "../src/constants";
+import {
+    ERROR_DEFAULT,
+    STATUS_CREATED,
+    STATUS_FORBIDDEN,
+    STATUS_OK,
+    STATUS_SERVER_ERROR,
+    TOKEN_SECRET
+} from "../src/constants";
 import {entityModel} from "../src/models/entityModel";
 import {goodModel} from "../src/models/goodModel";
 
@@ -78,7 +85,7 @@ describe('Operations that involve goods', function () {
             });
         });
 
-        it ('should detect database errors', function () {
+        it ('should detect database errors', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
@@ -86,12 +93,28 @@ describe('Operations that involve goods', function () {
 
             sinon.stub(goodModel, 'find');
             goodModel.find.yields({code:ERROR_DEFAULT, err:'Internal error'});
-            return chai.request(app)
+            chai.request(app)
                 .get('/me/goods/?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(STATUS_SERVER_ERROR);
                     goodModel.find.restore();
+                    done();
+                });
+        });
+
+        it ('should not allow wrong type of user', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/goods/?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_FORBIDDEN);
+                    done();
                 });
         });
     });
@@ -137,7 +160,7 @@ describe('Operations that involve goods', function () {
             });
         });
 
-        it ('should detect database errors when finding beneficiary', function () {
+        it ('should detect database errors when finding beneficiary', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
@@ -145,22 +168,24 @@ describe('Operations that involve goods', function () {
 
             sinon.stub(beneficiaryModel, 'findOne');
             beneficiaryModel.findOne.yields({code:ERROR_DEFAULT, err:'Internal error'});
-            return chai.request(app)
+            chai.request(app)
                 .get('/me/goods/favourites/?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(STATUS_SERVER_ERROR);
                     beneficiaryModel.findOne.restore();
+                    done();
                 });
         });
 
-        it ('should detect database errors when finding goods', function () {
+        it ('should detect database errors when finding goods', function (done) {
             let beneficiaryItem = new beneficiaryModel({
                 nif: '12345678F',
                 firstName: 'Sergey',
                 lastName: 'Brin',
                 email: 'sbrin@google.com',
-                password: 'myPAsswd!'
+                password: 'myPAsswd!',
+                favouriteGoods: []
             });
 
             beneficiaryItem.save(function () {
@@ -171,19 +196,35 @@ describe('Operations that involve goods', function () {
 
                 sinon.stub(goodModel, 'find');
                 goodModel.find.yields({code: ERROR_DEFAULT, err: 'Internal error'});
-                return chai.request(app)
-                    .get('/me/goods/?token=' + token)
+                chai.request(app)
+                    .get('/me/goods/favourites/?token=' + token)
                     .send()
                     .then(function (res) {
                         expect(res).to.have.status(STATUS_SERVER_ERROR);
                         goodModel.find.restore();
+                        done();
                     });
             });
+        });
+
+        it ('should not allow wrong type of user', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/goods/favourites/?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_FORBIDDEN);
+                    done();
+                });
         });
     });
 
     describe('Add new good', function () {
-        it('should add good successfully', function () {
+        it('should add good successfully', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
@@ -191,7 +232,7 @@ describe('Operations that involve goods', function () {
 
             sinon.stub(goodModel.prototype, 'save');
             goodModel.prototype.save.yields(null);
-            return chai.request(app)
+            chai.request(app)
                 .post('/me/goods?token=' + token)
                 .send({
                     'productName': 'productTest',
@@ -206,10 +247,11 @@ describe('Operations that involve goods', function () {
                 .then(function (res) {
                     expect(res).to.have.status(STATUS_CREATED);
                     goodModel.prototype.save.restore();
+                    done();
                 });
         });
 
-        it('should detect database errors', function () {
+        it('should detect database errors', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
@@ -217,7 +259,7 @@ describe('Operations that involve goods', function () {
 
             sinon.stub(goodModel.prototype, 'save');
             goodModel.prototype.save.yields({code:ERROR_DEFAULT, err:'Internal error'});
-            return chai.request(app)
+            chai.request(app)
                 .post('/me/goods?token=' + token)
                 .send({
                     'productName': 'productTest',
@@ -232,6 +274,31 @@ describe('Operations that involve goods', function () {
                 .then(function (res) {
                     expect(res).to.have.status(STATUS_SERVER_ERROR);
                     goodModel.prototype.save.restore();
+                    done();
+                });
+        });
+
+        it ('should not allow wrong type of user', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Beneficiary'
+            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .post('/me/goods?token=' + token)
+                .send({
+                    'productName': 'productTest',
+                    'picture': 'picture.png',
+                    'initialPrice':'100',
+                    'discountType':'%',
+                    'discount':'10',
+                    'category':'food',
+                    'reusePeriod':'7',
+                    'pendingUnits':'100'
+                })
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_FORBIDDEN);
+                    done();
                 });
         });
     });
@@ -265,7 +332,7 @@ describe('Operations that involve goods', function () {
             });
         });
 
-        it ('should detect database errors', function () {
+        it ('should detect database errors', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
@@ -273,12 +340,28 @@ describe('Operations that involve goods', function () {
 
             sinon.stub(goodModel, 'findByIdAndRemove');
             goodModel.findByIdAndRemove.yields({code:ERROR_DEFAULT, err:'Internal error'});
-            return chai.request(app)
+            chai.request(app)
                 .delete('/me/goods/' + 1 + '?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(STATUS_SERVER_ERROR);
                     goodModel.findByIdAndRemove.restore();
+                    done();
+                });
+        });
+
+        it ('should not allow wrong type of user', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Beneficiary'
+            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .delete('/me/goods/' + 1 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_FORBIDDEN);
+                    done();
                 });
         });
     });
@@ -315,7 +398,7 @@ describe('Operations that involve goods', function () {
             });
         });
 
-        it ('should detect database errors', function () {
+        it ('should detect database errors', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
@@ -323,12 +406,28 @@ describe('Operations that involve goods', function () {
 
             sinon.stub(goodModel, 'findByIdAndUpdate');
             goodModel.findByIdAndUpdate.yields({code:ERROR_DEFAULT, err:'Internal error'});
-            return chai.request(app)
+            chai.request(app)
                 .put('/me/goods/' + 1 + '?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(STATUS_SERVER_ERROR);
                     goodModel.findByIdAndUpdate.restore();
+                    done();
+                });
+        });
+
+        it ('should not allow wrong type of user', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Beneficiary'
+            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .put('/me/goods/' + 1 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_FORBIDDEN);
+                    done();
                 });
         });
     });

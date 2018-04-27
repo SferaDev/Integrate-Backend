@@ -9,6 +9,7 @@ exports.loadBeneficiaries = function (callback) {
             let message = 'Beneficiaries loaded successfuly';
             let err = null;
             response.data.forEach(function (beneficiary) {
+                beneficiary.favouriteGoods = [];
                 let newBeneficiary = new beneficiaryModel(beneficiary);
                 newBeneficiary.save(function (error) {
                     if (error && error.code !== ERROR_NIF_DUPLICATED) {
