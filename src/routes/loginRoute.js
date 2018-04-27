@@ -1,12 +1,12 @@
-const express = require('express');
-const router = express.Router();
-
+import express from "express";
 import * as userController from "../controllers/userController"
 
+const router = express.Router();
+
 /**
- * @api {get} /login Login user
+ * @api {get} /login Token generation
  * @apiVersion 1.0.0
- * @apiGroup Public
+ * @apiGroup Authentication
  *
  * @apiParam {String} email User email
  * @apiParam {String} nif User NIF
