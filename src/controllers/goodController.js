@@ -28,7 +28,7 @@ exports.getGoods = function (req, res) {
             if (orderIndex === "2") {
                 aggregate.near({
                     near: {type: "Point", coordinates: [parseFloat(longitude), parseFloat(latitude)] },
-                    distanceField: "dist",
+                    distanceField: "distance",
                     // Add the category query
                     query: category,
                     spherical: true

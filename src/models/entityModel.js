@@ -42,4 +42,4 @@ export const entityModel = userModel.discriminator('Entity', new mongoose.Schema
         type: Boolean,
         default: false
     }
-}));
+}).index({coordinates: '2dsphere'}));
