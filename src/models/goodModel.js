@@ -52,5 +52,13 @@ export const goodModel = mongoose.model('Good', new mongoose.Schema({
     pendingUnits: {
         type: Number,
         required: true
+    },
+    numberFavs: {
+        type: Number,
+        default: 0
+    },
+    location: {
+        type: [Number]
     }
-}, {timestamps: true}));
+}, {timestamps: true})
+    .index({location: '2dsphere'}));
