@@ -76,7 +76,7 @@ exports.addGood = function (req, res) {
         entityModel.findOne({email: req.userId}, function (err, entity) {
             if (err == null)
                 req.body.userId = entity._id;
-                req.body.location = [entity.addressLongitude, entity.addressLatitude];
+                req.body.location = entity.coordinates;
             let newGood = new goodModel(req.body);
             newGood.save(function (err, good) {
                 if (err) res.status(STATUS_SERVER_ERROR).send(err);

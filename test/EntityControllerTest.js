@@ -28,8 +28,7 @@ describe('Operations that involve entities', function() {
             name: 'Colmado',
             description: 'Botiga de queviures',
             addressName: 'C/ Jordi Girona',
-            addressLatitude: 41.145634,
-            addressLongitude: 2.235324,
+            coordinates: [2.235324, 41.145634],
             phone: '675849324',
             picture: 'picture.png'
         });
