@@ -25,7 +25,7 @@ export const entityModel = userModel.discriminator('Entity', new mongoose.Schema
         type: String,
         required: true
     },
-    location: {
+    coordinates: {
         // longitude and latitude
         type: [Number],
         required: true

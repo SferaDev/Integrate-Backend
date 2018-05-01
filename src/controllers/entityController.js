@@ -7,8 +7,7 @@ exports.getEntities = function (req, res) {
             name: 1,
             description: 1,
             addressName: 1,
-            addressLatitude: 1,
-            addressLongitude: 1,
+            coordinates: 1,
             phone: 1,
             picture: 1
         }, function (err, entities) {
