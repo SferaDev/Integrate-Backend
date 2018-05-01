@@ -1,6 +1,6 @@
 import app from "../server";
 import {
-    ERROR_DEFAULT,
+    ERROR_DEFAULT, STATUS_BAD_REQUEST,
     STATUS_CREATED,
     STATUS_FORBIDDEN,
     STATUS_OK,
@@ -37,8 +37,7 @@ describe('Operations that involve goods', function () {
             name: 'Colmado',
             description: 'Botiga de queviures',
             addressName: 'C/ Jordi Girona',
-            addressLatitude: 41.145634,
-            addressLongitude: 2.235324,
+            coordinates: [2.235324, 41.145634],
             phone: '675849324',
             picture: 'picture.png'
         });
@@ -55,34 +54,161 @@ describe('Operations that involve goods', function () {
         });
     });
 
-    describe('List all goods', function() {
-        it('should list all goods successfully', function(done) {
+    describe('List and filter all goods', function() {
+
+        beforeEach(function (done) {
             let goodItem = new goodModel({
                 'userId': entityItem._id,
-                'productName': 'productTest',
+                'productName': 'productTest1',
                 'picture': 'picture.png',
                 'initialPrice':'100',
                 'discountType':'%',
                 'discount':'10',
-                'category':'food',
+                'category':'Alimentació',
                 'reusePeriod':'7',
-                'pendingUnits':'100'
+                'pendingUnits':'100',
+                'location': [2.098851, 41.322228],
+                'numberFavs': 2
             });
-            goodItem.save(function () {
+            //goodModel.on('location_2d', function() {
+                goodItem.save(function () {
+                    done();
+                });
+            //});
+        });
+
+        beforeEach(function (done) {
+            let goodItem = new goodModel({
+                'userId': entityItem._id,
+                'productName': 'productTest2',
+                'picture': 'picture.png',
+                'initialPrice':'100',
+                'discountType':'%',
+                'discount':'10',
+                'category':'Esports',
+                'reusePeriod':'7',
+                'pendingUnits':'100',
+                'location': [2.092285, 41.331992],
+                'numberFavs': 0
+            });
+            //goodModel.on('index', function() {
+                goodItem.save(function () {
+                    done();
+                });
+            //});
+        });
+
+        beforeEach(function (done) {
+            let goodItem = new goodModel({
+                'userId': entityItem._id,
+                'productName': 'productTest3',
+                'picture': 'picture.png',
+                'initialPrice':'100',
+                'discountType':'%',
+                'discount':'10',
+                'category':'Esports',
+                'reusePeriod':'7',
+                'pendingUnits':'100',
+                'location': [2.084861, 41.340015],
+                'numberFavs': 10
+            });
+            //goodModel.on('index', function() {
+                goodItem.save(function () {
+                    done();
+                });
+            //});
+        });
+
+
+        it('should list all goods ordered by most recent', function(done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Beneficiary'
+            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/goods/?token=' + token +'&category=0&order=0')
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_OK);
+                    expect(res.body[0].productName).to.equal('productTest3');
+                    expect(res.body[1].productName).to.equal('productTest2');
+                    expect(res.body[2].productName).to.equal('productTest1');
+                    done();
+                });
+        });
+
+        it('should list all goods ordered by popularity', function(done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Beneficiary'
+            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/goods/?token=' + token +'&category=0&order=1')
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_OK);
+                    expect(res.body[0].productName).to.equal('productTest3');
+                    expect(res.body[1].productName).to.equal('productTest1');
+                    expect(res.body[2].productName).to.equal('productTest2');
+                    done();
+                });
+        });
+
+
+        it('should list all goods ordered by proximity', function(done) {
+            goodModel.ensureIndexes(function () {
                 let token = base64url.encode(jwt.sign({
                     userId: 'joanpuig@google.com',
                     userType: 'Beneficiary'
                 }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                 chai.request(app)
-                    .get('/me/goods/?token=' + token)
+                    .get('/me/goods/?token=' + token +'&category=0&order=2&longitude=2.102137&latitude=41.319359')
                     .send()
                     .then(function (res) {
                         expect(res).to.have.status(STATUS_OK);
-                        expect(res.body[0].productName).to.equal('productTest');
+                        expect(res.body[0].productName).to.equal('productTest1');
+                        expect(res.body[1].productName).to.equal('productTest2');
+                        expect(res.body[2].productName).to.equal('productTest3');
                         done();
                     });
             });
+        });
+
+
+        it('should filter goods by category', function(done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Beneficiary'
+            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/goods/?token=' + token +'&category=7&order=0')
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_OK);
+                    expect(res.body.length).to.equal(2);
+                    expect(res.body[0].productName).to.equal('productTest3');
+                    expect(res.body[1].productName).to.equal('productTest2');
+                    done();
+                });
+        });
+
+        it('should detect wrong query parameters', function(done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Beneficiary'
+            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/goods/?token=' + token +'&categoryy=7&orderr=0')
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_BAD_REQUEST);
+                    done();
+                });
         });
 
         it ('should detect database errors', function (done) {
@@ -91,14 +217,14 @@ describe('Operations that involve goods', function () {
                 userType: 'Beneficiary'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
-            sinon.stub(goodModel, 'find');
-            goodModel.find.yields({code:ERROR_DEFAULT, err:'Internal error'});
+            sinon.stub(mongoose.Aggregate.prototype, 'exec');
+            mongoose.Aggregate.prototype.exec.yields({code:ERROR_DEFAULT, err:'Internal error'});
             chai.request(app)
-                .get('/me/goods/?token=' + token)
+                .get('/me/goods/?token=' + token +'&category=0&order=0')
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(STATUS_SERVER_ERROR);
-                    goodModel.find.restore();
+                    mongoose.Aggregate.prototype.exec.restore();
                     done();
                 });
         });
@@ -110,7 +236,7 @@ describe('Operations that involve goods', function () {
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .get('/me/goods/?token=' + token)
+                .get('/me/goods/?token=' + token +'&category=0&order=0')
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(STATUS_FORBIDDEN);
@@ -230,8 +356,6 @@ describe('Operations that involve goods', function () {
                 userType: 'Entity'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
-            sinon.stub(goodModel.prototype, 'save');
-            goodModel.prototype.save.yields(null);
             chai.request(app)
                 .post('/me/goods?token=' + token)
                 .send({
@@ -246,7 +370,6 @@ describe('Operations that involve goods', function () {
                 })
                 .then(function (res) {
                     expect(res).to.have.status(STATUS_CREATED);
-                    goodModel.prototype.save.restore();
                     done();
                 });
         });

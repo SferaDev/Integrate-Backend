@@ -18,6 +18,7 @@ export const ERROR_WRONG_PARAMETERS = 14000;
 // HTTP status codes
 export const STATUS_OK = 200;
 export const STATUS_CREATED = 201;
+export const STATUS_BAD_REQUEST = 400;
 export const STATUS_UNAUTHORIZED = 401;
 export const STATUS_FORBIDDEN = 403;
 export const STATUS_SERVER_ERROR = 500;
@@ -26,3 +27,7 @@ export const STATUS_SERVER_ERROR = 500;
 export const EMAIL_SERVICE = process.env.EMAIL_SERVICE || '';
 export const EMAIL_USER = process.env.EMAIL_USER || '';
 export const EMAIL_PASS = process.env.EMAIL_PASS || '';
+
+// Good attributes
+export const CATEGORIES = ["Totes", "Alimentació", "Cultura", "Formació", "Mobilitat", "Tecnologia", "Salut", "Esports", "Lleure", "Altres"];
+export const ORDER = ["Recents", "Popularitat", "Proximitat"];
