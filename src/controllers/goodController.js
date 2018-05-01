@@ -33,8 +33,7 @@ exports.getGoods = function (req, res) {
                     query: category,
                     spherical: true
                 });
-            }
-            else {
+            } else {
                 // Filter by category
                 if (category) aggregate.match(category);
                 // Sort by update date or popularity
