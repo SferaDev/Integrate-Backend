@@ -60,5 +60,4 @@ export const goodModel = mongoose.model('Good', new mongoose.Schema({
     location: {
         type: [Number]
     }
-}, {timestamps: true})
-    .index({location: '2dsphere'}));
+}, {timestamps: true}).index({location: '2dsphere'}));
