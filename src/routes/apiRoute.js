@@ -96,6 +96,15 @@ router.post('/goods/favourites/:id', function (req, res) {
 });
 
 /**
+ * @api {delete} /goods/favourites/:id Delete favourite Good
+ * @apiVersion 1.0.0
+ * @apiGroup Goods
+ */
+router.delete('/goods/favourites/:id', function (req, res) {
+    goodController.deleteFavouriteGood(req,res)
+});
+
+/**
  * @api {get} /entities List all entities
  * @apiVersion 1.0.0
  * @apiGroup Entities

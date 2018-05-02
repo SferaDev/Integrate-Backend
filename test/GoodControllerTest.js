@@ -57,26 +57,26 @@ describe('Operations that involve goods', function () {
         });
     });
 
-    describe('List and filter all goods', function() {
+    describe('List and filter all goods', function () {
 
         beforeEach(function (done) {
             let goodItem = new goodModel({
                 'userId': entityItem._id,
                 'productName': 'productTest1',
                 'picture': 'picture.png',
-                'initialPrice':'100',
-                'discountType':'%',
-                'discount':'10',
-                'category':'Alimentació',
-                'reusePeriod':'7',
-                'pendingUnits':'100',
+                'initialPrice': '100',
+                'discountType': '%',
+                'discount': '10',
+                'category': 'Alimentació',
+                'reusePeriod': '7',
+                'pendingUnits': '100',
                 'location': [2.098851, 41.322228],
                 'numberFavs': 2
             });
             //goodModel.on('location_2d', function() {
-                goodItem.save(function () {
-                    done();
-                });
+            goodItem.save(function () {
+                done();
+            });
             //});
         });
 
@@ -85,19 +85,19 @@ describe('Operations that involve goods', function () {
                 'userId': entityItem._id,
                 'productName': 'productTest2',
                 'picture': 'picture.png',
-                'initialPrice':'100',
-                'discountType':'%',
-                'discount':'10',
-                'category':'Esports',
-                'reusePeriod':'7',
-                'pendingUnits':'100',
+                'initialPrice': '100',
+                'discountType': '%',
+                'discount': '10',
+                'category': 'Esports',
+                'reusePeriod': '7',
+                'pendingUnits': '100',
                 'location': [2.092285, 41.331992],
                 'numberFavs': 0
             });
             //goodModel.on('index', function() {
-                goodItem.save(function () {
-                    done();
-                });
+            goodItem.save(function () {
+                done();
+            });
             //});
         });
 
@@ -106,61 +106,60 @@ describe('Operations that involve goods', function () {
                 'userId': entityItem._id,
                 'productName': 'productTest3',
                 'picture': 'picture.png',
-                'initialPrice':'100',
-                'discountType':'%',
-                'discount':'10',
-                'category':'Esports',
-                'reusePeriod':'7',
-                'pendingUnits':'100',
+                'initialPrice': '100',
+                'discountType': '%',
+                'discount': '10',
+                'category': 'Esports',
+                'reusePeriod': '7',
+                'pendingUnits': '100',
                 'location': [2.084861, 41.340015],
                 'numberFavs': 10
             });
             //goodModel.on('index', function() {
-                goodItem.save(function () {
-                    done();
-                });
+            goodItem.save(function () {
+                done();
+            });
             //});
         });
 
-
-        it('should list all goods ordered by most recent', function(done) {
+        it('should list all goods ordered by most recent', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .get('/me/goods/?token=' + token +'&category=0&order=0')
-                .send()
-                .then(function (res) {
-                    expect(res).to.have.status(STATUS_OK);
-                    expect(res.body[0].productName).to.equal('productTest3');
-                    expect(res.body[1].productName).to.equal('productTest2');
-                    expect(res.body[2].productName).to.equal('productTest1');
-                    done();
-                });
+            .get('/me/goods/?token=' + token + '&category=0&order=0')
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_OK);
+                expect(res.body[0].productName).to.equal('productTest3');
+                expect(res.body[1].productName).to.equal('productTest2');
+                expect(res.body[2].productName).to.equal('productTest1');
+                done();
+            });
         });
 
-        it('should list all goods ordered by popularity', function(done) {
+        it('should list all goods ordered by popularity', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .get('/me/goods/?token=' + token +'&category=0&order=1')
-                .send()
-                .then(function (res) {
-                    expect(res).to.have.status(STATUS_OK);
-                    expect(res.body[0].productName).to.equal('productTest3');
-                    expect(res.body[1].productName).to.equal('productTest1');
-                    expect(res.body[2].productName).to.equal('productTest2');
-                    done();
-                });
+            .get('/me/goods/?token=' + token + '&category=0&order=1')
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_OK);
+                expect(res.body[0].productName).to.equal('productTest3');
+                expect(res.body[1].productName).to.equal('productTest1');
+                expect(res.body[2].productName).to.equal('productTest2');
+                done();
+            });
         });
 
 
-        it('should list all goods ordered by proximity', function(done) {
+        it('should list all goods ordered by proximity', function (done) {
             goodModel.ensureIndexes(function () {
                 let token = base64url.encode(jwt.sign({
                     userId: 'joanpuig@google.com',
@@ -168,83 +167,82 @@ describe('Operations that involve goods', function () {
                 }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                 chai.request(app)
-                    .get('/me/goods/?token=' + token +'&category=0&order=2&longitude=2.102137&latitude=41.319359')
-                    .send()
-                    .then(function (res) {
-                        expect(res).to.have.status(STATUS_OK);
-                        expect(res.body[0].productName).to.equal('productTest1');
-                        expect(res.body[1].productName).to.equal('productTest2');
-                        expect(res.body[2].productName).to.equal('productTest3');
-                        done();
-                    });
-            });
-        });
-
-
-        it('should filter goods by category', function(done) {
-            let token = base64url.encode(jwt.sign({
-                userId: 'joanpuig@google.com',
-                userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
-
-            chai.request(app)
-                .get('/me/goods/?token=' + token +'&category=7&order=0')
+                .get('/me/goods/?token=' + token + '&category=0&order=2&longitude=2.102137&latitude=41.319359')
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(STATUS_OK);
-                    expect(res.body.length).to.equal(2);
-                    expect(res.body[0].productName).to.equal('productTest3');
+                    expect(res.body[0].productName).to.equal('productTest1');
                     expect(res.body[1].productName).to.equal('productTest2');
+                    expect(res.body[2].productName).to.equal('productTest3');
                     done();
                 });
+            });
         });
 
-        it('should detect wrong query parameters', function(done) {
+        it('should filter goods by category', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .get('/me/goods/?token=' + token +'&categoryy=7&orderr=0')
-                .send()
-                .then(function (res) {
-                    expect(res).to.have.status(STATUS_BAD_REQUEST);
-                    done();
-                });
+            .get('/me/goods/?token=' + token + '&category=7&order=0')
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_OK);
+                expect(res.body.length).to.equal(2);
+                expect(res.body[0].productName).to.equal('productTest3');
+                expect(res.body[1].productName).to.equal('productTest2');
+                done();
+            });
         });
 
-        it ('should detect database errors', function (done) {
+        it('should detect wrong query parameters', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Beneficiary'
+            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+            .get('/me/goods/?token=' + token + '&categoryy=7&orderr=0')
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_BAD_REQUEST);
+                done();
+            });
+        });
+
+        it('should detect database errors', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(mongoose.Aggregate.prototype, 'exec');
-            mongoose.Aggregate.prototype.exec.yields({code:ERROR_DEFAULT, err:'Internal error'});
+            mongoose.Aggregate.prototype.exec.yields({code: ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-                .get('/me/goods/?token=' + token +'&category=0&order=0')
-                .send()
-                .then(function (res) {
-                    expect(res).to.have.status(STATUS_SERVER_ERROR);
-                    mongoose.Aggregate.prototype.exec.restore();
-                    done();
-                });
+            .get('/me/goods/?token=' + token + '&category=0&order=0')
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_SERVER_ERROR);
+                mongoose.Aggregate.prototype.exec.restore();
+                done();
+            });
         });
 
-        it ('should not allow wrong type of user', function (done) {
+        it('should not allow wrong type of user', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .get('/me/goods/?token=' + token +'&category=0&order=0')
-                .send()
-                .then(function (res) {
-                    expect(res).to.have.status(STATUS_FORBIDDEN);
-                    done();
-                });
+            .get('/me/goods/?token=' + token + '&category=0&order=0')
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_FORBIDDEN);
+                done();
+            });
         });
     });
 
@@ -254,12 +252,12 @@ describe('Operations that involve goods', function () {
                 'userId': entityItem._id,
                 'productName': 'productTest',
                 'picture': 'picture.png',
-                'initialPrice':'100',
-                'discountType':'%',
-                'discount':'10',
-                'category':'food',
-                'reusePeriod':'7',
-                'pendingUnits':'100'
+                'initialPrice': '100',
+                'discountType': '%',
+                'discount': '10',
+                'category': 'food',
+                'reusePeriod': '7',
+                'pendingUnits': '100'
             });
             goodItem.save(function (err, good) {
                 let beneficiaryItem = new beneficiaryModel({
@@ -278,36 +276,36 @@ describe('Operations that involve goods', function () {
                     }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                     chai.request(app)
-                        .get('/me/goods/favourites/?token=' + token)
-                        .send()
-                        .then(function (res) {
-                            expect(res).to.have.status(STATUS_OK);
-                            expect(res.body[0].productName).to.equal('productTest');
-                            done();
-                        });
+                    .get('/me/goods/favourites/?token=' + token)
+                    .send()
+                    .then(function (res) {
+                        expect(res).to.have.status(STATUS_OK);
+                        expect(res.body[0].productName).to.equal('productTest');
+                        done();
+                    });
                 });
             });
         });
 
-        it ('should detect database errors when finding beneficiary', function (done) {
+        it('should detect database errors when finding beneficiary', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(beneficiaryModel, 'findOne');
-            beneficiaryModel.findOne.yields({code:ERROR_DEFAULT, err:'Internal error'});
+            beneficiaryModel.findOne.yields({code: ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-                .get('/me/goods/favourites/?token=' + token)
-                .send()
-                .then(function (res) {
-                    expect(res).to.have.status(STATUS_SERVER_ERROR);
-                    beneficiaryModel.findOne.restore();
-                    done();
-                });
+            .get('/me/goods/favourites/?token=' + token)
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_SERVER_ERROR);
+                beneficiaryModel.findOne.restore();
+                done();
+            });
         });
 
-        it ('should detect database errors when finding goods', function (done) {
+        it('should detect database errors when finding goods', function (done) {
             let beneficiaryItem = new beneficiaryModel({
                 nif: '12345678F',
                 firstName: 'Sergey',
@@ -326,29 +324,29 @@ describe('Operations that involve goods', function () {
                 sinon.stub(goodModel, 'find');
                 goodModel.find.yields({code: ERROR_DEFAULT, err: 'Internal error'});
                 chai.request(app)
-                    .get('/me/goods/favourites/?token=' + token)
-                    .send()
-                    .then(function (res) {
-                        expect(res).to.have.status(STATUS_SERVER_ERROR);
-                        goodModel.find.restore();
-                        done();
-                    });
+                .get('/me/goods/favourites/?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_SERVER_ERROR);
+                    goodModel.find.restore();
+                    done();
+                });
             });
         });
 
-        it ('should not allow wrong type of user', function (done) {
+        it('should not allow wrong type of user', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .get('/me/goods/favourites/?token=' + token)
-                .send()
-                .then(function (res) {
-                    expect(res).to.have.status(STATUS_FORBIDDEN);
-                    done();
-                });
+            .get('/me/goods/favourites/?token=' + token)
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_FORBIDDEN);
+                done();
+            });
         });
     });
 
@@ -360,21 +358,21 @@ describe('Operations that involve goods', function () {
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .post('/me/goods?token=' + token)
-                .send({
-                    'productName': 'productTest',
-                    'picture': 'picture.png',
-                    'initialPrice': '100',
-                    'discountType':'%',
-                    'discount':'10',
-                    'category':'food',
-                    'reusePeriod':'7',
-                    'pendingUnits':'100'
-                })
-                .then(function (res) {
-                    expect(res).to.have.status(STATUS_CREATED);
-                    done();
-                });
+            .post('/me/goods?token=' + token)
+            .send({
+                'productName': 'productTest',
+                'picture': 'picture.png',
+                'initialPrice': '100',
+                'discountType': '%',
+                'discount': '10',
+                'category': 'food',
+                'reusePeriod': '7',
+                'pendingUnits': '100'
+            })
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_CREATED);
+                done();
+            });
         });
 
         it('should detect database errors', function (done) {
@@ -384,48 +382,48 @@ describe('Operations that involve goods', function () {
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(goodModel.prototype, 'save');
-            goodModel.prototype.save.yields({code:ERROR_DEFAULT, err:'Internal error'});
+            goodModel.prototype.save.yields({code: ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-                .post('/me/goods?token=' + token)
-                .send({
-                    'productName': 'productTest',
-                    'picture': 'picture.png',
-                    'initialPrice':'100',
-                    'discountType':'%',
-                    'discount':'10',
-                    'category':'food',
-                    'reusePeriod':'7',
-                    'pendingUnits':'100'
-                })
-                .then(function (res) {
-                    expect(res).to.have.status(STATUS_SERVER_ERROR);
-                    goodModel.prototype.save.restore();
-                    done();
-                });
+            .post('/me/goods?token=' + token)
+            .send({
+                'productName': 'productTest',
+                'picture': 'picture.png',
+                'initialPrice': '100',
+                'discountType': '%',
+                'discount': '10',
+                'category': 'food',
+                'reusePeriod': '7',
+                'pendingUnits': '100'
+            })
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_SERVER_ERROR);
+                goodModel.prototype.save.restore();
+                done();
+            });
         });
 
-        it ('should not allow wrong type of user', function (done) {
+        it('should not allow wrong type of user', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .post('/me/goods?token=' + token)
-                .send({
-                    'productName': 'productTest',
-                    'picture': 'picture.png',
-                    'initialPrice':'100',
-                    'discountType':'%',
-                    'discount':'10',
-                    'category':'food',
-                    'reusePeriod':'7',
-                    'pendingUnits':'100'
-                })
-                .then(function (res) {
-                    expect(res).to.have.status(STATUS_FORBIDDEN);
-                    done();
-                });
+            .post('/me/goods?token=' + token)
+            .send({
+                'productName': 'productTest',
+                'picture': 'picture.png',
+                'initialPrice': '100',
+                'discountType': '%',
+                'discount': '10',
+                'category': 'food',
+                'reusePeriod': '7',
+                'pendingUnits': '100'
+            })
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_FORBIDDEN);
+                done();
+            });
         });
     });
 
@@ -435,12 +433,12 @@ describe('Operations that involve goods', function () {
                 'userId': entityItem._id,
                 'productName': 'productTest',
                 'picture': 'picture.png',
-                'initialPrice':'100',
-                'discountType':'%',
-                'discount':'10',
-                'category':'food',
-                'reusePeriod':'7',
-                'pendingUnits':'100'
+                'initialPrice': '100',
+                'discountType': '%',
+                'discount': '10',
+                'category': 'food',
+                'reusePeriod': '7',
+                'pendingUnits': '100'
             });
             goodItem.save(function (err, good) {
                 let token = base64url.encode(jwt.sign({
@@ -449,46 +447,46 @@ describe('Operations that involve goods', function () {
                 }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                 chai.request(app)
-                    .delete('/me/goods/' + good._id + '?token=' + token)
-                    .send()
-                    .then(function (res) {
-                        expect(res).to.have.status(STATUS_OK);
-                        done();
-                    });
+                .delete('/me/goods/' + good._id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_OK);
+                    done();
+                });
             });
         });
 
-        it ('should detect database errors', function (done) {
+        it('should detect database errors', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(goodModel, 'findByIdAndRemove');
-            goodModel.findByIdAndRemove.yields({code:ERROR_DEFAULT, err:'Internal error'});
+            goodModel.findByIdAndRemove.yields({code: ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-                .delete('/me/goods/' + 1 + '?token=' + token)
-                .send()
-                .then(function (res) {
-                    expect(res).to.have.status(STATUS_SERVER_ERROR);
-                    goodModel.findByIdAndRemove.restore();
-                    done();
-                });
+            .delete('/me/goods/' + 1 + '?token=' + token)
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_SERVER_ERROR);
+                goodModel.findByIdAndRemove.restore();
+                done();
+            });
         });
 
-        it ('should not allow wrong type of user', function (done) {
+        it('should not allow wrong type of user', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .delete('/me/goods/' + 1 + '?token=' + token)
-                .send()
-                .then(function (res) {
-                    expect(res).to.have.status(STATUS_FORBIDDEN);
-                    done();
-                });
+            .delete('/me/goods/' + 1 + '?token=' + token)
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_FORBIDDEN);
+                done();
+            });
         });
     });
 
@@ -498,12 +496,12 @@ describe('Operations that involve goods', function () {
                 'userId': entityItem._id,
                 'productName': 'productTest',
                 'picture': 'picture.png',
-                'initialPrice':'100',
-                'discountType':'%',
-                'discount':'10',
-                'category':'food',
-                'reusePeriod':'7',
-                'pendingUnits':'100'
+                'initialPrice': '100',
+                'discountType': '%',
+                'discount': '10',
+                'category': 'food',
+                'reusePeriod': '7',
+                'pendingUnits': '100'
             });
             goodItem.save(function (err, good) {
                 let token = base64url.encode(jwt.sign({
@@ -514,62 +512,62 @@ describe('Operations that involve goods', function () {
                 goodItem.discount = 20;
 
                 chai.request(app)
-                    .put('/me/goods/' + good._id + '?token=' + token)
-                    .send(goodItem)
-                    .then(function (res) {
-                        expect(res).to.have.status(STATUS_OK);
-                        expect(res.body.discount).to.equal(20);
-                        done();
-                    });
+                .put('/me/goods/' + good._id + '?token=' + token)
+                .send(goodItem)
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_OK);
+                    expect(res.body.discount).to.equal(20);
+                    done();
+                });
             });
         });
 
-        it ('should detect database errors', function (done) {
+        it('should detect database errors', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(goodModel, 'findByIdAndUpdate');
-            goodModel.findByIdAndUpdate.yields({code:ERROR_DEFAULT, err:'Internal error'});
+            goodModel.findByIdAndUpdate.yields({code: ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-                .put('/me/goods/' + 1 + '?token=' + token)
-                .send()
-                .then(function (res) {
-                    expect(res).to.have.status(STATUS_SERVER_ERROR);
-                    goodModel.findByIdAndUpdate.restore();
-                    done();
-                });
+            .put('/me/goods/' + 1 + '?token=' + token)
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_SERVER_ERROR);
+                goodModel.findByIdAndUpdate.restore();
+                done();
+            });
         });
 
-        it ('should not allow wrong type of user', function (done) {
+        it('should not allow wrong type of user', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .put('/me/goods/' + 1 + '?token=' + token)
-                .send()
-                .then(function (res) {
-                    expect(res).to.have.status(STATUS_FORBIDDEN);
-                    done();
-                });
+            .put('/me/goods/' + 1 + '?token=' + token)
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_FORBIDDEN);
+                done();
+            });
         });
     });
 
-    describe ('Add good to favourites', function () {
-        it ('should add good to favourites successfully', function (done) {
+    describe('Add good to favourites', function () {
+        it('should add good to favourites successfully', function (done) {
             let goodItem = new goodModel({
                 'userId': entityItem._id,
                 'productName': 'productTest',
                 'picture': 'picture.png',
-                'initialPrice':'100',
-                'discountType':'%',
-                'discount':'10',
-                'category':'food',
-                'reusePeriod':'7',
-                'pendingUnits':'100'
+                'initialPrice': '100',
+                'discountType': '%',
+                'discount': '10',
+                'category': 'food',
+                'reusePeriod': '7',
+                'pendingUnits': '100'
             });
             goodItem.save(function (err, good) {
                 let beneficiaryItem = new beneficiaryModel({
@@ -587,36 +585,36 @@ describe('Operations that involve goods', function () {
                     }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                     chai.request(app)
-                        .post('/me/goods/favourites/' + good._id + '?token=' + token)
-                        .send()
-                        .then(function (res) {
-                            expect(res).to.have.status(STATUS_OK);
-                            expect(res.body[0]).to.equal(good._id.toString());
-                            done();
-                        });
+                    .post('/me/goods/favourites/' + good._id + '?token=' + token)
+                    .send()
+                    .then(function (res) {
+                        expect(res).to.have.status(STATUS_OK);
+                        expect(res.body[0]).to.equal(good._id.toString());
+                        done();
+                    });
                 });
             });
         });
 
-        it ('should detect database errors when finding beneficiary', function (done) {
+        it('should detect database errors when finding beneficiary', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(beneficiaryModel, 'findOne');
-            beneficiaryModel.findOne.yields({code:ERROR_DEFAULT, err:'Internal error'});
+            beneficiaryModel.findOne.yields({code: ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-                .post('/me/goods/favourites/' + 1 + '?token=' + token)
-                .send()
-                .then(function (res) {
-                    expect(res).to.have.status(STATUS_SERVER_ERROR);
-                    beneficiaryModel.findOne.restore();
-                    done();
-                });
+            .post('/me/goods/favourites/' + 1 + '?token=' + token)
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_SERVER_ERROR);
+                beneficiaryModel.findOne.restore();
+                done();
+            });
         });
 
-        it ('should detect invalid good ids', function (done) {
+        it('should detect invalid good ids', function (done) {
             let beneficiaryItem = new beneficiaryModel({
                 nif: '12345678F',
                 firstName: 'Sergey',
@@ -633,16 +631,16 @@ describe('Operations that involve goods', function () {
                 }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                 chai.request(app)
-                    .post('/me/goods/favourites/5ae9869d1fda296beeb99d86?token=' + token)
-                    .send()
-                    .then(function (res) {
-                        expect(res).to.have.status(STATUS_NOT_FOUND);
-                        done();
-                    });
+                .post('/me/goods/favourites/5ae9869d1fda296beeb99d86?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_NOT_FOUND);
+                    done();
+                });
             });
         });
 
-        it ('should detect database errors when finding goods', function (done) {
+        it('should detect database errors when finding goods', function (done) {
             let beneficiaryItem = new beneficiaryModel({
                 nif: '12345678F',
                 firstName: 'Sergey',
@@ -661,27 +659,27 @@ describe('Operations that involve goods', function () {
                 sinon.stub(goodModel, 'findById');
                 goodModel.findById.yields({code: ERROR_DEFAULT, err: 'Internal error'});
                 chai.request(app)
-                    .post('/me/goods/favourites/' + 1 + '?token=' + token)
-                    .send()
-                    .then(function (res) {
-                        expect(res).to.have.status(STATUS_SERVER_ERROR);
-                        goodModel.findById.restore();
-                        done();
-                    });
+                .post('/me/goods/favourites/' + 1 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_SERVER_ERROR);
+                    goodModel.findById.restore();
+                    done();
+                });
             });
         });
 
-        it ('should detect duplicate goods', function (done) {
+        it('should detect duplicate goods', function (done) {
             let goodItem = new goodModel({
                 'userId': entityItem._id,
                 'productName': 'productTest',
                 'picture': 'picture.png',
-                'initialPrice':'100',
-                'discountType':'%',
-                'discount':'10',
-                'category':'food',
-                'reusePeriod':'7',
-                'pendingUnits':'100'
+                'initialPrice': '100',
+                'discountType': '%',
+                'discount': '10',
+                'category': 'food',
+                'reusePeriod': '7',
+                'pendingUnits': '100'
             });
             goodItem.save(function (err, good) {
                 let beneficiaryItem = new beneficiaryModel({
@@ -700,29 +698,200 @@ describe('Operations that involve goods', function () {
                     }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                     chai.request(app)
-                        .post('/me/goods/favourites/' + good._id + '?token=' + token)
-                        .send()
-                        .then(function (res) {
-                            expect(res).to.have.status(STATUS_CONFLICT);
-                            done();
-                        });
+                    .post('/me/goods/favourites/' + good._id + '?token=' + token)
+                    .send()
+                    .then(function (res) {
+                        expect(res).to.have.status(STATUS_CONFLICT);
+                        done();
+                    });
                 });
             });
         });
 
-        it ('should not allow wrong type of user', function (done) {
+        it('should not allow wrong type of user', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
             }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .post('/me/goods/favourites/' + 1 + '?token=' + token)
+            .post('/me/goods/favourites/' + 1 + '?token=' + token)
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_FORBIDDEN);
+                done();
+            });
+        });
+
+    });
+
+    describe('Delete good from favourites', function () {
+        it('should delete good from favourites successfully', function (done) {
+            let goodItem = new goodModel({
+                'userId': entityItem._id,
+                'productName': 'productTest',
+                'picture': 'picture.png',
+                'initialPrice': '100',
+                'discountType': '%',
+                'discount': '10',
+                'category': 'food',
+                'reusePeriod': '7',
+                'pendingUnits': '100'
+            });
+            goodItem.save(function (err, good) {
+                let beneficiaryItem = new beneficiaryModel({
+                    nif: '12345678F',
+                    firstName: 'Sergey',
+                    lastName: 'Brin',
+                    email: 'sbrin@google.com',
+                    password: 'myPAsswd!',
+                    favouriteGoods: [good._id]
+                });
+
+                beneficiaryItem.save(function () {
+                    let token = base64url.encode(jwt.sign({
+                        userId: 'sbrin@google.com',
+                        userType: 'Beneficiary'
+                    }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+                    chai.request(app)
+                    .delete('/me/goods/favourites/' + good._id + '?token=' + token)
+                    .send()
+                    .then(function (res) {
+                        expect(res).to.have.status(STATUS_OK);
+                        let index = res.body.indexOf(good._id);
+                        expect(index).to.equal(-1);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('should detect database errors when finding beneficiary', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Beneficiary'
+            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            sinon.stub(beneficiaryModel, 'findOne');
+            beneficiaryModel.findOne.yields({code: ERROR_DEFAULT, err: 'Internal error'});
+            chai.request(app)
+            .delete('/me/goods/favourites/' + 1 + '?token=' + token)
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_SERVER_ERROR);
+                beneficiaryModel.findOne.restore();
+                done();
+            });
+        });
+
+        it('should detect invalid good ids', function (done) {
+            let beneficiaryItem = new beneficiaryModel({
+                nif: '12345678F',
+                firstName: 'Sergey',
+                lastName: 'Brin',
+                email: 'sbrin@google.com',
+                password: 'myPAsswd!',
+                favouriteGoods: []
+            });
+
+            beneficiaryItem.save(function () {
+                let token = base64url.encode(jwt.sign({
+                    userId: 'sbrin@google.com',
+                    userType: 'Beneficiary'
+                }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+                chai.request(app)
+                .delete('/me/goods/favourites/5ae9869d1fda296beeb99d86?token=' + token)
                 .send()
                 .then(function (res) {
-                    expect(res).to.have.status(STATUS_FORBIDDEN);
+                    expect(res).to.have.status(STATUS_NOT_FOUND);
                     done();
                 });
+            });
+        });
+
+        it('should detect database errors when finding goods', function (done) {
+            let beneficiaryItem = new beneficiaryModel({
+                nif: '12345678F',
+                firstName: 'Sergey',
+                lastName: 'Brin',
+                email: 'sbrin@google.com',
+                password: 'myPAsswd!',
+                favouriteGoods: []
+            });
+
+            beneficiaryItem.save(function () {
+                let token = base64url.encode(jwt.sign({
+                    userId: 'sbrin@google.com',
+                    userType: 'Beneficiary'
+                }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+                sinon.stub(goodModel, 'findById');
+                goodModel.findById.yields({code: ERROR_DEFAULT, err: 'Internal error'});
+                chai.request(app)
+                .delete('/me/goods/favourites/' + 1 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(STATUS_SERVER_ERROR);
+                    goodModel.findById.restore();
+                    done();
+                });
+            });
+        });
+
+        it('should detect non favourite goods', function (done) {
+            let goodItem = new goodModel({
+                'userId': entityItem._id,
+                'productName': 'productTest',
+                'picture': 'picture.png',
+                'initialPrice': '100',
+                'discountType': '%',
+                'discount': '10',
+                'category': 'food',
+                'reusePeriod': '7',
+                'pendingUnits': '100'
+            });
+            goodItem.save(function (err, good) {
+                let beneficiaryItem = new beneficiaryModel({
+                    nif: '12345678F',
+                    firstName: 'Sergey',
+                    lastName: 'Brin',
+                    email: 'sbrin@google.com',
+                    password: 'myPAsswd!',
+                    favouriteGoods: []
+                });
+
+                beneficiaryItem.save(function () {
+                    let token = base64url.encode(jwt.sign({
+                        userId: 'sbrin@google.com',
+                        userType: 'Beneficiary'
+                    }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+                    chai.request(app)
+                    .delete('/me/goods/favourites/' + good._id + '?token=' + token)
+                    .send()
+                    .then(function (res) {
+                        expect(res).to.have.status(STATUS_NOT_FOUND);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('should not allow wrong type of user', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+            .delete('/me/goods/favourites/' + 1 + '?token=' + token)
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(STATUS_FORBIDDEN);
+                done();
+            });
         });
 
     });
