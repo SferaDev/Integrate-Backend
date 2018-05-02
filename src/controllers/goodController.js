@@ -4,6 +4,7 @@ import {goodModel} from "../models/goodModel";
 import {
     CATEGORIES,
     STATUS_BAD_REQUEST,
+    STATUS_CONFLICT,
     STATUS_CREATED,
     STATUS_FORBIDDEN,
     STATUS_NOT_FOUND,
@@ -120,10 +121,13 @@ exports.addFavouriteGood = function (req, res) {
                 let id = req.params.id;
                 goodModel.findById(id, function (err, good) {
                     if (err) res.status(STATUS_SERVER_ERROR).send(err);
-                    else if (!good) res.status(STATUS_NOT_FOUND).send({error: "Good doesn't exist"})
+                    else if (!good) res.status(STATUS_NOT_FOUND).send({error: "Good doesn't exist"});
                     else {
-                        beneficiary.favouriteGoods.push(good._id);
-                        res.status(STATUS_OK).send(beneficiary.favouriteGoods);
+                        let index = beneficiary.favouriteGoods.indexOf(good._id);
+                        if (index === -1) {
+                            beneficiary.favouriteGoods.push(good._id);
+                            res.status(STATUS_OK).send(beneficiary.favouriteGoods);
+                        } else res.status(STATUS_CONFLICT).send({error: "This good is already in your favourite list"});
                     }
                 });
             }

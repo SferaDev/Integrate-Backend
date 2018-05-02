@@ -1,8 +1,11 @@
 import app from "../server";
 import {
-    ERROR_DEFAULT, STATUS_BAD_REQUEST,
+    ERROR_DEFAULT,
+    STATUS_BAD_REQUEST,
+    STATUS_CONFLICT,
     STATUS_CREATED,
-    STATUS_FORBIDDEN, STATUS_NOT_FOUND,
+    STATUS_FORBIDDEN,
+    STATUS_NOT_FOUND,
     STATUS_OK,
     STATUS_SERVER_ERROR,
     TOKEN_SECRET
@@ -665,6 +668,45 @@ describe('Operations that involve goods', function () {
                         goodModel.findById.restore();
                         done();
                     });
+            });
+        });
+
+        it ('should detect duplicate goods', function (done) {
+            let goodItem = new goodModel({
+                'userId': entityItem._id,
+                'productName': 'productTest',
+                'picture': 'picture.png',
+                'initialPrice':'100',
+                'discountType':'%',
+                'discount':'10',
+                'category':'food',
+                'reusePeriod':'7',
+                'pendingUnits':'100'
+            });
+            goodItem.save(function (err, good) {
+                let beneficiaryItem = new beneficiaryModel({
+                    nif: '12345678F',
+                    firstName: 'Sergey',
+                    lastName: 'Brin',
+                    email: 'sbrin@google.com',
+                    password: 'myPAsswd!',
+                    favouriteGoods: [good._id]
+                });
+
+                beneficiaryItem.save(function () {
+                    let token = base64url.encode(jwt.sign({
+                        userId: 'sbrin@google.com',
+                        userType: 'Beneficiary'
+                    }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+                    chai.request(app)
+                        .post('/me/goods/favourites/' + good._id + '?token=' + token)
+                        .send()
+                        .then(function (res) {
+                            expect(res).to.have.status(STATUS_CONFLICT);
+                            done();
+                        });
+                });
             });
         });
 
