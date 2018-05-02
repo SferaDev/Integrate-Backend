@@ -126,8 +126,7 @@ exports.deleteFavouriteGood = function (req, res) {
                         if (index !== -1) {
                             beneficiary.favouriteGoods.splice(index,1);
                             res.status(STATUS_OK).send(beneficiary.favouriteGoods);
-                        }
-                        else {
+                        } else {
                             res.status(STATUS_NOT_FOUND).send({error: "This good is not in your favourite list"});
                         }
                     }
