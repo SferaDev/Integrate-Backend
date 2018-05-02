@@ -86,6 +86,10 @@ router.get('/goods/favourites', function (req, res) {
     goodController.getFavouriteGoods(req, res)
 });
 
+router.post('/goods/favourites/:id', function (req, res) {
+    goodController.addFavouriteGood(req,res)
+});
+
 /**
  * @api {get} /entities List all entities
  * @apiVersion 1.0.0
