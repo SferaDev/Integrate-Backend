@@ -125,6 +125,7 @@ exports.addFavouriteGood = function (req, res) {
                     else {
                         let index = beneficiary.favouriteGoods.indexOf(good._id);
                         if (index === -1) {
+                            good.numberFavs = good.numberFavs + 1;
                             beneficiary.favouriteGoods.push(good._id);
                             res.status(STATUS_OK).send(beneficiary.favouriteGoods);
                         } else res.status(STATUS_CONFLICT).send({error: "This good is already in your favourite list"});
@@ -149,6 +150,7 @@ exports.deleteFavouriteGood = function (req, res) {
                     else {
                         let index = beneficiary.favouriteGoods.indexOf(good._id);
                         if (index !== -1) {
+                            good.numberFavs = good.numberFavs - 1;
                             beneficiary.favouriteGoods.splice(index,1);
                             res.status(STATUS_OK).send(beneficiary.favouriteGoods);
                         } else {
