@@ -1,7 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import base64url from "base64url";
-import {STATUS_FORBIDDEN, TOKEN_SECRET} from "../constants";
+import {STATUS_FORBIDDEN, STATUS_UNAUTHORIZED, TOKEN_SECRET} from "../constants";
 import * as goodController from "../controllers/goodController";
 import * as entityController from "../controllers/entityController";
 
@@ -13,7 +13,7 @@ router.use(function (req, res, next) {
     if (token) {
         jwt.verify(base64url.decode(token), TOKEN_SECRET, function (err, decoded) {
             if (err) {
-                return res.json({
+                return res.status(STATUS_UNAUTHORIZED).send({
                     success: false,
                     message: 'Failed to authenticate token.'
                 });
