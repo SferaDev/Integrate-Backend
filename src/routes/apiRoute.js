@@ -87,7 +87,7 @@ router.get('/goods/favourites', function (req, res) {
 });
 
 /**
- * @api {post} /goods/favourites/:id Add favourite Good
+ * @api {delete} /goods/favourites/:id Delete favourite Good
  * @apiVersion 1.0.0
  * @apiGroup Goods
  */
