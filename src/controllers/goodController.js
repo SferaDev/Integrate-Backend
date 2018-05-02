@@ -6,6 +6,7 @@ import {
     STATUS_BAD_REQUEST,
     STATUS_CREATED,
     STATUS_FORBIDDEN,
+    STATUS_NOT_FOUND,
     STATUS_OK,
     STATUS_SERVER_ERROR
 } from "../constants";
@@ -105,6 +106,33 @@ exports.updateGood = function (req, res) {
         goodModel.findByIdAndUpdate(id, req.body, {new: true}, function (err, good) {
             if (err) res.status(STATUS_SERVER_ERROR).send(err);
             else res.status(STATUS_OK).send(good);
+        });
+    } else {
+        res.status(STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
+    }
+};
+
+exports.deleteFavouriteGood = function (req, res) {
+    if (req.userType === 'Beneficiary') {
+        beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
+            if (err) res.status(STATUS_SERVER_ERROR).send(err);
+            else {
+                let id = req.params.id;
+                goodModel.findById(id, function (err, good) {
+                    if (err) res.status(STATUS_SERVER_ERROR).send(err);
+                    else if (!good) res.status(STATUS_NOT_FOUND).send({error: "Good doesn't exist"});
+                    else {
+                        let index = beneficiary.favouriteGoods.indexOf(good._id);
+                        if (index !== -1) {
+                            beneficiary.favouriteGoods.splice(index,1);
+                            res.status(STATUS_OK).send(beneficiary.favouriteGoods);
+                        }
+                        else {
+                            res.status(STATUS_NOT_FOUND).send({error: "This good is not in your favourite list"});
+                        }
+                    }
+                });
+            }
         });
     } else {
         res.status(STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
