@@ -61,7 +61,10 @@ describe('Operations that involve goods', function () {
 
         beforeEach(function (done) {
             let goodItem = new goodModel({
-                'userId': entityItem._id,
+                'owner': {
+                    'id': entityItem._id,
+                    'name': 'Colmado'
+                },
                 'productName': 'productTest1',
                 'picture': 'picture.png',
                 'initialPrice': '100',
@@ -82,7 +85,10 @@ describe('Operations that involve goods', function () {
 
         beforeEach(function (done) {
             let goodItem = new goodModel({
-                'userId': entityItem._id,
+                'owner': {
+                    'id': entityItem._id,
+                    'name': 'Colmado'
+                },
                 'productName': 'productTest2',
                 'picture': 'picture.png',
                 'initialPrice': '100',
@@ -103,7 +109,10 @@ describe('Operations that involve goods', function () {
 
         beforeEach(function (done) {
             let goodItem = new goodModel({
-                'userId': entityItem._id,
+                'owner': {
+                    'id': entityItem._id,
+                    'name': 'Colmado'
+                },
                 'productName': 'productTest3',
                 'picture': 'picture.png',
                 'initialPrice': '100',
@@ -249,7 +258,10 @@ describe('Operations that involve goods', function () {
     describe('List favourite goods', function () {
         it('should list all favourite goods successfully', function (done) {
             let goodItem = new goodModel({
-                'userId': entityItem._id,
+                'owner': {
+                    'id': entityItem._id,
+                    'name': 'Colmado'
+                },
                 'productName': 'productTest',
                 'picture': 'picture.png',
                 'initialPrice': '100',
@@ -430,7 +442,10 @@ describe('Operations that involve goods', function () {
     describe('Delete good', function () {
         it('should delete existant good successfully', function (done) {
             let goodItem = new goodModel({
-                'userId': entityItem._id,
+                'owner': {
+                    'id': entityItem._id,
+                    'name': 'Colmado'
+                },
                 'productName': 'productTest',
                 'picture': 'picture.png',
                 'initialPrice': '100',
@@ -493,7 +508,10 @@ describe('Operations that involve goods', function () {
     describe('Update good', function () {
         it('should update existant good successfully', function (done) {
             let goodItem = new goodModel({
-                'userId': entityItem._id,
+                'owner': {
+                    'id': entityItem._id,
+                    'name': 'Colmado'
+                },
                 'productName': 'productTest',
                 'picture': 'picture.png',
                 'initialPrice': '100',
@@ -559,7 +577,10 @@ describe('Operations that involve goods', function () {
     describe('Add good to favourites', function () {
         it('should add good to favourites successfully', function (done) {
             let goodItem = new goodModel({
-                'userId': entityItem._id,
+                'owner': {
+                    'id': entityItem._id,
+                    'name': 'Colmado'
+                },
                 'productName': 'productTest',
                 'picture': 'picture.png',
                 'initialPrice': '100',
@@ -671,7 +692,10 @@ describe('Operations that involve goods', function () {
 
         it('should detect duplicate goods', function (done) {
             let goodItem = new goodModel({
-                'userId': entityItem._id,
+                'owner': {
+                    'id': entityItem._id,
+                    'name': 'Colmado'
+                },
                 'productName': 'productTest',
                 'picture': 'picture.png',
                 'initialPrice': '100',
@@ -728,7 +752,10 @@ describe('Operations that involve goods', function () {
     describe('Delete good from favourites', function () {
         it('should delete good from favourites successfully', function (done) {
             let goodItem = new goodModel({
-                'userId': entityItem._id,
+                'owner': {
+                    'id': entityItem._id,
+                    'name': 'Colmado'
+                },
                 'productName': 'productTest',
                 'picture': 'picture.png',
                 'initialPrice': '100',
@@ -842,7 +869,10 @@ describe('Operations that involve goods', function () {
 
         it('should detect non favourite goods', function (done) {
             let goodItem = new goodModel({
-                'userId': entityItem._id,
+                'owner': {
+                    'id': entityItem._id,
+                    'name': 'Colmado'
+                },
                 'productName': 'productTest',
                 'picture': 'picture.png',
                 'initialPrice': '100',
