@@ -101,7 +101,10 @@ describe('Test group for GoodModel', function() {
 
     it('should not store a good with invalid category (minor)', function (done) {
         let goodItem = new goodModel({
-            'userId': userId,
+            'owner': {
+                'id': entityId,
+                'name': entityName
+            },
             'productName': 'productTest',
             'picture': 'picture.png',
             'initialPrice':'100',
@@ -119,7 +122,10 @@ describe('Test group for GoodModel', function() {
 
     it('should not store a good with invalid category (major)', function (done) {
         let goodItem = new goodModel({
-            'userId': userId,
+            'owner': {
+                'id': entityId,
+                'name': entityName
+            },
             'productName': 'productTest',
             'picture': 'picture.png',
             'initialPrice':'100',
