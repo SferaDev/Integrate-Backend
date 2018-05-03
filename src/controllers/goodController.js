@@ -2,7 +2,6 @@ import {entityModel} from "../models/entityModel";
 import {beneficiaryModel} from "../models/beneficiaryModel";
 import {goodModel} from "../models/goodModel";
 import {
-    CATEGORIES,
     STATUS_BAD_REQUEST,
     STATUS_CONFLICT,
     STATUS_CREATED,
