@@ -70,7 +70,7 @@ describe('Operations that involve goods', function () {
                 'initialPrice': '100',
                 'discountType': '%',
                 'discount': '10',
-                'category': 'Alimentació',
+                'category': 1,
                 'reusePeriod': '7',
                 'pendingUnits': '100',
                 'location': [2.098851, 41.322228],
@@ -94,7 +94,7 @@ describe('Operations that involve goods', function () {
                 'initialPrice': '100',
                 'discountType': '%',
                 'discount': '10',
-                'category': 'Esports',
+                'category': 7,
                 'reusePeriod': '7',
                 'pendingUnits': '100',
                 'location': [2.092285, 41.331992],
@@ -118,7 +118,7 @@ describe('Operations that involve goods', function () {
                 'initialPrice': '100',
                 'discountType': '%',
                 'discount': '10',
-                'category': 'Esports',
+                'category': 7,
                 'reusePeriod': '7',
                 'pendingUnits': '100',
                 'location': [2.084861, 41.340015],
@@ -267,7 +267,7 @@ describe('Operations that involve goods', function () {
                 'initialPrice': '100',
                 'discountType': '%',
                 'discount': '10',
-                'category': 'food',
+                'category': 1,
                 'reusePeriod': '7',
                 'pendingUnits': '100'
             });
@@ -377,7 +377,7 @@ describe('Operations that involve goods', function () {
                 'initialPrice': '100',
                 'discountType': '%',
                 'discount': '10',
-                'category': 'food',
+                'category': 1,
                 'reusePeriod': '7',
                 'pendingUnits': '100'
             })
@@ -403,7 +403,7 @@ describe('Operations that involve goods', function () {
                 'initialPrice': '100',
                 'discountType': '%',
                 'discount': '10',
-                'category': 'food',
+                'category': 1,
                 'reusePeriod': '7',
                 'pendingUnits': '100'
             })
@@ -428,7 +428,7 @@ describe('Operations that involve goods', function () {
                 'initialPrice': '100',
                 'discountType': '%',
                 'discount': '10',
-                'category': 'food',
+                'category': 1,
                 'reusePeriod': '7',
                 'pendingUnits': '100'
             })
@@ -451,7 +451,7 @@ describe('Operations that involve goods', function () {
                 'initialPrice': '100',
                 'discountType': '%',
                 'discount': '10',
-                'category': 'food',
+                'category': 1,
                 'reusePeriod': '7',
                 'pendingUnits': '100'
             });
@@ -517,7 +517,7 @@ describe('Operations that involve goods', function () {
                 'initialPrice': '100',
                 'discountType': '%',
                 'discount': '10',
-                'category': 'food',
+                'category': 1,
                 'reusePeriod': '7',
                 'pendingUnits': '100'
             });
@@ -586,7 +586,7 @@ describe('Operations that involve goods', function () {
                 'initialPrice': '100',
                 'discountType': '%',
                 'discount': '10',
-                'category': 'food',
+                'category': 1,
                 'reusePeriod': '7',
                 'pendingUnits': '100'
             });
@@ -701,7 +701,7 @@ describe('Operations that involve goods', function () {
                 'initialPrice': '100',
                 'discountType': '%',
                 'discount': '10',
-                'category': 'food',
+                'category': 1,
                 'reusePeriod': '7',
                 'pendingUnits': '100'
             });
@@ -761,7 +761,7 @@ describe('Operations that involve goods', function () {
                 'initialPrice': '100',
                 'discountType': '%',
                 'discount': '10',
-                'category': 'food',
+                'category': 1,
                 'reusePeriod': '7',
                 'pendingUnits': '100'
             });
@@ -878,7 +878,7 @@ describe('Operations that involve goods', function () {
                 'initialPrice': '100',
                 'discountType': '%',
                 'discount': '10',
-                'category': 'food',
+                'category': 1,
                 'reusePeriod': '7',
                 'pendingUnits': '100'
             });

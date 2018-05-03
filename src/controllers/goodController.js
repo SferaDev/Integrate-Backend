@@ -2,7 +2,6 @@ import {entityModel} from "../models/entityModel";
 import {beneficiaryModel} from "../models/beneficiaryModel";
 import {goodModel} from "../models/goodModel";
 import {
-    CATEGORIES,
     STATUS_BAD_REQUEST,
     STATUS_CONFLICT,
     STATUS_CREATED,
@@ -25,7 +24,7 @@ exports.getGoods = function (req, res) {
             // Build the query
             let aggregate = goodModel.aggregate();
             let category;
-            if (categoryIndex !== "0") category = {category: CATEGORIES[categoryIndex]};
+            if (categoryIndex !== "0") category = {category: parseInt(categoryIndex)};
             // Filter by location (must be the first operation of the pipeline)
             if (orderIndex === "2") {
                 aggregate.near({

@@ -66,7 +66,7 @@ describe('Test group for GoodModel', function() {
             'initialPrice':'100',
             'discountType':'%',
             'discount':'10',
-            'category':'food',
+            'category':1,
             'reusePeriod':'7',
             'pendingUnits':'100'
         });
@@ -88,7 +88,43 @@ describe('Test group for GoodModel', function() {
             'picture': 'picture.png',
             'initialPrice':'100',
             'discountType':'%',
-            'category':'food',
+            'category':1,
+            'reusePeriod':'7',
+            'pendingUnits':'100'
+        });
+
+        goodItem.save(function (err) {
+            expect(err).not.to.equal(null);
+            done();
+        });
+    });
+
+    it('should not store a good with invalid category (minor)', function (done) {
+        let goodItem = new goodModel({
+            'userId': userId,
+            'productName': 'productTest',
+            'picture': 'picture.png',
+            'initialPrice':'100',
+            'discountType':'%',
+            'category':0,
+            'reusePeriod':'7',
+            'pendingUnits':'100'
+        });
+
+        goodItem.save(function (err) {
+            expect(err).not.to.equal(null);
+            done();
+        });
+    });
+
+    it('should not store a good with invalid category (major)', function (done) {
+        let goodItem = new goodModel({
+            'userId': userId,
+            'productName': 'productTest',
+            'picture': 'picture.png',
+            'initialPrice':'100',
+            'discountType':'%',
+            'category':10,
             'reusePeriod':'7',
             'pendingUnits':'100'
         });
@@ -120,7 +156,7 @@ describe('Test group for GoodModel', function() {
                 'initialPrice':'100',
                 'discountType':'%',
                 'discount':'10',
-                'category':'food',
+                'category':1,
                 'reusePeriod':'7',
                 'pendingUnits':'100'
             });
