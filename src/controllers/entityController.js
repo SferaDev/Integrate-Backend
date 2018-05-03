@@ -30,19 +30,6 @@ exports.getEntities = function (req, res) {
                 else res.status(STATUS_OK).send(entities);
             });
         }
-        /*
-        entityModel.find({coordinates: {'$near': [parseFloat(longitude), parseFloat(latitude)]}}, {
-            name: 1,
-            description: 1,
-            addressName: 1,
-            coordinates: 1,
-            phone: 1,
-            picture: 1
-        }, function (err, entities) {
-            if (err) res.status(STATUS_SERVER_ERROR).send(err);
-            else res.status(STATUS_OK).send(entities);
-        });
-        */
     } else {
         res.status(STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
     }

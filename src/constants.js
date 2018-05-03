@@ -29,7 +29,3 @@ export const STATUS_SERVER_ERROR = 500;
 export const EMAIL_SERVICE = process.env.EMAIL_SERVICE || '';
 export const EMAIL_USER = process.env.EMAIL_USER || '';
 export const EMAIL_PASS = process.env.EMAIL_PASS || '';
-
-// Good attributes
-export const CATEGORIES = ["Totes", "Alimentació", "Cultura", "Formació", "Mobilitat", "Tecnologia", "Salut", "Esports", "Lleure", "Altres"];
-export const ORDER = ["Recents", "Popularitat", "Proximitat"];
