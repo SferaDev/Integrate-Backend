@@ -42,7 +42,9 @@ export const goodModel = mongoose.model('Good', new mongoose.Schema({
         required: true
     },
     category: {
-        type: String,
+        type: Number,
+        min: 1,
+        max: 9,
         required: true
     },
     reusePeriod: {
