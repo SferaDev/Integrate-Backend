@@ -20,6 +20,7 @@ app.use(cors());
 // Load routes
 app.use('/', express.static('apidoc'));
 app.use('/login', require('./src/routes/loginRoute'));
+app.use('/register', require('./src/routes/registerRoute'));
 app.use('/me', require('./src/routes/apiRoute'));
 
 // Start app

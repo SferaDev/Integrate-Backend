@@ -1,7 +1,17 @@
-import {entityModel} from "../models/entityModel";
-import {STATUS_BAD_REQUEST, STATUS_FORBIDDEN, STATUS_OK, STATUS_SERVER_ERROR} from "../constants";
+import passwordGenerator from "generate-random-password";
 
-exports.getEntities = function (req, res) {
+import {entityModel} from "../models/entityModel";
+import {
+    STATUS_BAD_REQUEST,
+    STATUS_CONFLICT,
+    STATUS_CREATED,
+    STATUS_FORBIDDEN,
+    STATUS_OK,
+    STATUS_SERVER_ERROR
+} from "../constants";
+import {sendMail} from "../../common/mail";
+
+export function getEntities(req, res) {
     if (req.userType === 'Beneficiary') {
         let latitude = req.query.latitude;
         let longitude = req.query.longitude;
@@ -33,4 +43,29 @@ exports.getEntities = function (req, res) {
     } else {
         res.status(STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
     }
-};
+}
+
+export function createNewEntity(req, res) {
+    let attributes = {};
+    for (let key in entityModel.schema.paths) {
+        if (entityModel.schema.paths.hasOwnProperty(key)) {
+            let value = entityModel.schema.paths[key];
+            if (value.isRequired) {
+                if (req.body[key]) attributes[key] = req.body[key];
+                else return res.status(STATUS_BAD_REQUEST).send({message: "Missing parameter " + key});
+            }
+        }
+    }
+    entityModel.count({nif: req.body.nif}, function (err, count) {
+        if (err) return res.status(STATUS_SERVER_ERROR).send(err);
+        if (count > 0) return res.status(STATUS_CONFLICT).send({message: 'NIF already exists'});
+        entityModel.create(attributes, function (err, entity) {
+            if (err) return res.status(STATUS_SERVER_ERROR).send(err);
+            entity.password = passwordGenerator.generateRandomPassword(8);
+            sendMail(entity.email, 'Welcome to Integrate!', 'Your account has been successfully created.\n\nAccount: ' +
+                entity.nif + '\nPassword: ' + entity.password + '\n\nPlease change your password after your first login.');
+            entity.save();
+            res.status(STATUS_CREATED).send();
+        });
+    });
+}
