@@ -51,7 +51,15 @@ exports.getGoods = function (req, res) {
             });
         }
     } else {
-        res.status(STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
+        entityModel.findOne({email: req.userId}, function (err, entity) {
+            if (err) res.status(STATUS_SERVER_ERROR).send(err);
+            else {
+                goodModel.find({'owner.id': entity._id}, function (err, goods) {
+                    if (err) res.status(STATUS_SERVER_ERROR).send(err);
+                    else res.status(STATUS_OK).send(goods);
+                });
+            }
+        });
     }
 };
 
@@ -126,6 +134,7 @@ exports.addFavouriteGood = function (req, res) {
                         if (index === -1) {
                             good.numberFavs = good.numberFavs + 1;
                             beneficiary.favouriteGoods.push(good._id);
+                            beneficiary.save();
                             res.status(STATUS_OK).send(beneficiary.favouriteGoods);
                         } else res.status(STATUS_CONFLICT).send({error: "This good is already in your favourite list"});
                     }
@@ -151,6 +160,7 @@ exports.deleteFavouriteGood = function (req, res) {
                         if (index !== -1) {
                             good.numberFavs = good.numberFavs - 1;
                             beneficiary.favouriteGoods.splice(index,1);
+                            beneficiary.save();
                             res.status(STATUS_OK).send(beneficiary.favouriteGoods);
                         } else {
                             res.status(STATUS_NOT_FOUND).send({error: "This good is not in your favourite list"});
