@@ -11,7 +11,8 @@ const expect = chai.expect;
 
 // Test group
 describe('Test group for GoodModel', function() {
-    let userId;
+    let entityId;
+    let entityName;
 
     before(function (done) {
         // Connect to a test database
@@ -41,7 +42,8 @@ describe('Test group for GoodModel', function() {
         });
 
         entityItem.save(function (err, entity) {
-            userId = entity._id;
+            entityId = entity._id;
+            entityName = entity.name;
             done();
         });
     });
@@ -55,7 +57,10 @@ describe('Test group for GoodModel', function() {
 
     it('should store a valid good', function (done) {
         let goodItem = new goodModel({
-            'userId': userId,
+            'owner': {
+                'id': entityId,
+                'name': entityName
+            },
             'productName': 'productTest',
             'picture': 'picture.png',
             'initialPrice':'100',
@@ -75,7 +80,10 @@ describe('Test group for GoodModel', function() {
 
     it('should not store a good without required attributes', function (done) {
         let goodItem = new goodModel({
-            'userId': userId,
+            'owner': {
+                'id': entityId,
+                'name': entityName
+            },
             'productName': 'productTest',
             'picture': 'picture.png',
             'initialPrice':'100',
@@ -93,7 +101,10 @@ describe('Test group for GoodModel', function() {
 
     it('should not store a good with invalid category (minor)', function (done) {
         let goodItem = new goodModel({
-            'userId': userId,
+            'owner': {
+                'id': entityId,
+                'name': entityName
+            },
             'productName': 'productTest',
             'picture': 'picture.png',
             'initialPrice':'100',
@@ -111,7 +122,10 @@ describe('Test group for GoodModel', function() {
 
     it('should not store a good with invalid category (major)', function (done) {
         let goodItem = new goodModel({
-            'userId': userId,
+            'owner': {
+                'id': entityId,
+                'name': entityName
+            },
             'productName': 'productTest',
             'picture': 'picture.png',
             'initialPrice':'100',
@@ -139,7 +153,10 @@ describe('Test group for GoodModel', function() {
 
         beneficiaryItem.save(function (err, beneficiary) {
             let goodItem = new goodModel({
-                'userId': beneficiary._id,
+                'owner': {
+                    'id': beneficiary._id,
+                    'name': entityName
+                },
                 'productName': 'productTest',
                 'picture': 'picture.png',
                 'initialPrice':'100',

@@ -2,8 +2,8 @@ import {entityModel} from "../models/entityModel";
 
 const mongoose = require('mongoose');
 
-export const goodModel = mongoose.model('Good', new mongoose.Schema({
-    userId: {
+const briefEntitySchema = new mongoose.Schema ({
+    id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Entity',
         validate: {
@@ -22,6 +22,14 @@ export const goodModel = mongoose.model('Good', new mongoose.Schema({
         },
         required: true
     },
+    name: {
+        type: String,
+        required: true
+    }
+});
+
+export const goodModel = mongoose.model('Good', new mongoose.Schema({
+    owner: briefEntitySchema,
     productName: {
         type: String,
         required: true
