@@ -36,8 +36,8 @@ export function getGoods(req, res) {
             }
             // Execute the query
             aggregate.exec(function (err, goods) {
-                if (err) res.status(constants.STATUS_SERVER_ERROR).send(err);
-                else res.status(constants.STATUS_OK).send(goods);
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                res.status(constants.STATUS_OK).send(goods);
             });
         }
     } else {
