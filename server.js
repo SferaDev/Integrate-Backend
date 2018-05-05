@@ -3,6 +3,7 @@ import cors from "cors";
 
 import {PORT} from "./src/constants";
 import {loginRouter} from "./src/routes/loginRouter";
+import {registerRouter} from "./src/routes/registerRouter";
 import {apiRouter} from "./src/routes/apiRouter";
 import database from "./common/database";
 
@@ -23,6 +24,7 @@ app.use(cors());
 // Load routes
 app.use('/', express.static('apidoc'));
 app.use('/login', loginRouter);
+app.use('/register', registerRouter);
 app.use('/me', apiRouter);
 
 // Start app

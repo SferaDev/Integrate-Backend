@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import passwordGenerator from "generate-random-password";
 
 import {userModel} from "./userModel";
 
@@ -12,7 +13,8 @@ export const entityModel = userModel.discriminator('Entity', new mongoose.Schema
         required: true
     },
     validationCode: {
-        type: String
+        type: String,
+        default: passwordGenerator.generateRandomPassword(6)
     },
     name: {
         type: String,
@@ -27,7 +29,6 @@ export const entityModel = userModel.discriminator('Entity', new mongoose.Schema
         required: true
     },
     coordinates: {
-        // longitude and latitude
         type: [Number],
         required: true
     },
