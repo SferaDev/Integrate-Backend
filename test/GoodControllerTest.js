@@ -548,7 +548,7 @@ describe('Operations that involve goods', function () {
                 .post('/me/goods/favourites/' + good1Id + '?token=' + token)
                 .send()
                 .then(function (res) {
-                    expect(res).to.have.status(STATUS_OK);
+                    expect(res).to.have.status(constants.STATUS_OK);
                     expect(res.body[0]).to.equal(good1Id.toString());
                     done();
                 });
