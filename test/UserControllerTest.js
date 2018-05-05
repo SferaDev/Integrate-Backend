@@ -1,7 +1,3 @@
-import app from "../server";
-import * as constants from "../src/constants";
-import {entityModel} from "../src/models/entityModel";
-
 import chai from "chai";
 import chai_http from "chai-http";
 import sinon from "sinon";
@@ -10,13 +6,16 @@ import {Mockgoose} from "mockgoose";
 import base64url from "base64url";
 import jwt from "jsonwebtoken";
 
+import {app} from "../server";
+import * as constants from "../src/constants";
+import {entityModel} from "../src/models/entityModel";
+
 chai.use(chai_http);
 const expect = chai.expect;
 const mockgoose = new Mockgoose(mongoose);
 
 // Test group
 describe('Operations that involve users', function() {
-
     beforeEach(function (done){
         let entityItem = new entityModel({
             nif: '12345678F',
