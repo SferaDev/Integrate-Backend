@@ -102,7 +102,7 @@ describe('Operations that involve entities', function () {
         });
     });
 
-    it('should detect database errors', function (done) {
+    it ('should detect database errors', function (done) {
         let token = base64url.encode(jwt.sign({
             userId: 'joanpuig@google.com',
             userType: 'Beneficiary'
@@ -149,4 +149,57 @@ describe('Operations that involve entities', function () {
             done();
         });
     });
+
+    it ('should not create new entity (missing parameter)', function (done) {
+        chai.request(app)
+        .post('/register')
+        .send()
+        .then(function (res) {
+            expect(res).to.have.status(constants.STATUS_BAD_REQUEST);
+            done();
+        });
+    });
+
+    it ('should not create new entity (conflict)', function (done) {
+        chai.request(app)
+        .post('/register')
+        .send({
+            nif: '12345678F',
+            salesmanFirstName: 'Joan',
+            salesmanLastName: 'Puig',
+            email: 'joanpuig@google.com',
+            name: 'Colmado1',
+            description: 'Botiga de queviures',
+            addressName: 'C/ Jordi Girona',
+            coordinates: [2.113018, 41.389165],
+            phone: '675849324',
+            picture: 'picture.png'
+        })
+        .then(function (res) {
+            expect(res).to.have.status(constants.STATUS_CONFLICT);
+            done();
+        });
+    });
+
+    it ('should create new entity', function (done) {
+        chai.request(app)
+        .post('/register')
+        .send({
+            nif: 'random',
+            salesmanFirstName: 'Joan',
+            salesmanLastName: 'Puig',
+            email: 'joanpuig@google.com',
+            name: 'Colmado1',
+            description: 'Botiga de queviures',
+            addressName: 'C/ Jordi Girona',
+            coordinates: [2.113018, 41.389165],
+            phone: '675849324',
+            picture: 'picture.png'
+        })
+        .then(function (res) {
+            expect(res).to.have.status(constants.STATUS_CREATED);
+            done();
+        });
+    });
+
 });
