@@ -1,10 +1,14 @@
 import express from "express";
 import cors from "cors";
+
 import {PORT} from "./src/constants";
+import {loginRouter} from "./src/routes/loginRouter";
+import {registerRouter} from "./src/routes/registerRouter";
+import {apiRouter} from "./src/routes/apiRouter";
 import database from "./common/database";
 
 // Load Express.js
-const app = express();
+export const app = express();
 
 // Load project common modules
 database();
@@ -19,15 +23,12 @@ app.use(cors());
 
 // Load routes
 app.use('/', express.static('apidoc'));
-app.use('/login', require('./src/routes/loginRoute'));
-app.use('/register', require('./src/routes/registerRoute'));
-app.use('/me', require('./src/routes/apiRoute'));
+app.use('/login', loginRouter);
+app.use('/register', registerRouter);
+app.use('/me', apiRouter);
 
 // Start app
 app.listen(PORT);
 
 // Load finish
 console.log('Integrate server started on: ' + PORT);
-
-// Export app as module for testing framework
-module.exports = app;

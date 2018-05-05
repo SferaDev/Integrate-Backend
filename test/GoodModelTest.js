@@ -1,16 +1,16 @@
-import {entityModel} from "../src/models/entityModel";
-import {goodModel} from "../src/models/goodModel";
-import {beneficiaryModel} from "../src/models/beneficiaryModel";
-
 import mongoose from "mongoose";
 import {Mockgoose} from "mockgoose";
 import chai from "chai";
+
+import {entityModel} from "../src/models/entityModel";
+import {goodModel} from "../src/models/goodModel";
+import {beneficiaryModel} from "../src/models/beneficiaryModel";
 
 const mockgoose = new Mockgoose(mongoose);
 const expect = chai.expect;
 
 // Test group
-describe('Test group for GoodModel', function() {
+describe('Test group for GoodModel', function () {
     let entityId;
     let entityName;
 
@@ -63,12 +63,12 @@ describe('Test group for GoodModel', function() {
             },
             'productName': 'productTest',
             'picture': 'picture.png',
-            'initialPrice':'100',
-            'discountType':'%',
-            'discount':'10',
-            'category':1,
-            'reusePeriod':'7',
-            'pendingUnits':'100'
+            'initialPrice': '100',
+            'discountType': '%',
+            'discount': '10',
+            'category': 1,
+            'reusePeriod': '7',
+            'pendingUnits': '100'
         });
 
         goodItem.save(function (err, good) {
@@ -86,11 +86,11 @@ describe('Test group for GoodModel', function() {
             },
             'productName': 'productTest',
             'picture': 'picture.png',
-            'initialPrice':'100',
-            'discountType':'%',
-            'category':1,
-            'reusePeriod':'7',
-            'pendingUnits':'100'
+            'initialPrice': '100',
+            'discountType': '%',
+            'category': 1,
+            'reusePeriod': '7',
+            'pendingUnits': '100'
         });
 
         goodItem.save(function (err) {
@@ -107,11 +107,11 @@ describe('Test group for GoodModel', function() {
             },
             'productName': 'productTest',
             'picture': 'picture.png',
-            'initialPrice':'100',
-            'discountType':'%',
-            'category':0,
-            'reusePeriod':'7',
-            'pendingUnits':'100'
+            'initialPrice': '100',
+            'discountType': '%',
+            'category': 0,
+            'reusePeriod': '7',
+            'pendingUnits': '100'
         });
 
         goodItem.save(function (err) {
@@ -128,11 +128,11 @@ describe('Test group for GoodModel', function() {
             },
             'productName': 'productTest',
             'picture': 'picture.png',
-            'initialPrice':'100',
-            'discountType':'%',
-            'category':10,
-            'reusePeriod':'7',
-            'pendingUnits':'100'
+            'initialPrice': '100',
+            'discountType': '%',
+            'category': 10,
+            'reusePeriod': '7',
+            'pendingUnits': '100'
         });
 
         goodItem.save(function (err) {
@@ -141,7 +141,7 @@ describe('Test group for GoodModel', function() {
         });
     });
 
-    it ('should not store a good with a reference to a non Entity user', function (done) {
+    it('should not store a good with a reference to a non Entity user', function (done) {
 
         let beneficiaryItem = new beneficiaryModel({
             nif: '00000000F',
@@ -159,12 +159,12 @@ describe('Test group for GoodModel', function() {
                 },
                 'productName': 'productTest',
                 'picture': 'picture.png',
-                'initialPrice':'100',
-                'discountType':'%',
-                'discount':'10',
-                'category':1,
-                'reusePeriod':'7',
-                'pendingUnits':'100'
+                'initialPrice': '100',
+                'discountType': '%',
+                'discount': '10',
+                'category': 1,
+                'reusePeriod': '7',
+                'pendingUnits': '100'
             });
             goodItem.save(function (err) {
                 expect(err).not.to.equal(null);

@@ -21,7 +21,7 @@ export function getEntities(req, res) {
             // Build the query
             let aggregate = entityModel.aggregate();
             aggregate.near({
-                near: {type: "Point", coordinates: [parseFloat(longitude), parseFloat(latitude)] },
+                near: {type: "Point", coordinates: [parseFloat(longitude), parseFloat(latitude)]},
                 distanceField: "distance",
                 spherical: true
             });

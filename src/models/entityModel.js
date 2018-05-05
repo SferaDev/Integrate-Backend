@@ -3,6 +3,8 @@ import passwordGenerator from "generate-random-password";
 
 import {userModel} from "./userModel";
 
+import {userModel} from "./userModel";
+
 export const entityModel = userModel.discriminator('Entity', new mongoose.Schema({
     salesmanFirstName: {
         type: String,
