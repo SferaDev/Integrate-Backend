@@ -13,12 +13,11 @@ export function loginUser(req, res) {
         });
     else userModel.findOne({$or: [{email: req.query.email}, {nif: req.query.nif}]}, function (err, user) {
         if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-        if (user === null) {
-            res.status(constants.STATUS_UNAUTHORIZED).send({
-                code: constants.ERROR_USER_DOESNT_EXIST,
-                status: 'User doesn\'t exist'
-            });
-        } else if (user.comparePassword(req.query.password)) {
+        if (user === null) return res.status(constants.STATUS_UNAUTHORIZED).send({
+            code: constants.ERROR_USER_DOESNT_EXIST,
+            status: 'User doesn\'t exist'
+        });
+        if (user.comparePassword(req.query.password)) {
             let token = base64url.encode(jwt.sign({
                 userId: user.email,
                 userType: user.__t
