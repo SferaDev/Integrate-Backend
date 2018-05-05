@@ -1,9 +1,9 @@
+import axios from "axios";
+
 import {beneficiaryModel} from "../models/beneficiaryModel";
 import {ERROR_NIF_DUPLICATED, LOCAL_ADMINISTRATION_URI} from "../constants";
 
-const axios = require('axios');
-
-exports.loadBeneficiaries = function (callback) {
+export function loadBeneficiaries(callback) {
     axios.get(LOCAL_ADMINISTRATION_URI)
     .then(function (response) {
         let message = 'Beneficiaries loaded successfuly';
@@ -22,4 +22,4 @@ exports.loadBeneficiaries = function (callback) {
         let message = 'Error on fetching beneficiaries from local administration';
         callback(error, message);
     });
-};
+}

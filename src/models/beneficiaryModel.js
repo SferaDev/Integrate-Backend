@@ -1,5 +1,6 @@
-import {userModel} from "./userModel";
 import mongoose from "mongoose";
+
+import {userModel} from "./userModel";
 
 export const beneficiaryModel = userModel.discriminator('Beneficiary', new mongoose.Schema({
     firstName: {

@@ -1,7 +1,8 @@
 import express from "express";
+
 import * as userController from "../controllers/userController"
 
-const router = express.Router();
+export const loginRouter = express.Router();
 
 /**
  * @api {get} /login Token generation
@@ -17,8 +18,6 @@ const router = express.Router();
  * @apiError {Integer} code Error code
  * @apiError {String} status Error details
  */
-router.get('/', function (req, res) {
+loginRouter.get('/', function (req, res) {
     userController.loginUser(req, res);
 });
-
-module.exports = router;

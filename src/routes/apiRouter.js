@@ -1,19 +1,20 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import base64url from "base64url";
-import {STATUS_FORBIDDEN, STATUS_UNAUTHORIZED, TOKEN_SECRET} from "../constants";
+
+import * as constants from "../constants";
 import * as goodController from "../controllers/goodController";
 import * as entityController from "../controllers/entityController";
 
-const router = express.Router();
+export const apiRouter = express.Router();
 
-router.use(function (req, res, next) {
+apiRouter.use(function (req, res, next) {
     // check header or url parameters or post parameters for token
     let token = req.body.token || req.query.token || req.headers['token'];
     if (token) {
-        jwt.verify(base64url.decode(token), TOKEN_SECRET, function (err, decoded) {
+        jwt.verify(base64url.decode(token), constants.TOKEN_SECRET, function (err, decoded) {
             if (err) {
-                return res.status(STATUS_UNAUTHORIZED).send({
+                return res.status(constants.STATUS_UNAUTHORIZED).send({
                     success: false,
                     message: 'Failed to authenticate token.'
                 });
@@ -25,7 +26,7 @@ router.use(function (req, res, next) {
             }
         });
     } else {
-        return res.status(STATUS_FORBIDDEN).send({
+        res.status(constants.STATUS_FORBIDDEN).send({
             success: false,
             message: 'No token provided.'
         });
@@ -37,7 +38,7 @@ router.use(function (req, res, next) {
  * @apiVersion 1.0.0
  * @apiGroup Authentication
  */
-router.get('/', function (req, res) {
+apiRouter.get('/', function (req, res) {
     res.send({success: true});
 });
 
@@ -46,7 +47,7 @@ router.get('/', function (req, res) {
  * @apiVersion 1.0.0
  * @apiGroup Goods
  */
-router.get('/goods/', function (req, res) {
+apiRouter.get('/goods/', function (req, res) {
     goodController.getGoods(req, res);
 });
 
@@ -55,7 +56,7 @@ router.get('/goods/', function (req, res) {
  * @apiVersion 1.0.0
  * @apiGroup Goods
  */
-router.post('/goods/', function (req, res) {
+apiRouter.post('/goods/', function (req, res) {
     goodController.addGood(req, res);
 });
 
@@ -64,7 +65,7 @@ router.post('/goods/', function (req, res) {
  * @apiVersion 1.0.0
  * @apiGroup Goods
  */
-router.delete('/goods/:id', function (req, res) {
+apiRouter.delete('/goods/:id', function (req, res) {
     goodController.deleteGood(req, res);
 });
 
@@ -73,7 +74,7 @@ router.delete('/goods/:id', function (req, res) {
  * @apiVersion 1.0.0
  * @apiGroup Goods
  */
-router.put('/goods/:id', function (req, res) {
+apiRouter.put('/goods/:id', function (req, res) {
     goodController.updateGood(req, res);
 });
 
@@ -82,7 +83,7 @@ router.put('/goods/:id', function (req, res) {
  * @apiVersion 1.0.0
  * @apiGroup Goods
  */
-router.get('/goods/favourites', function (req, res) {
+apiRouter.get('/goods/favourites', function (req, res) {
     goodController.getFavouriteGoods(req, res)
 });
 
@@ -91,8 +92,8 @@ router.get('/goods/favourites', function (req, res) {
  * @apiVersion 1.0.0
  * @apiGroup Goods
  */
-router.post('/goods/favourites/:id', function (req, res) {
-    goodController.addFavouriteGood(req,res)
+apiRouter.post('/goods/favourites/:id', function (req, res) {
+    goodController.addFavouriteGood(req, res)
 });
 
 /**
@@ -100,8 +101,8 @@ router.post('/goods/favourites/:id', function (req, res) {
  * @apiVersion 1.0.0
  * @apiGroup Goods
  */
-router.delete('/goods/favourites/:id', function (req, res) {
-    goodController.deleteFavouriteGood(req,res)
+apiRouter.delete('/goods/favourites/:id', function (req, res) {
+    goodController.deleteFavouriteGood(req, res)
 });
 
 /**
@@ -109,8 +110,6 @@ router.delete('/goods/favourites/:id', function (req, res) {
  * @apiVersion 1.0.0
  * @apiGroup Entities
  */
-router.get('/entities/', function (req, res) {
+apiRouter.get('/entities/', function (req, res) {
     entityController.getEntities(req, res);
 });
-
-module.exports = router;

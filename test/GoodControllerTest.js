@@ -1,18 +1,3 @@
-import app from "../server";
-import {
-    ERROR_DEFAULT,
-    STATUS_BAD_REQUEST,
-    STATUS_CONFLICT,
-    STATUS_CREATED,
-    STATUS_FORBIDDEN,
-    STATUS_NOT_FOUND,
-    STATUS_OK,
-    STATUS_SERVER_ERROR,
-    TOKEN_SECRET
-} from "../src/constants";
-import {entityModel} from "../src/models/entityModel";
-import {goodModel} from "../src/models/goodModel";
-
 import chai from "chai";
 import chai_http from "chai-http";
 import sinon from "sinon";
@@ -20,7 +5,12 @@ import mongoose from "mongoose";
 import {Mockgoose} from "mockgoose";
 import base64url from "base64url";
 import jwt from "jsonwebtoken";
+
+import {app} from "../server";
+import {entityModel} from "../src/models/entityModel";
+import {goodModel} from "../src/models/goodModel";
 import {beneficiaryModel} from "../src/models/beneficiaryModel";
+import * as constants from "../src/constants";
 
 chai.use(chai_http);
 const expect = chai.expect;
@@ -135,13 +125,13 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
             .get('/me/goods/?token=' + token + '&category=0&order=0')
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_OK);
+                expect(res).to.have.status(constants.STATUS_OK);
                 expect(res.body[0].productName).to.equal('productTest3');
                 expect(res.body[1].productName).to.equal('productTest2');
                 expect(res.body[2].productName).to.equal('productTest1');
@@ -153,13 +143,13 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
             .get('/me/goods/?token=' + token + '&category=0&order=1')
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_OK);
+                expect(res).to.have.status(constants.STATUS_OK);
                 expect(res.body[0].productName).to.equal('productTest3');
                 expect(res.body[1].productName).to.equal('productTest1');
                 expect(res.body[2].productName).to.equal('productTest2');
@@ -173,13 +163,13 @@ describe('Operations that involve goods', function () {
                 let token = base64url.encode(jwt.sign({
                     userId: 'joanpuig@google.com',
                     userType: 'Beneficiary'
-                }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+                }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                 chai.request(app)
                 .get('/me/goods/?token=' + token + '&category=0&order=2&longitude=2.102137&latitude=41.319359')
                 .send()
                 .then(function (res) {
-                    expect(res).to.have.status(STATUS_OK);
+                    expect(res).to.have.status(constants.STATUS_OK);
                     expect(res.body[0].productName).to.equal('productTest1');
                     expect(res.body[1].productName).to.equal('productTest2');
                     expect(res.body[2].productName).to.equal('productTest3');
@@ -192,13 +182,13 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
             .get('/me/goods/?token=' + token + '&category=7&order=0')
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_OK);
+                expect(res).to.have.status(constants.STATUS_OK);
                 expect(res.body.length).to.equal(2);
                 expect(res.body[0].productName).to.equal('productTest3');
                 expect(res.body[1].productName).to.equal('productTest2');
@@ -210,13 +200,13 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
             .get('/me/goods/?token=' + token + '&categoryy=7&orderr=0')
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_BAD_REQUEST);
+                expect(res).to.have.status(constants.STATUS_BAD_REQUEST);
                 done();
             });
         });
@@ -225,15 +215,15 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(mongoose.Aggregate.prototype, 'exec');
-            mongoose.Aggregate.prototype.exec.yields({code: ERROR_DEFAULT, err: 'Internal error'});
+            mongoose.Aggregate.prototype.exec.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
             .get('/me/goods/?token=' + token + '&category=0&order=0')
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_SERVER_ERROR);
+                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
                 mongoose.Aggregate.prototype.exec.restore();
                 done();
             });
@@ -243,13 +233,13 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
             .get('/me/goods/?token=' + token + '&category=0&order=0')
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_FORBIDDEN);
+                expect(res).to.have.status(constants.STATUS_FORBIDDEN);
                 done();
             });
         });
@@ -285,13 +275,13 @@ describe('Operations that involve goods', function () {
                     let token = base64url.encode(jwt.sign({
                         userId: 'sbrin@google.com',
                         userType: 'Beneficiary'
-                    }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+                    }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                     chai.request(app)
                     .get('/me/goods/favourites/?token=' + token)
                     .send()
                     .then(function (res) {
-                        expect(res).to.have.status(STATUS_OK);
+                        expect(res).to.have.status(constants.STATUS_OK);
                         expect(res.body[0].productName).to.equal('productTest');
                         done();
                     });
@@ -303,15 +293,15 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(beneficiaryModel, 'findOne');
-            beneficiaryModel.findOne.yields({code: ERROR_DEFAULT, err: 'Internal error'});
+            beneficiaryModel.findOne.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
             .get('/me/goods/favourites/?token=' + token)
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_SERVER_ERROR);
+                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
                 beneficiaryModel.findOne.restore();
                 done();
             });
@@ -331,15 +321,15 @@ describe('Operations that involve goods', function () {
                 let token = base64url.encode(jwt.sign({
                     userId: 'sbrin@google.com',
                     userType: 'Beneficiary'
-                }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+                }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                 sinon.stub(goodModel, 'find');
-                goodModel.find.yields({code: ERROR_DEFAULT, err: 'Internal error'});
+                goodModel.find.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
                 chai.request(app)
                 .get('/me/goods/favourites/?token=' + token)
                 .send()
                 .then(function (res) {
-                    expect(res).to.have.status(STATUS_SERVER_ERROR);
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
                     goodModel.find.restore();
                     done();
                 });
@@ -350,13 +340,13 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
             .get('/me/goods/favourites/?token=' + token)
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_FORBIDDEN);
+                expect(res).to.have.status(constants.STATUS_FORBIDDEN);
                 done();
             });
         });
@@ -367,7 +357,7 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
             .post('/me/goods?token=' + token)
@@ -382,7 +372,7 @@ describe('Operations that involve goods', function () {
                 'pendingUnits': '100'
             })
             .then(function (res) {
-                expect(res).to.have.status(STATUS_CREATED);
+                expect(res).to.have.status(constants.STATUS_CREATED);
                 done();
             });
         });
@@ -391,10 +381,10 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(goodModel.prototype, 'save');
-            goodModel.prototype.save.yields({code: ERROR_DEFAULT, err: 'Internal error'});
+            goodModel.prototype.save.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
             .post('/me/goods?token=' + token)
             .send({
@@ -408,7 +398,7 @@ describe('Operations that involve goods', function () {
                 'pendingUnits': '100'
             })
             .then(function (res) {
-                expect(res).to.have.status(STATUS_SERVER_ERROR);
+                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
                 goodModel.prototype.save.restore();
                 done();
             });
@@ -418,7 +408,7 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
             .post('/me/goods?token=' + token)
@@ -433,7 +423,7 @@ describe('Operations that involve goods', function () {
                 'pendingUnits': '100'
             })
             .then(function (res) {
-                expect(res).to.have.status(STATUS_FORBIDDEN);
+                expect(res).to.have.status(constants.STATUS_FORBIDDEN);
                 done();
             });
         });
@@ -459,13 +449,13 @@ describe('Operations that involve goods', function () {
                 let token = base64url.encode(jwt.sign({
                     userId: 'joanpuig@google.com',
                     userType: 'Entity'
-                }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+                }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                 chai.request(app)
                 .delete('/me/goods/' + good._id + '?token=' + token)
                 .send()
                 .then(function (res) {
-                    expect(res).to.have.status(STATUS_OK);
+                    expect(res).to.have.status(constants.STATUS_OK);
                     done();
                 });
             });
@@ -475,15 +465,15 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(goodModel, 'findByIdAndRemove');
-            goodModel.findByIdAndRemove.yields({code: ERROR_DEFAULT, err: 'Internal error'});
+            goodModel.findByIdAndRemove.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
             .delete('/me/goods/' + 1 + '?token=' + token)
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_SERVER_ERROR);
+                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
                 goodModel.findByIdAndRemove.restore();
                 done();
             });
@@ -493,13 +483,13 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
             .delete('/me/goods/' + 1 + '?token=' + token)
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_FORBIDDEN);
+                expect(res).to.have.status(constants.STATUS_FORBIDDEN);
                 done();
             });
         });
@@ -525,7 +515,7 @@ describe('Operations that involve goods', function () {
                 let token = base64url.encode(jwt.sign({
                     userId: 'joanpuig@google.com',
                     userType: 'Entity'
-                }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+                }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                 goodItem.discount = 20;
 
@@ -533,7 +523,7 @@ describe('Operations that involve goods', function () {
                 .put('/me/goods/' + good._id + '?token=' + token)
                 .send(goodItem)
                 .then(function (res) {
-                    expect(res).to.have.status(STATUS_OK);
+                    expect(res).to.have.status(constants.STATUS_OK);
                     expect(res.body.discount).to.equal(20);
                     done();
                 });
@@ -544,15 +534,15 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(goodModel, 'findByIdAndUpdate');
-            goodModel.findByIdAndUpdate.yields({code: ERROR_DEFAULT, err: 'Internal error'});
+            goodModel.findByIdAndUpdate.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
             .put('/me/goods/' + 1 + '?token=' + token)
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_SERVER_ERROR);
+                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
                 goodModel.findByIdAndUpdate.restore();
                 done();
             });
@@ -562,13 +552,13 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
             .put('/me/goods/' + 1 + '?token=' + token)
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_FORBIDDEN);
+                expect(res).to.have.status(constants.STATUS_FORBIDDEN);
                 done();
             });
         });
@@ -603,13 +593,13 @@ describe('Operations that involve goods', function () {
                     let token = base64url.encode(jwt.sign({
                         userId: 'sbrin@google.com',
                         userType: 'Beneficiary'
-                    }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+                    }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                     chai.request(app)
                     .post('/me/goods/favourites/' + good._id + '?token=' + token)
                     .send()
                     .then(function (res) {
-                        expect(res).to.have.status(STATUS_OK);
+                        expect(res).to.have.status(constants.STATUS_OK);
                         expect(res.body[0]).to.equal(good._id.toString());
                         done();
                     });
@@ -621,15 +611,15 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(beneficiaryModel, 'findOne');
-            beneficiaryModel.findOne.yields({code: ERROR_DEFAULT, err: 'Internal error'});
+            beneficiaryModel.findOne.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
             .post('/me/goods/favourites/' + 1 + '?token=' + token)
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_SERVER_ERROR);
+                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
                 beneficiaryModel.findOne.restore();
                 done();
             });
@@ -649,13 +639,13 @@ describe('Operations that involve goods', function () {
                 let token = base64url.encode(jwt.sign({
                     userId: 'sbrin@google.com',
                     userType: 'Beneficiary'
-                }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+                }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                 chai.request(app)
                 .post('/me/goods/favourites/5ae9869d1fda296beeb99d86?token=' + token)
                 .send()
                 .then(function (res) {
-                    expect(res).to.have.status(STATUS_NOT_FOUND);
+                    expect(res).to.have.status(constants.STATUS_NOT_FOUND);
                     done();
                 });
             });
@@ -675,15 +665,15 @@ describe('Operations that involve goods', function () {
                 let token = base64url.encode(jwt.sign({
                     userId: 'sbrin@google.com',
                     userType: 'Beneficiary'
-                }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+                }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                 sinon.stub(goodModel, 'findById');
-                goodModel.findById.yields({code: ERROR_DEFAULT, err: 'Internal error'});
+                goodModel.findById.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
                 chai.request(app)
                 .post('/me/goods/favourites/' + 1 + '?token=' + token)
                 .send()
                 .then(function (res) {
-                    expect(res).to.have.status(STATUS_SERVER_ERROR);
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
                     goodModel.findById.restore();
                     done();
                 });
@@ -719,13 +709,13 @@ describe('Operations that involve goods', function () {
                     let token = base64url.encode(jwt.sign({
                         userId: 'sbrin@google.com',
                         userType: 'Beneficiary'
-                    }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+                    }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                     chai.request(app)
                     .post('/me/goods/favourites/' + good._id + '?token=' + token)
                     .send()
                     .then(function (res) {
-                        expect(res).to.have.status(STATUS_CONFLICT);
+                        expect(res).to.have.status(constants.STATUS_CONFLICT);
                         done();
                     });
                 });
@@ -736,13 +726,13 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
             .post('/me/goods/favourites/' + 1 + '?token=' + token)
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_FORBIDDEN);
+                expect(res).to.have.status(constants.STATUS_FORBIDDEN);
                 done();
             });
         });
@@ -779,13 +769,13 @@ describe('Operations that involve goods', function () {
                     let token = base64url.encode(jwt.sign({
                         userId: 'sbrin@google.com',
                         userType: 'Beneficiary'
-                    }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+                    }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                     chai.request(app)
                     .delete('/me/goods/favourites/' + good._id + '?token=' + token)
                     .send()
                     .then(function (res) {
-                        expect(res).to.have.status(STATUS_OK);
+                        expect(res).to.have.status(constants.STATUS_OK);
                         let index = res.body.indexOf(good._id);
                         expect(index).to.equal(-1);
                         done();
@@ -798,15 +788,15 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(beneficiaryModel, 'findOne');
-            beneficiaryModel.findOne.yields({code: ERROR_DEFAULT, err: 'Internal error'});
+            beneficiaryModel.findOne.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
             .delete('/me/goods/favourites/' + 1 + '?token=' + token)
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_SERVER_ERROR);
+                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
                 beneficiaryModel.findOne.restore();
                 done();
             });
@@ -826,13 +816,13 @@ describe('Operations that involve goods', function () {
                 let token = base64url.encode(jwt.sign({
                     userId: 'sbrin@google.com',
                     userType: 'Beneficiary'
-                }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+                }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                 chai.request(app)
                 .delete('/me/goods/favourites/5ae9869d1fda296beeb99d86?token=' + token)
                 .send()
                 .then(function (res) {
-                    expect(res).to.have.status(STATUS_NOT_FOUND);
+                    expect(res).to.have.status(constants.STATUS_NOT_FOUND);
                     done();
                 });
             });
@@ -852,15 +842,15 @@ describe('Operations that involve goods', function () {
                 let token = base64url.encode(jwt.sign({
                     userId: 'sbrin@google.com',
                     userType: 'Beneficiary'
-                }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+                }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                 sinon.stub(goodModel, 'findById');
-                goodModel.findById.yields({code: ERROR_DEFAULT, err: 'Internal error'});
+                goodModel.findById.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
                 chai.request(app)
                 .delete('/me/goods/favourites/' + 1 + '?token=' + token)
                 .send()
                 .then(function (res) {
-                    expect(res).to.have.status(STATUS_SERVER_ERROR);
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
                     goodModel.findById.restore();
                     done();
                 });
@@ -896,13 +886,13 @@ describe('Operations that involve goods', function () {
                     let token = base64url.encode(jwt.sign({
                         userId: 'sbrin@google.com',
                         userType: 'Beneficiary'
-                    }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+                    }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                     chai.request(app)
                     .delete('/me/goods/favourites/' + good._id + '?token=' + token)
                     .send()
                     .then(function (res) {
-                        expect(res).to.have.status(STATUS_NOT_FOUND);
+                        expect(res).to.have.status(constants.STATUS_NOT_FOUND);
                         done();
                     });
                 });
@@ -913,13 +903,13 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
             .delete('/me/goods/favourites/' + 1 + '?token=' + token)
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_FORBIDDEN);
+                expect(res).to.have.status(constants.STATUS_FORBIDDEN);
                 done();
             });
         });
