@@ -155,7 +155,7 @@ describe('Operations that involve entities', function () {
         .post('/register')
         .send()
         .then(function (res) {
-            expect(res).to.have.status(STATUS_BAD_REQUEST);
+            expect(res).to.have.status(constants.STATUS_BAD_REQUEST);
             done();
         });
     });
@@ -176,7 +176,7 @@ describe('Operations that involve entities', function () {
             picture: 'picture.png'
         })
         .then(function (res) {
-            expect(res).to.have.status(STATUS_CONFLICT);
+            expect(res).to.have.status(constants.STATUS_CONFLICT);
             done();
         });
     });
@@ -197,7 +197,7 @@ describe('Operations that involve entities', function () {
             picture: 'picture.png'
         })
         .then(function (res) {
-            expect(res).to.have.status(STATUS_CREATED);
+            expect(res).to.have.status(constants.STATUS_CREATED);
             done();
         });
     });
