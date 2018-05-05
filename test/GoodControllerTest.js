@@ -615,7 +615,7 @@ describe('Operations that involve goods', function () {
                 .post('/me/goods/favourites/' + good1Id + '?token=' + token)
                 .send()
                 .then(function (res) {
-                    expect(res).to.have.status(STATUS_CONFLICT);
+                    expect(res).to.have.status(constants.STATUS_CONFLICT);
                     done();
                 });
         });
@@ -649,7 +649,7 @@ describe('Operations that involve goods', function () {
             .get('/me/goods/favourites/?token=' + token)
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_OK);
+                expect(res).to.have.status(constants.STATUS_OK);
                 expect(res.body[0].productName).to.equal('productTest1');
                 done();
             });
@@ -662,12 +662,12 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(beneficiaryModel, 'findOne');
-            beneficiaryModel.findOne.yields({code: ERROR_DEFAULT, err: 'Internal error'});
+            beneficiaryModel.findOne.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
             .get('/me/goods/favourites/?token=' + token)
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_SERVER_ERROR);
+                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
                 beneficiaryModel.findOne.restore();
                 done();
             });
@@ -680,12 +680,12 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(goodModel, 'find');
-            goodModel.find.yields({code: ERROR_DEFAULT, err: 'Internal error'});
+            goodModel.find.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
             .get('/me/goods/favourites/?token=' + token)
             .send()
             .then(function (res) {
-                expect(res).to.have.status(STATUS_SERVER_ERROR);
+                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
                 goodModel.find.restore();
                 done();
             });
