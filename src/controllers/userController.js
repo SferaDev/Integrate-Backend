@@ -37,7 +37,7 @@ export function resetPassword(req, res) {
         if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
         if (user === null) return res.status(constants.STATUS_NOT_FOUND).send({message: 'User not found'});
         user.password = passwordGenerator.generateRandomPassword(8);
-        sendMail(user.email, 'Password reset on Integrate', 'You have requested a password reset.\n\nAccount: ' +
+        sendMail(user.email, 'Password reset on Integrate', 'Hi there!\n\nYou have requested a password reset.\n\nAccount: ' +
             user.nif + '\nPassword: ' + user.password + '\n\nPlease change your password after your next login.');
         user.save();
         res.status(constants.STATUS_CREATED).send();
