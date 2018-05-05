@@ -160,9 +160,22 @@ describe('Operations that involve entities', function () {
         });
     });
     
-    it ('should not create new entity (error)', function (done) {
-        sinon.stub(userModel, 'findOne');
-        userModel.findOne.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
+    it ('should not create new entity (error count)', function (done) {
+        sinon.stub(entityModel, 'count');
+        entityModel.count.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
+        
+        chai.request(app)
+        .post('/register')
+        .send()
+        .then(function (res) {
+            expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+            done();
+        });
+    });
+    
+    it ('should not create new entity (error create)', function (done) {
+        sinon.stub(entityModel, 'create');
+        entityModel.create.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
         
         chai.request(app)
         .post('/register')
