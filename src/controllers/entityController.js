@@ -55,7 +55,7 @@ export function createNewEntity(req, res) {
         entityModel.create(attributes, function (err, entity) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
             entity.password = passwordGenerator.generateRandomPassword(8);
-            sendMail(entity.email, 'Welcome to Integrate!', 'Your account has been successfully created.\n\nAccount: ' +
+            sendMail(entity.email, 'Welcome to Integrate!', 'Welcome!\n\nYour account has been successfully created.\n\nAccount: ' +
                 entity.nif + '\nPassword: ' + entity.password + '\n\nPlease change your password after your first login.');
             entity.save();
             res.status(constants.STATUS_CREATED).send();
