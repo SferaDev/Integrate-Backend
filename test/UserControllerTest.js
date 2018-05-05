@@ -53,6 +53,21 @@ describe('Operations that involve users', function() {
             done();
         });
     });
+    
+    it ('should not reset password (error)', function (done) {
+        sinon.stub(userModel, 'findOne');
+        userModel.findOne.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
+        
+        chai.request(app)
+        .post('/register/reset')
+        .send({
+            nif: 'random'
+        })
+        .then(function (res) {
+            expect(res).to.have.status(constants.STATUS_NOT_FOUND);
+            done();
+        });
+    });
 
     it ('should reset password', function (done) {
         chai.request(app)
