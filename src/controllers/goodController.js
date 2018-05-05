@@ -134,18 +134,16 @@ export function deleteFavouriteGood(req, res) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
             let id = req.params.id;
             goodModel.findById(id, function (err, good) {
-                if (err) res.status(constants.STATUS_SERVER_ERROR).send(err);
-                else if (!good) res.status(constants.STATUS_NOT_FOUND).send({error: "Good doesn't exist"});
-                else {
-                    let index = beneficiary.favouriteGoods.indexOf(good._id);
-                    if (index !== -1) {
-                        good.numberFavs = good.numberFavs - 1;
-                        beneficiary.favouriteGoods.splice(index,1);
-                        beneficiary.save();
-                        res.status(constants.STATUS_OK).send(beneficiary.favouriteGoods);
-                    } else {
-                        res.status(constants.STATUS_NOT_FOUND).send({error: "This good is not in your favourite list"});
-                    }
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                if (!good) return res.status(constants.STATUS_NOT_FOUND).send({error: "Good doesn't exist"});
+                let index = beneficiary.favouriteGoods.indexOf(good._id);
+                if (index !== -1) {
+                    good.numberFavs = good.numberFavs - 1;
+                    beneficiary.favouriteGoods.splice(index,1);
+                    beneficiary.save();
+                    res.status(constants.STATUS_OK).send(beneficiary.favouriteGoods);
+                } else {
+                    res.status(constants.STATUS_NOT_FOUND).send({error: "This good is not in your favourite list"});
                 }
             });
         });
