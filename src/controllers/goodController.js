@@ -44,8 +44,8 @@ export function getGoods(req, res) {
         entityModel.findOne({email: req.userId}, function (err, entity) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
             goodModel.find({'owner.id': entity._id}, function (err, goods) {
-                if (err) res.status(constants.STATUS_SERVER_ERROR).send(err);
-                else res.status(constants.STATUS_OK).send(goods);
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                res.status(constants.STATUS_OK).send(goods);
             });
         });
     }
@@ -56,8 +56,8 @@ export function getFavouriteGoods(req, res) {
         beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
             goodModel.find({_id: {$in: beneficiary.favouriteGoods}}, function (err, goods) {
-                if (err) res.status(constants.STATUS_SERVER_ERROR).send(err);
-                else res.status(constants.STATUS_OK).send(goods);
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                res.status(constants.STATUS_OK).send(goods);
             });
         });
     } else {
