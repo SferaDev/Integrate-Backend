@@ -1,12 +1,5 @@
 import app from "../server";
-import {
-    ERROR_DEFAULT,
-    STATUS_BAD_REQUEST, STATUS_CONFLICT, STATUS_CREATED,
-    STATUS_FORBIDDEN, STATUS_NOT_FOUND,
-    STATUS_OK,
-    STATUS_SERVER_ERROR,
-    TOKEN_SECRET
-} from "../src/constants";
+import * as constants from "../src/constants";
 import {entityModel} from "../src/models/entityModel";
 
 import chai from "chai";
@@ -57,7 +50,7 @@ describe('Operations that involve users', function() {
             nif: 'random'
         })
         .then(function (res) {
-            expect(res).to.have.status(STATUS_NOT_FOUND);
+            expect(res).to.have.status(constants.STATUS_NOT_FOUND);
             done();
         });
     });
@@ -69,7 +62,7 @@ describe('Operations that involve users', function() {
             nif: '12345678F'
         })
         .then(function (res) {
-            expect(res).to.have.status(STATUS_CREATED);
+            expect(res).to.have.status(constants.STATUS_CREATED);
             done();
         });
     });
