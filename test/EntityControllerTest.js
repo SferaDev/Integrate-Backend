@@ -159,6 +159,56 @@ describe('Operations that involve entities', function () {
             done();
         });
     });
+    
+    it ('should not create new entity (error count)', function (done) {
+        sinon.stub(entityModel, 'count');
+        entityModel.count.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
+        
+        chai.request(app)
+        .post('/register')
+        .send({
+            nif: 'random',
+            salesmanFirstName: 'Joan',
+            salesmanLastName: 'Puig',
+            email: 'joanpuig@google.com',
+            name: 'Colmado1',
+            description: 'Botiga de queviures',
+            addressName: 'C/ Jordi Girona',
+            coordinates: [2.113018, 41.389165],
+            phone: '675849324',
+            picture: 'picture.png'
+        })
+        .then(function (res) {
+            expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+            entityModel.count.restore();
+            done();
+        });
+    });
+    
+    it ('should not create new entity (error create)', function (done) {
+        sinon.stub(entityModel, 'create');
+        entityModel.create.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
+        
+        chai.request(app)
+        .post('/register')
+        .send({
+            nif: 'random',
+            salesmanFirstName: 'Joan',
+            salesmanLastName: 'Puig',
+            email: 'joanpuig@google.com',
+            name: 'Colmado1',
+            description: 'Botiga de queviures',
+            addressName: 'C/ Jordi Girona',
+            coordinates: [2.113018, 41.389165],
+            phone: '675849324',
+            picture: 'picture.png'
+        })
+        .then(function (res) {
+            expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+            entityModel.create.restore();
+            done();
+        });
+    });
 
     it ('should not create new entity (conflict)', function (done) {
         chai.request(app)
