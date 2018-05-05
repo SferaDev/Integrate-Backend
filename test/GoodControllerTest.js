@@ -398,7 +398,7 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
                 .delete('/me/goods/' + goodId4 + '?token=' + token)
@@ -474,7 +474,7 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             goodItem.discount = 20;
 
@@ -542,7 +542,7 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
                 .post('/me/goods/favourites/' + good1Id + '?token=' + token)
@@ -609,7 +609,7 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
                 .post('/me/goods/favourites/' + good1Id + '?token=' + token)
@@ -624,7 +624,7 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
                 .post('/me/goods/favourites/' + 1 + '?token=' + token)
@@ -643,7 +643,7 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
             .get('/me/goods/favourites/?token=' + token)
@@ -659,7 +659,7 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(beneficiaryModel, 'findOne');
             beneficiaryModel.findOne.yields({code: ERROR_DEFAULT, err: 'Internal error'});
@@ -677,7 +677,7 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             sinon.stub(goodModel, 'find');
             goodModel.find.yields({code: ERROR_DEFAULT, err: 'Internal error'});
@@ -713,7 +713,7 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
             .delete('/me/goods/favourites/' + good1Id + '?token=' + token)
@@ -748,7 +748,7 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
             .delete('/me/goods/favourites/5ae9869d1fda296beeb99d86?token=' + token)
@@ -781,7 +781,7 @@ describe('Operations that involve goods', function () {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
-            }, TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
             .delete('/me/goods/favourites/' + good1Id + '?token=' + token)
