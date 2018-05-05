@@ -1,14 +1,14 @@
+import mongoose from "mongoose";
+
 import {entityModel} from "../models/entityModel";
 
-const mongoose = require('mongoose');
-
-const briefEntitySchema = new mongoose.Schema ({
+const briefEntitySchema = new mongoose.Schema({
     id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Entity',
         validate: {
             isAsync: true,
-            validator: function (id, cb) {
+            validator: function (id, next) {
                 entityModel.findOne({_id: id}, function (err, entity) {
                     let correct = true;
                     let message = null;
@@ -16,7 +16,7 @@ const briefEntitySchema = new mongoose.Schema ({
                         correct = false;
                         message = "The owner must be a registered Entity";
                     }
-                    cb(correct, message);
+                    next(correct, message);
                 });
             }
         },

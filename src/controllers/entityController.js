@@ -1,7 +1,7 @@
 import {entityModel} from "../models/entityModel";
 import {STATUS_BAD_REQUEST, STATUS_FORBIDDEN, STATUS_OK, STATUS_SERVER_ERROR} from "../constants";
 
-exports.getEntities = function (req, res) {
+export function getEntities(req, res) {
     if (req.userType === 'Beneficiary') {
         let latitude = req.query.latitude;
         let longitude = req.query.longitude;
@@ -11,7 +11,7 @@ exports.getEntities = function (req, res) {
             // Build the query
             let aggregate = entityModel.aggregate();
             aggregate.near({
-                near: {type: "Point", coordinates: [parseFloat(longitude), parseFloat(latitude)] },
+                near: {type: "Point", coordinates: [parseFloat(longitude), parseFloat(latitude)]},
                 distanceField: "distance",
                 spherical: true
             });
@@ -33,4 +33,4 @@ exports.getEntities = function (req, res) {
     } else {
         res.status(STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
     }
-};
+}
