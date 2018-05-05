@@ -9,6 +9,7 @@ import jwt from "jsonwebtoken";
 import {app} from "../server";
 import * as constants from "../src/constants";
 import {entityModel} from "../src/models/entityModel";
+import {userModel} from "../src/models/userModel";
 
 chai.use(chai_http);
 const expect = chai.expect;
@@ -64,7 +65,8 @@ describe('Operations that involve users', function() {
             nif: 'random'
         })
         .then(function (res) {
-            expect(res).to.have.status(constants.STATUS_NOT_FOUND);
+            expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+            userModel.findOne.restore();
             done();
         });
     });

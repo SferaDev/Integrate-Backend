@@ -166,9 +166,21 @@ describe('Operations that involve entities', function () {
         
         chai.request(app)
         .post('/register')
-        .send()
+        .send({
+            nif: 'random',
+            salesmanFirstName: 'Joan',
+            salesmanLastName: 'Puig',
+            email: 'joanpuig@google.com',
+            name: 'Colmado1',
+            description: 'Botiga de queviures',
+            addressName: 'C/ Jordi Girona',
+            coordinates: [2.113018, 41.389165],
+            phone: '675849324',
+            picture: 'picture.png'
+        })
         .then(function (res) {
             expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+            entityModel.count.restore();
             done();
         });
     });
@@ -179,9 +191,21 @@ describe('Operations that involve entities', function () {
         
         chai.request(app)
         .post('/register')
-        .send()
+        .send({
+            nif: 'random',
+            salesmanFirstName: 'Joan',
+            salesmanLastName: 'Puig',
+            email: 'joanpuig@google.com',
+            name: 'Colmado1',
+            description: 'Botiga de queviures',
+            addressName: 'C/ Jordi Girona',
+            coordinates: [2.113018, 41.389165],
+            phone: '675849324',
+            picture: 'picture.png'
+        })
         .then(function (res) {
             expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+            entityModel.create.restore();
             done();
         });
     });
