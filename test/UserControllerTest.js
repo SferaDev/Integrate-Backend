@@ -9,6 +9,7 @@ import jwt from "jsonwebtoken";
 import {app} from "../server";
 import * as constants from "../src/constants";
 import {entityModel} from "../src/models/entityModel";
+import {userModel} from "../src/models/userModel";
 
 chai.use(chai_http);
 const expect = chai.expect;
@@ -50,6 +51,22 @@ describe('Operations that involve users', function() {
         })
         .then(function (res) {
             expect(res).to.have.status(constants.STATUS_NOT_FOUND);
+            done();
+        });
+    });
+    
+    it ('should not reset password (error)', function (done) {
+        sinon.stub(userModel, 'findOne');
+        userModel.findOne.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
+        
+        chai.request(app)
+        .post('/register/reset')
+        .send({
+            nif: 'random'
+        })
+        .then(function (res) {
+            expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+            userModel.findOne.restore();
             done();
         });
     });
