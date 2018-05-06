@@ -1,24 +1,16 @@
-import {beneficiaryModel} from "../src/models/UserModel";
+import nock from "nock";
+import sinon from "sinon";
+import chai from "chai";
 
-// Chai: Assertion library
-const chai = require('chai');
+import {beneficiaryModel} from "../src/models/beneficiaryModel";
+import * as userController from "../src/controllers/beneficiaryController";
+import * as successResponse from "./response/BeneficiaryAdministrationResponse";
+import * as constants from "../src/constants";
+
 const expect = chai.expect;
 
-// Nock: Intercept http calls and provide a hard-response
-const nock = require('nock');
-
-// Sinon: Mocks and stubs
-const sinon = require('sinon');
-
-// Constants
-const LOCAL_ADMINISTRATION_URI = process.env.LOCAL_ADMINISTRATION_URI || 'http://localhost:3000/administration';
-
-// App definitions
-const userController = require('../src/controllers/UserController');
-const successResponse = require('./response/BeneficiaryAdministrationResponse');
-
 // Test group
-describe('Test group for BeneficiaryController', function() {
+describe('Test group for BeneficiaryController', function () {
 
     before(function () {
         // Before each: Intercept prototype 'save' calls
@@ -32,9 +24,9 @@ describe('Test group for BeneficiaryController', function() {
 
     describe('Test group for loadBeneficiaries function', function () {
         it('should add beneficiaries successfully', function () {
-            nock(LOCAL_ADMINISTRATION_URI)
-                .get('')
-                .reply(200, successResponse);
+            nock(constants.LOCAL_ADMINISTRATION_URI)
+            .get('')
+            .reply(constants.STATUS_OK, successResponse.default);
 
             // Set mock behaviour as null
             beneficiaryModel.prototype.save.yields(null);
@@ -49,11 +41,11 @@ describe('Test group for BeneficiaryController', function() {
         });
 
         it('should deal with duplicated beneficiaries', function () {
-            nock(LOCAL_ADMINISTRATION_URI)
-                .get('')
-                .reply(200, successResponse);
+            nock(constants.LOCAL_ADMINISTRATION_URI)
+            .get('')
+            .reply(constants.STATUS_OK, successResponse.default);
 
-            beneficiaryModel.prototype.save.yields({code:11000});
+            beneficiaryModel.prototype.save.yields({code: constants.ERROR_NIF_DUPLICATED});
 
             let callback = function (err, message) {
                 expect(err).to.equal(null);
@@ -65,14 +57,14 @@ describe('Test group for BeneficiaryController', function() {
         });
 
         it('should detect database errors', function () {
-            nock(LOCAL_ADMINISTRATION_URI)
-                .get('')
-                .reply(200, successResponse);
+            nock(constants.LOCAL_ADMINISTRATION_URI)
+            .get('')
+            .reply(constants.STATUS_OK, successResponse.default);
 
-            beneficiaryModel.prototype.save.yields({code:11111, err:'Internal error'});
+            beneficiaryModel.prototype.save.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
 
             let callback = function (err, message) {
-                expect(err.code).to.equal(11111);
+                expect(err.code).to.equal(constants.ERROR_DEFAULT);
                 expect(message).to.equal('Error on saving beneficiary');
                 sinon.assert.called(beneficiaryModel.prototype.save);
             };
@@ -81,12 +73,12 @@ describe('Test group for BeneficiaryController', function() {
         });
 
         it('should detect external server error', function () {
-            nock(LOCAL_ADMINISTRATION_URI)
-                .get('')
-                .reply(500,{message:'ERROR'});
+            nock(constants.LOCAL_ADMINISTRATION_URI)
+            .get('')
+            .reply(constants.STATUS_SERVER_ERROR, {message: 'ERROR'});
 
             let callback = function (err, message) {
-                expect(err.response.status).to.equal(500);
+                expect(err.response.status).to.equal(constants.STATUS_SERVER_ERROR);
                 expect(message).to.equal('Error on fetching beneficiaries from local administration');
             };
 

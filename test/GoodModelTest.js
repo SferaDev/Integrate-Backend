@@ -1,18 +1,18 @@
-import {entityModel} from "../src/models/UserModel";
-import {goodModel} from "../src/models/GoodModel";
+import mongoose from "mongoose";
+import {Mockgoose} from "mockgoose";
+import chai from "chai";
 
-// Mongoose: MongoDB connector
-const mongoose = require('mongoose');
-const Mockgoose = require('mockgoose').Mockgoose;
+import {entityModel} from "../src/models/entityModel";
+import {goodModel} from "../src/models/goodModel";
+import {beneficiaryModel} from "../src/models/beneficiaryModel";
+
 const mockgoose = new Mockgoose(mongoose);
-
-// Chai: Assertion library
-const chai = require('chai');
 const expect = chai.expect;
 
 // Test group
-describe('Test group for GoodModel', function() {
-    let userId;
+describe('Test group for GoodModel', function () {
+    let entityId;
+    let entityName;
 
     before(function (done) {
         // Connect to a test database
@@ -36,14 +36,14 @@ describe('Test group for GoodModel', function() {
             name: 'Colmado',
             description: 'Botiga de queviures',
             addressName: 'C/ Jordi Girona',
-            addressLatitude: 41.145634,
-            addressLongitude: 2.235324,
+            coordinates: [2.235324, 41.145634],
             phone: '675849324',
             picture: 'picture.png'
         });
 
         entityItem.save(function (err, entity) {
-            userId = entity._id;
+            entityId = entity._id;
+            entityName = entity.name;
             done();
         });
     });
@@ -55,39 +55,121 @@ describe('Test group for GoodModel', function() {
         });
     });
 
-    it('should store a valid good', function () {
+    it('should store a valid good', function (done) {
         let goodItem = new goodModel({
-            'userId': userId,
+            'owner': {
+                'id': entityId,
+                'name': entityName
+            },
             'productName': 'productTest',
             'picture': 'picture.png',
-            'initialPrice':'100',
-            'discountType':'%',
-            'discount':'10',
-            'category':'food',
-            'reusePeriod':'7',
-            'pendingUnits':'100'
+            'initialPrice': '100',
+            'discountType': '%',
+            'discount': '10',
+            'category': 1,
+            'reusePeriod': '7',
+            'pendingUnits': '100'
         });
 
         goodItem.save(function (err, good) {
             expect(err).to.equal(null);
             expect(good).to.equal(goodItem);
+            done();
         });
     });
 
-    it('should not store a good without required attributes', function () {
+    it('should not store a good without required attributes', function (done) {
         let goodItem = new goodModel({
-            'userId': userId,
+            'owner': {
+                'id': entityId,
+                'name': entityName
+            },
             'productName': 'productTest',
             'picture': 'picture.png',
-            'initialPrice':'100',
-            'discountType':'%',
-            'category':'food',
-            'reusePeriod':'7',
-            'pendingUnits':'100'
+            'initialPrice': '100',
+            'discountType': '%',
+            'category': 1,
+            'reusePeriod': '7',
+            'pendingUnits': '100'
         });
 
         goodItem.save(function (err) {
             expect(err).not.to.equal(null);
+            done();
+        });
+    });
+
+    it('should not store a good with invalid category (minor)', function (done) {
+        let goodItem = new goodModel({
+            'owner': {
+                'id': entityId,
+                'name': entityName
+            },
+            'productName': 'productTest',
+            'picture': 'picture.png',
+            'initialPrice': '100',
+            'discountType': '%',
+            'category': 0,
+            'reusePeriod': '7',
+            'pendingUnits': '100'
+        });
+
+        goodItem.save(function (err) {
+            expect(err).not.to.equal(null);
+            done();
+        });
+    });
+
+    it('should not store a good with invalid category (major)', function (done) {
+        let goodItem = new goodModel({
+            'owner': {
+                'id': entityId,
+                'name': entityName
+            },
+            'productName': 'productTest',
+            'picture': 'picture.png',
+            'initialPrice': '100',
+            'discountType': '%',
+            'category': 10,
+            'reusePeriod': '7',
+            'pendingUnits': '100'
+        });
+
+        goodItem.save(function (err) {
+            expect(err).not.to.equal(null);
+            done();
+        });
+    });
+
+    it('should not store a good with a reference to a non Entity user', function (done) {
+
+        let beneficiaryItem = new beneficiaryModel({
+            nif: '00000000F',
+            firstName: 'Sergey',
+            lastName: 'Brin',
+            email: 'sbrin@google.com',
+            password: 'randomPassword'
+        });
+
+        beneficiaryItem.save(function (err, beneficiary) {
+            let goodItem = new goodModel({
+                'owner': {
+                    'id': beneficiary._id,
+                    'name': entityName
+                },
+                'productName': 'productTest',
+                'picture': 'picture.png',
+                'initialPrice': '100',
+                'discountType': '%',
+                'discount': '10',
+                'category': 1,
+                'reusePeriod': '7',
+                'pendingUnits': '100'
+            });
+            goodItem.save(function (err) {
+                expect(err).not.to.equal(null);
+                done();
+            });
         });
     });
 

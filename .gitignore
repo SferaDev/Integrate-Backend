@@ -9,3 +9,6 @@ node_modules/
 ### Code Coverage ###
 .nyc_output
 coverage
+
+### API Doc ###
+apidoc/

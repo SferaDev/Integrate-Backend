@@ -1,61 +1,34 @@
-const mongoose = require('mongoose');
-const Mockgoose = require('mockgoose').Mockgoose;
-const mockgoose = new Mockgoose(mongoose);
-const schedule = require('node-schedule');
+import express from "express";
+import cors from "cors";
 
-const express = require('express');
+import {PORT} from "./src/constants";
+import {loginRouter} from "./src/routes/loginRouter";
+import {registerRouter} from "./src/routes/registerRouter";
+import {apiRouter} from "./src/routes/apiRouter";
+import database from "./common/database";
 
 // Load Express.js
-const app = express();
-const port = process.env.PORT || 3000;
+export const app = express();
 
-// Connect to the database
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/Integrate';
-const ENV = process.env.NODE_ENV || 'test';
-
-mongoose.Promise = global.Promise;
-if (ENV === 'production') {
-    mongoose.connect(MONGODB_URI, function (error) {
-        if (error) console.error(error);
-        else console.log('MongoDB connected');
-
-        // Load beneficiaries for first time
-        let BeneficiaryController = require('./src/controllers/UserController');
-        let loadBeneficiariesCallback = function (err, message) {
-            if (err) console.error(message);
-            else console.log(message);
-        };
-        BeneficiaryController.loadBeneficiaries(loadBeneficiariesCallback);
-
-        // Reload beneficiaries everyday at midnight
-        schedule.scheduleJob('0 0 * * *', function () {
-            BeneficiaryController.loadBeneficiaries(loadBeneficiariesCallback);
-        });
-    });
-} else {
-    mockgoose.prepareStorage().then(function() {
-        mongoose.connect(MONGODB_URI, function (error) {
-            if (error) console.error(error);
-            else console.log('Mockgoose connected');
-        });
-    });
-}
+// Load project common modules
+database();
 
 // Apply body-parser directives
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// Enable CORS
+app.use(cors());
+
 // Load routes
-app.use('/', require('./src/routes/RootRoute'));
-app.use('/login', require('./src/routes/LoginRoute'));
-app.use('/me', require('./src/routes/APIRoute'));
+app.use('/', express.static('apidoc'));
+app.use('/login', loginRouter);
+app.use('/register', registerRouter);
+app.use('/me', apiRouter);
 
 // Start app
-app.listen(port);
+app.listen(PORT);
 
 // Load finish
-console.log('Integrate server started on: ' + port);
-
-// Export app as module for testing framework
-module.exports = app;
+console.log('Integrate server started on: ' + PORT);
