@@ -26,7 +26,7 @@ const briefEntitySchema = new mongoose.Schema({
         type: String,
         required: true
     }
-});
+},{_id: false});
 
 export const goodModel = mongoose.model('Good', new mongoose.Schema({
     owner: briefEntitySchema,
