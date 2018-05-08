@@ -41,7 +41,7 @@ apiRouter.use(function (req, res, next) {
     res.send = function (obj) {
         if (typeof obj === 'object') {
             let attributes = req.query.filter ? req.query.filter.split(',') : null;
-            let indent = req.query.pretty === 'true' ? 4 : 0;
+            let indent = req.query.indent && Number.isInteger(req.query.indent) ? req.query.indent : 0;
             if (Array.isArray(obj) && req.query.sort) {
                 obj.sort(function (a, b) {
                     if (a[req.query.sort] > b[req.query.sort]) return 1;
