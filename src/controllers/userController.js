@@ -33,7 +33,8 @@ export function loginUser(req, res) {
 }
 
 export function resetPassword(req, res) {
-    userModel.findOne({nif: req.body.nif}, function (err, user) {
+    let nif = req.body.nif || req.query.nif;
+    userModel.findOne({nif: nif}, function (err, user) {
         if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
         if (user === null) return res.status(constants.STATUS_NOT_FOUND).send({message: 'User not found'});
         user.password = passwordGenerator.generateRandomPassword(8);
