@@ -8,6 +8,7 @@ import * as entityController from "../controllers/entityController";
 
 export const apiRouter = express.Router();
 
+// Middleware to verify token
 apiRouter.use(function (req, res, next) {
     // check header or url parameters or post parameters for token
     let token = req.body.token || req.query.token || req.headers['token'];
@@ -31,6 +32,27 @@ apiRouter.use(function (req, res, next) {
             message: 'No token provided.'
         });
     }
+});
+
+// Middleware to prettify/filter/sort JSON result
+apiRouter.use(function (req, res, next) {
+    let oldSend = res.send;
+    res.set('Content-Type', 'application/json');
+    res.send = function (obj) {
+        if (typeof obj === 'object') {
+            let attributes = req.query.filter ? req.query.filter.split(',') : null;
+            let indent = !isNaN(parseInt(req.query.indent)) ? parseInt(req.query.indent) : 0;
+            if (Array.isArray(obj) && req.query.sort) {
+                obj.sort(function (a, b) {
+                    if (a[req.query.sort] > b[req.query.sort]) return 1;
+                    else if (a[req.query.sort] < b[req.query.sort]) return -1;
+                    return 0;
+                });
+            }
+            oldSend.call(this, JSON.stringify(obj, attributes, indent));
+        } else oldSend.call(this, obj);
+    };
+    next();
 });
 
 /**
