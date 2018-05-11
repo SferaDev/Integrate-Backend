@@ -135,3 +135,12 @@ apiRouter.delete('/goods/favourites/:id', function (req, res) {
 apiRouter.get('/entities/', function (req, res) {
     entityController.getEntities(req, res);
 });
+
+/**
+ * @api {get} /entity Get single entity
+ * @apiVersion 1.0.0
+ * @apiGroup Entities
+ */
+apiRouter.get('/entity/:id', function (req, res) {
+    entityController.getEntity(req, res);
+});
