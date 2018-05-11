@@ -71,12 +71,22 @@ describe('Operations that involve users', function() {
         });
     });
 
-    it ('should reset password', function (done) {
+    it ('should reset password (body)', function (done) {
         chai.request(app)
         .post('/register/reset')
         .send({
             nif: '12345678F'
         })
+        .then(function (res) {
+            expect(res).to.have.status(constants.STATUS_CREATED);
+            done();
+        });
+    });
+
+    it ('should reset password (query)', function (done) {
+        chai.request(app)
+        .post('/register/reset?nif=12345678F')
+        .send()
         .then(function (res) {
             expect(res).to.have.status(constants.STATUS_CREATED);
             done();
