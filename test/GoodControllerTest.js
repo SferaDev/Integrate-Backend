@@ -290,6 +290,42 @@ describe('Operations that involve goods', function () {
         });
     });
 
+    describe('Get single good', function () {
+        it('should get single good successfully', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/goods/' + good1Id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.productName).to.equal('productTest1');
+                    done();
+                });
+        });
+
+        it('should detect database errors', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            sinon.stub(goodModel, 'findById');
+            goodModel.findById.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
+            chai.request(app)
+                .get('/me/goods/' + good1Id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    goodModel.findById.restore();
+                    done();
+                });
+        });
+    });
+
     describe('Add new good', function () {
         it('should add good successfully', function (done) {
             let token = base64url.encode(jwt.sign({

@@ -51,6 +51,14 @@ export function getGoods(req, res) {
     }
 }
 
+export function getGood (req, res) {
+    let id = req.params.id;
+    goodModel.findById(id, function (err, good) {
+        if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+        res.status(constants.STATUS_OK).send(good);
+    });
+}
+
 export function getFavouriteGoods(req, res) {
     if (req.userType === 'Beneficiary') {
         beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
