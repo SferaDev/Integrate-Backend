@@ -44,6 +44,7 @@ export function getEntity (req, res) {
         let id = req.params.id;
         let entityParams = {
             name: 1,
+            email: 1,
             description: 1,
             addressName: 1,
             coordinates: 1,

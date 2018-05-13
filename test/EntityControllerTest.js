@@ -241,6 +241,7 @@ describe('Operations that involve entities', function () {
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_OK);
                     expect(res.body.name).to.equal('Colmado1');
+                    expect(res.body.email).to.equal('joanpuig@google.com');
                     expect(res.body.goods.length).to.equal(2);
                     expect(res.body.goods[0].productName).to.equal('productTest1');
                     expect(res.body.goods[1].productName).to.equal('productTest2');
