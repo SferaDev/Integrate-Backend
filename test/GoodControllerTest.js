@@ -307,6 +307,23 @@ describe('Operations that involve goods', function () {
                 });
         });
 
+        it('should detect not found good', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            let id = "5afa7fbdd6239a10cea50a2e";
+
+            chai.request(app)
+                .get('/me/goods/' + id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_NOT_FOUND);
+                    done();
+                });
+        });
+
         it('should detect database errors', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',

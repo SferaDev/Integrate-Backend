@@ -55,6 +55,7 @@ export function getGood (req, res) {
     let id = req.params.id;
     goodModel.findById(id, function (err, good) {
         if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+        if (good === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Good not found"});
         res.status(constants.STATUS_OK).send(good);
     });
 }
