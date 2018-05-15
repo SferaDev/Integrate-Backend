@@ -3,6 +3,7 @@ import passwordGenerator from "generate-random-password";
 import {sendMail} from "../../common/mail";
 import {entityModel} from "../models/entityModel";
 import * as constants from "../constants";
+import {goodModel} from "../models/goodModel";
 
 export function getEntities(req, res) {
     if (req.userType === 'Beneficiary') {
@@ -33,6 +34,34 @@ export function getEntities(req, res) {
                 else res.status(constants.STATUS_OK).send(entities);
             });
         }
+    } else {
+        res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
+    }
+}
+
+export function getEntity (req, res) {
+    if (req.userType === 'Beneficiary') {
+        let id = req.params.id;
+        let entityParams = {
+            name: 1,
+            email: 1,
+            description: 1,
+            addressName: 1,
+            coordinates: 1,
+            phone: 1,
+            picture: 1,
+            distance: 1
+        };
+        entityModel.findById(id, entityParams, function (err, entity) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            if (entity === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Entity not found"});
+            goodModel.find({"owner.id": entity._id}, function (err, goods) {
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                let entityJSON = entity.toObject();
+                entityJSON.goods = goods;
+                return res.status(constants.STATUS_OK).send(entityJSON);
+            });
+        });
     } else {
         res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
     }

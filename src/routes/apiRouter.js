@@ -144,3 +144,12 @@ apiRouter.get('/entities/', function (req, res) {
 apiRouter.get('/goods/:id', function (req, res) {
     goodController.getGood(req, res);
 });
+
+/**
+ * @api {get} /entity Get single entity
+ * @apiVersion 1.0.0
+ * @apiGroup Entities
+ */
+apiRouter.get('/entity/:id', function (req, res) {
+    entityController.getEntity(req, res);
+});
