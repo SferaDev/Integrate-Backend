@@ -261,8 +261,24 @@ describe('Operations that involve entities', function () {
                 .get('/me/entity/' + entityId1 + '?token=' + token)
                 .send()
                 .then(function (res) {
-                    expect(res).to.have.status(constants.STATUS_NOT_FOUND);
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
                     entityModel.findById.restore();
+                    done();
+                });
+        });
+
+        it ('should detect not found entity', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            let id = "5afa7fbdd6239a10cea50a2e";
+            chai.request(app)
+                .get('/me/entity/' + id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_NOT_FOUND);
                     done();
                 });
         });

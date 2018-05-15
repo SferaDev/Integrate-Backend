@@ -53,17 +53,14 @@ export function getEntity (req, res) {
             distance: 1
         };
         entityModel.findById(id, entityParams, function (err, entity) {
-            if (err) res.status(constants.STATUS_NOT_FOUND).send(err);
-            else {
-                goodModel.find({"owner.id": entity._id}, function (err, goods) {
-                    if (err) res.status(constants.STATUS_SERVER_ERROR).send(err);
-                    else {
-                        let entityJSON = entity.toObject();
-                        entityJSON.goods = goods;
-                        res.status(constants.STATUS_OK).send(entityJSON);
-                    }
-                });
-            }
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            if (entity === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Entity not found"});
+            goodModel.find({"owner.id": entity._id}, function (err, goods) {
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                let entityJSON = entity.toObject();
+                entityJSON.goods = goods;
+                return res.status(constants.STATUS_OK).send(entityJSON);
+            });
         });
     } else {
         res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
