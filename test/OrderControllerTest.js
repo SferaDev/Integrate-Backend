@@ -170,7 +170,7 @@ describe ("Operations that involve orders", function () {
         chai.request(app)
             .post('/me/orders' + '?token=' + token)
             .send({
-                goodIds: [good2Id]
+                goodIds: [good1Id, good2Id]
             })
             .then(function (res) {
                 expect(res).to.have.status(constants.STATUS_CONFLICT);
@@ -189,12 +189,52 @@ describe ("Operations that involve orders", function () {
         chai.request(app)
             .post('/me/orders' + '?token=' + token)
             .send({
-                goodIds: [good3Id]
+                goodIds: [good1Id, good3Id]
             })
             .then(function (res) {
                 expect(res).to.have.status(constants.STATUS_CONFLICT);
                 expect(res.body.nonUsableGoods.length).to.equal(1);
                 expect(res.body.nonUsableGoods[0]).to.equal(good3Id.toString());
+                done();
+            });
+    });
+
+    it ("should detect database errors when finding beneficiary", function (done) {
+        let token = base64url.encode(jwt.sign({
+            userId: 'sbrin@google.com',
+            userType: 'Beneficiary'
+        }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+        sinon.stub(beneficiaryModel, 'findOne');
+        beneficiaryModel.findOne.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
+        chai.request(app)
+            .post('/me/orders' + '?token=' + token)
+            .send({
+                goodIds: [good1Id, good3Id]
+            })
+            .then(function (res) {
+                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                beneficiaryModel.findOne.restore();
+                done();
+            });
+    });
+
+    it ("should detect database errors when finding goods", function (done) {
+        let token = base64url.encode(jwt.sign({
+            userId: 'sbrin@google.com',
+            userType: 'Beneficiary'
+        }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+        sinon.stub(goodModel, 'find');
+        goodModel.find.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
+        chai.request(app)
+            .post('/me/orders' + '?token=' + token)
+            .send({
+                goodIds: [good1Id, good3Id]
+            })
+            .then(function (res) {
+                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                goodModel.find.restore();
                 done();
             });
     });
