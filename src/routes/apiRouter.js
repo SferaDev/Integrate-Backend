@@ -5,6 +5,7 @@ import base64url from "base64url";
 import * as constants from "../constants";
 import * as goodController from "../controllers/goodController";
 import * as entityController from "../controllers/entityController";
+import * as orderController from "../controllers/orderController";
 
 export const apiRouter = express.Router();
 
@@ -152,4 +153,13 @@ apiRouter.get('/goods/:id', function (req, res) {
  */
 apiRouter.get('/entity/:id', function (req, res) {
     entityController.getEntity(req, res);
+});
+
+/**
+ * @api {post} /orders Validate and create order
+ * @apiVersion 1.0.0
+ * @apiGroup Orders
+ */
+apiRouter.post('/orders/', function (req, res) {
+    orderController.checkOrder(req,res);
 });
