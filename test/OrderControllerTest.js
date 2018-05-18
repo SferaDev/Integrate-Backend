@@ -119,6 +119,32 @@ describe ("Operations that involve orders", function () {
         });
     });
 
+    let good4Id;
+
+    before(function (done) {
+        let goodItem = new goodModel({
+            'owner': {
+                'id': entityId,
+                'name': 'Colmado'
+            },
+            'productName': 'productTest4',
+            'picture': 'picture.png',
+            'initialPrice': '50',
+            'discountType': '€',
+            'discount': '10',
+            'category': 1,
+            'reusePeriod': '7',
+            'pendingUnits': '100',
+            'location': [2.098851, 41.322228],
+            'numberFavs': 2
+        });
+
+        goodItem.save(function (err, good) {
+            good4Id = good._id;
+            done();
+        });
+    });
+
     before(function (done) {
         let beneficiaryItem = new beneficiaryModel({
             nif: '12345678F',
@@ -153,10 +179,11 @@ describe ("Operations that involve orders", function () {
         chai.request(app)
             .post('/me/orders' + '?token=' + token)
             .send({
-                goodIds: [good1Id]
+                goodIds: [good1Id, good4Id]
             })
             .then(function (res) {
                 expect(res).to.have.status(constants.STATUS_OK);
+                expect(res.body.totalDiscount).to.equal(10 + 10);
                 done();
             });
     });
