@@ -15,6 +15,7 @@ export function checkOrder (req, res) {
                 if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
                 let soldOutGoods = [];
                 let nonUsableGoods = [];
+                let totalDiscount = 0;
                 for (let good of goods) {
                     if (good.pendingUnits === 0) soldOutGoods.push(good._id);
                     else {
@@ -23,10 +24,15 @@ export function checkOrder (req, res) {
                                 nonUsableGoods.push(good._id);
                             }
                         }
+                        if (good.discountType === "%") {
+                            totalDiscount += good.initialPrice * (good.discount / 100);
+                        } else {
+                            totalDiscount += good.discount;
+                        }
                     }
                 }
                 if (soldOutGoods.length > 0 || nonUsableGoods.length > 0) return res.status(constants.STATUS_CONFLICT).send({soldOutGoods: soldOutGoods, nonUsableGoods: nonUsableGoods});
-                return res.status(constants.STATUS_OK).send({message: "All goods can be used"});
+                return res.status(constants.STATUS_OK).send({totalDiscount: totalDiscount});
             });
         });
     } else {

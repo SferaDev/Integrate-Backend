@@ -43,7 +43,8 @@ export const goodModel = mongoose.model('Good', new mongoose.Schema({
     },
     discountType: {
         type: String,
-        required: true
+        enum: ["%", "€"],
+        required: true,
     },
     discount: {
         type: Number,
