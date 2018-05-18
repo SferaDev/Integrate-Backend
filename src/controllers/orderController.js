@@ -26,8 +26,7 @@ export function checkOrder (req, res) {
                         }
                         if (good.discountType === "%") {
                             totalDiscount += good.initialPrice * (good.discount / 100);
-                        }
-                        else {
+                        } else {
                             totalDiscount += good.discount;
                         }
                     }
