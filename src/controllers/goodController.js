@@ -37,7 +37,18 @@ export function getGoods(req, res) {
             // Execute the query
             aggregate.exec(function (err, goods) {
                 if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                res.status(constants.STATUS_OK).send(goods);
+                let userEmail = req.userId;
+                beneficiaryModel.findOne({email: userEmail}, function (err, beneficiary) {
+                    if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                    let goodsObject = [];
+                    for (let good of goods) {
+                        good = new goodModel(good);
+                        let goodObject = good.toObject();
+                        goodObject.isUsable = good.isUsable(beneficiary);
+                        goodsObject.push(goodObject);
+                    }
+                    res.status(constants.STATUS_OK).send(goodsObject);
+                });
             });
         }
     } else {
@@ -56,7 +67,16 @@ export function getGood (req, res) {
     goodModel.findById(id, function (err, good) {
         if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
         if (good === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Good not found"});
-        res.status(constants.STATUS_OK).send(good);
+        if (req.userType === 'Beneficiary') {
+            let userEmail = req.userId;
+            beneficiaryModel.findOne({email: userEmail}, function (err, beneficiary) {
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                let goodObject = good.toObject();
+                goodObject.isUsable = good.isUsable(beneficiary);
+                return res.status(constants.STATUS_OK).send(goodObject);
+            });
+        }
+        else res.status(constants.STATUS_OK).send(good);
     });
 }
 
