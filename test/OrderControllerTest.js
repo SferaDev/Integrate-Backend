@@ -19,6 +19,7 @@ const mockgoose = new Mockgoose(mongoose);
 describe ("Operations that involve orders", function () {
 
     let entityId;
+    let entityValidationCode;
 
     before(function (done) {
         let entityItem = new entityModel({
@@ -37,6 +38,7 @@ describe ("Operations that involve orders", function () {
 
         entityItem.save(function (err, entity) {
             entityId = entity._id;
+            entityValidationCode = entity.validationCode;
             done();
         });
     });
@@ -170,116 +172,137 @@ describe ("Operations that involve orders", function () {
         });
     });
 
-    it ("should check usability of goods (success)", function (done) {
-        let token = base64url.encode(jwt.sign({
-            userId: 'sbrin@google.com',
-            userType: 'Beneficiary'
-        }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+    describe ("Check order", function () {
+        it ("should check usability of goods (success)", function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
-        chai.request(app)
-            .post('/me/orders' + '?token=' + token)
-            .send({
-                goodIds: [good1Id, good4Id]
-            })
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_OK);
-                expect(res.body.totalDiscount).to.equal(10 + 10);
-                done();
-            });
+            chai.request(app)
+                .post('/me/orders' + '?token=' + token)
+                .send({
+                    goodIds: [good1Id, good4Id]
+                })
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.totalDiscount).to.equal(10 + 10);
+                    done();
+                });
+        });
+
+        it ("should check usability of goods (sold out goods)", function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .post('/me/orders' + '?token=' + token)
+                .send({
+                    goodIds: [good1Id, good2Id]
+                })
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_CONFLICT);
+                    expect(res.body.soldOutGoods.length).to.equal(1);
+                    expect(res.body.soldOutGoods[0]).to.equal(good2Id.toString());
+                    done();
+                });
+        });
+
+        it ("should check usability of goods (non usable goods)", function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .post('/me/orders' + '?token=' + token)
+                .send({
+                    goodIds: [good1Id, good3Id]
+                })
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_CONFLICT);
+                    expect(res.body.nonUsableGoods.length).to.equal(1);
+                    expect(res.body.nonUsableGoods[0]).to.equal(good3Id.toString());
+                    done();
+                });
+        });
+
+        it ("should detect database errors when finding beneficiary", function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            sinon.stub(beneficiaryModel, 'findOne');
+            beneficiaryModel.findOne.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
+            chai.request(app)
+                .post('/me/orders' + '?token=' + token)
+                .send({
+                    goodIds: [good1Id, good3Id]
+                })
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    beneficiaryModel.findOne.restore();
+                    done();
+                });
+        });
+
+        it ("should detect database errors when finding goods", function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            sinon.stub(goodModel, 'find');
+            goodModel.find.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
+            chai.request(app)
+                .post('/me/orders' + '?token=' + token)
+                .send({
+                    goodIds: [good1Id, good3Id]
+                })
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    goodModel.find.restore();
+                    done();
+                });
+        });
+
+        it ("should not allow wrong type of user", function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .post('/me/orders' + '?token=' + token)
+                .send({
+                    goodIds: [good3Id]
+                })
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_FORBIDDEN);
+                    done();
+                });
+        });
     });
 
-    it ("should check usability of goods (sold out goods)", function (done) {
-        let token = base64url.encode(jwt.sign({
-            userId: 'sbrin@google.com',
-            userType: 'Beneficiary'
-        }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+    describe ("Check and store order", function () {
+        it ("should check and store order successfully", function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
-        chai.request(app)
-            .post('/me/orders' + '?token=' + token)
-            .send({
-                goodIds: [good1Id, good2Id]
-            })
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_CONFLICT);
-                expect(res.body.soldOutGoods.length).to.equal(1);
-                expect(res.body.soldOutGoods[0]).to.equal(good2Id.toString());
-                done();
-            });
-    });
-
-    it ("should check usability of goods (non usable goods)", function (done) {
-        let token = base64url.encode(jwt.sign({
-            userId: 'sbrin@google.com',
-            userType: 'Beneficiary'
-        }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
-
-        chai.request(app)
-            .post('/me/orders' + '?token=' + token)
-            .send({
-                goodIds: [good1Id, good3Id]
-            })
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_CONFLICT);
-                expect(res.body.nonUsableGoods.length).to.equal(1);
-                expect(res.body.nonUsableGoods[0]).to.equal(good3Id.toString());
-                done();
-            });
-    });
-
-    it ("should detect database errors when finding beneficiary", function (done) {
-        let token = base64url.encode(jwt.sign({
-            userId: 'sbrin@google.com',
-            userType: 'Beneficiary'
-        }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
-
-        sinon.stub(beneficiaryModel, 'findOne');
-        beneficiaryModel.findOne.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
-        chai.request(app)
-            .post('/me/orders' + '?token=' + token)
-            .send({
-                goodIds: [good1Id, good3Id]
-            })
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
-                beneficiaryModel.findOne.restore();
-                done();
-            });
-    });
-
-    it ("should detect database errors when finding goods", function (done) {
-        let token = base64url.encode(jwt.sign({
-            userId: 'sbrin@google.com',
-            userType: 'Beneficiary'
-        }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
-
-        sinon.stub(goodModel, 'find');
-        goodModel.find.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
-        chai.request(app)
-            .post('/me/orders' + '?token=' + token)
-            .send({
-                goodIds: [good1Id, good3Id]
-            })
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
-                goodModel.find.restore();
-                done();
-            });
-    });
-
-    it ("should not allow wrong type of user", function (done) {
-        let token = base64url.encode(jwt.sign({
-            userId: 'joanpuig@google.com',
-            userType: 'Entity'
-        }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
-
-        chai.request(app)
-            .post('/me/orders' + '?token=' + token)
-            .send({
-                goodIds: [good3Id]
-            })
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_FORBIDDEN);
-                done();
-            });
+            chai.request(app)
+                .post('/me/orders' + '?entityId=' + entityId + '&validationCode=' + entityValidationCode + '&token=' + token)
+                .send({
+                    goodIds: [good1Id, good4Id]
+                })
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_CREATED);
+                    done();
+                });
+        });
     });
 });
