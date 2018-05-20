@@ -14,7 +14,7 @@ export const entityModel = userModel.discriminator('Entity', new mongoose.Schema
     },
     validationCode: {
         type: String,
-        default: passwordGenerator.generateRandomPassword(6)
+        default: "1"//passwordGenerator.generateRandomPassword(6)
     },
     name: {
         type: String,

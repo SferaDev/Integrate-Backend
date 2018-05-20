@@ -147,6 +147,8 @@ describe ("Operations that involve orders", function () {
         });
     });
 
+    let beneficiaryId;
+
     before(function (done) {
         let beneficiaryItem = new beneficiaryModel({
             nif: '12345678F',
@@ -160,7 +162,8 @@ describe ("Operations that involve orders", function () {
             }]
         });
 
-        beneficiaryItem.save(function () {
+        beneficiaryItem.save(function (err, beneficiary) {
+            beneficiaryId = beneficiary._id;
             done();
         });
     });
@@ -301,8 +304,73 @@ describe ("Operations that involve orders", function () {
                 })
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_CREATED);
-                    done();
+                    goodModel.find({_id: {$in: [good1Id, good4Id]}}, function (err, goods) {
+                        expect(goods[0].pendingUnits).to.equal(99);
+                        expect(goods[0].pendingUnits).to.equal(99);
+                        beneficiaryModel.findById(beneficiaryId, function (err, beneficiary) {
+                            let usedGood1Id = beneficiary.usedGoods.find(function (element) {
+                                return element.id.toString() === good1Id.toString();
+                            });
+                            expect(usedGood1Id).not.to.equal(undefined);
+                            let usedGood4Id = beneficiary.usedGoods.find(function (element) {
+                                return element.id.toString() === good4Id.toString();
+                            });
+                            expect(usedGood4Id).not.to.equal(undefined);
+                            done();
+                        });
+                    });
                 });
         });
+
+        it ("should check and store order with already bought goods successfully", function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            beneficiaryModel.findByIdAndUpdate(beneficiaryId,
+                {
+                    usedGoods: [
+                        {
+                            id: good1Id,
+                            date: 1
+                        },
+                        {
+                            id: good4Id,
+                            date: 1
+                        }]
+                }, function () {
+                    chai.request(app)
+                        .post('/me/orders' + '?entityId=' + entityId + '&validationCode=' + entityValidationCode + '&token=' + token)
+                        .send({
+                            goodIds: [good1Id, good4Id]
+                        })
+                        .then(function (res) {
+                            expect(res).to.have.status(constants.STATUS_CREATED);
+                            beneficiaryModel.findById(beneficiaryId, function (err, beneficiary) {
+                                expect(beneficiary.usedGoods[0].date).to.be.above(1);
+                                expect(beneficiary.usedGoods[1].date).to.be.above(1);
+                                done();
+                            });
+                        });
+                });
+        });
+
+        it ("should detect invalid Validation Code", function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .post('/me/orders' + '?entityId=' + entityId + '&validationCode=' + 1111 + '&token=' + token)
+                .send({
+                    goodIds: []
+                })
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_FORBIDDEN);
+                    done();
+                });
+        })
     });
 });

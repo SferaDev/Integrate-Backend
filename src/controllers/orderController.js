@@ -32,22 +32,28 @@ export function processOrder (req, res) {
                     entityModel.findById(req.query.entityId, function (err, entity) {
                         if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
                         if (req.query.validationCode === entity.validationCode) {
+                            let usedGoods = beneficiary.usedGoods;
                             for (let good of goods) {
                                 good.pendingUnits -= 1;
                                 good.save();
-                                let usedGoodIndex = beneficiary.usedGoods.findIndex(function (element) {
-                                    return element.id === good._id;
+                                let usedGoodIndex = usedGoods.findIndex(function (element) {
+                                    return element.id.toString() === good._id.toString();
                                 });
                                 if (usedGoodIndex !== -1) {
-                                    beneficiary.usedGoods[usedGoodIndex].date = Date.now();
+                                    usedGoods[usedGoodIndex].date = Date.now();
+
                                 } else {
-                                    beneficiary.usedGoods.push({
+                                    usedGoods.push({
                                         id: good._id,
                                         date: Date.now()
                                     });
                                 }
-                                //beneficiary.save();
                             }
+                            beneficiary.update({
+                                $set: {
+                                    usedGoods: usedGoods
+                                }
+                            }).exec()
                             let order = new orderModel({
                                 entity: req.query.entityId,
                                 beneficiary: beneficiary._id,
