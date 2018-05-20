@@ -28,7 +28,7 @@ const briefEntitySchema = new mongoose.Schema({
     }
 },{_id: false});
 
-export const goodModel = mongoose.model('Good', new mongoose.Schema({
+const goodSchema = new mongoose.Schema({
     owner: briefEntitySchema,
     productName: {
         type: String,
@@ -71,4 +71,20 @@ export const goodModel = mongoose.model('Good', new mongoose.Schema({
     location: {
         type: [Number]
     }
-}, {timestamps: true}).index({location: '2dsphere'}));
+}, {timestamps: true}).index({location: '2dsphere'});
+
+function daysToMilliseconds (days) {
+    return days * 24 * 60 * 60 * 1000;
+}
+
+goodSchema.methods.isUsable = function(beneficiary) {
+    for (let usedGood of beneficiary.usedGoods) {
+        if (usedGood.id.toString() === this._id.toString() && usedGood.date + daysToMilliseconds(this.reusePeriod) > Date.now()) {
+            return false;
+        }
+    }
+    return true;
+};
+
+export const goodModel = mongoose.model('Good', goodSchema);
+
