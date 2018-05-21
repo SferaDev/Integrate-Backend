@@ -10,6 +10,7 @@ import {app} from "../server";
 import * as constants from "../src/constants";
 import {entityModel} from "../src/models/entityModel";
 import {goodModel} from "../src/models/goodModel";
+import {beneficiaryModel} from "../src/models/beneficiaryModel";
 
 chai.use(chai_http);
 const expect = chai.expect;
@@ -80,6 +81,8 @@ describe('Operations that involve entities', function () {
         })
     });
 
+    let good1Id;
+
     before(function (done) {
         let goodItem = new goodModel({
             'owner': {
@@ -98,7 +101,8 @@ describe('Operations that involve entities', function () {
             'numberFavs': 10
         });
 
-        goodItem.save(function () {
+        goodItem.save(function (err, good) {
+            good1Id = good._id;
             done();
         });
     });
@@ -149,6 +153,24 @@ describe('Operations that involve entities', function () {
         });
     });
 
+    before(function (done) {
+        let beneficiaryItem = new beneficiaryModel({
+            nif: '12345678Z',
+            firstName: 'Sergey',
+            lastName: 'Brin',
+            email: 'sbrin@google.com',
+            password: 'myPAsswd!',
+            usedGoods: [{
+                id: good1Id,
+                date: Date.now()
+            }]
+        });
+
+        beneficiaryItem.save(function () {
+            done();
+        });
+    });
+
     after(function (done) {
         // Drop test database
         mockgoose.helper.reset().then(() => {
@@ -161,7 +183,7 @@ describe('Operations that involve entities', function () {
             entityModel.ensureIndexes(function () {
                 //get token
                 let token = base64url.encode(jwt.sign({
-                    userId: 'joanpuig@google.com',
+                    userId: 'sbrin@google.com',
                     userType: 'Beneficiary'
                 }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
                 //test get entities
@@ -180,7 +202,7 @@ describe('Operations that involve entities', function () {
 
         it ('should detect database errors', function (done) {
             let token = base64url.encode(jwt.sign({
-                userId: 'joanpuig@google.com',
+                userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
@@ -198,7 +220,7 @@ describe('Operations that involve entities', function () {
 
         it('should detect wrong query parameters', function (done) {
             let token = base64url.encode(jwt.sign({
-                userId: 'joanpuig@google.com',
+                userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
@@ -231,7 +253,7 @@ describe('Operations that involve entities', function () {
         it('should get single entity', function (done) {
             //get token
             let token = base64url.encode(jwt.sign({
-                userId: 'joanpuig@google.com',
+                userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
             //test get entity
@@ -244,14 +266,16 @@ describe('Operations that involve entities', function () {
                     expect(res.body.email).to.equal('joanpuig@google.com');
                     expect(res.body.goods.length).to.equal(2);
                     expect(res.body.goods[0].productName).to.equal('productTest1');
+                    expect(res.body.goods[0].isUsable).to.equal(false);
                     expect(res.body.goods[1].productName).to.equal('productTest2');
+                    expect(res.body.goods[1].isUsable).to.equal(true);
                     done();
                 });
         });
 
         it ('should detect database errors when finding entity', function (done) {
             let token = base64url.encode(jwt.sign({
-                userId: 'joanpuig@google.com',
+                userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
@@ -269,7 +293,7 @@ describe('Operations that involve entities', function () {
 
         it ('should detect not found entity', function (done) {
             let token = base64url.encode(jwt.sign({
-                userId: 'joanpuig@google.com',
+                userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
@@ -285,7 +309,7 @@ describe('Operations that involve entities', function () {
 
         it ('should detect database errors when finding goods', function (done) {
             let token = base64url.encode(jwt.sign({
-                userId: 'joanpuig@google.com',
+                userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
@@ -303,7 +327,7 @@ describe('Operations that involve entities', function () {
 
         it('should not allow wrong type of user', function (done) {
             let token = base64url.encode(jwt.sign({
-                userId: 'joanpuig@google.com',
+                userId: 'sbrin@google.com',
                 userType: 'Entity'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 

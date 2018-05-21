@@ -4,6 +4,7 @@ import {sendMail} from "../../common/mail";
 import {entityModel} from "../models/entityModel";
 import * as constants from "../constants";
 import {goodModel} from "../models/goodModel";
+import {beneficiaryModel} from "../models/beneficiaryModel";
 
 export function getEntities(req, res) {
     if (req.userType === 'Beneficiary') {
@@ -55,11 +56,21 @@ export function getEntity (req, res) {
         entityModel.findById(id, entityParams, function (err, entity) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
             if (entity === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Entity not found"});
-            goodModel.find({"owner.id": entity._id}, function (err, goods) {
+            let userEmail = req.userId;
+            beneficiaryModel.findOne({email: userEmail}, function (err, beneficiary) {
                 if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                let entityJSON = entity.toObject();
-                entityJSON.goods = goods;
-                return res.status(constants.STATUS_OK).send(entityJSON);
+                goodModel.find({"owner.id": entity._id}, function (err, goods) {
+                    if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                    let entityJSON = entity.toObject();
+                    let goodsObject = [];
+                    for (let good of goods) {
+                        let goodObject = good.toObject();
+                        goodObject.isUsable = good.isUsable(beneficiary);
+                        goodsObject.push(goodObject);
+                    }
+                    entityJSON.goods = goodsObject;
+                    return res.status(constants.STATUS_OK).send(entityJSON);
+                });
             });
         });
     } else {
