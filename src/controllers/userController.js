@@ -1,4 +1,4 @@
-import passwordGenerator from "generate-random-password";
+import passwordGenerator from "password-generator";
 import jwt from "jsonwebtoken";
 import base64url from "base64url";
 
@@ -37,7 +37,7 @@ export function resetPassword(req, res) {
     userModel.findOne({nif: nif}, function (err, user) {
         if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
         if (user === null) return res.status(constants.STATUS_NOT_FOUND).send({message: 'User not found'});
-        user.password = passwordGenerator.generateRandomPassword(8, 5);
+        user.password = passwordGenerator();
         let newPassword = user.password;
         user.save(function(err) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
