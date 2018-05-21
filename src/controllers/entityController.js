@@ -56,8 +56,7 @@ export function getEntity (req, res) {
         entityModel.findById(id, entityParams, function (err, entity) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
             if (entity === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Entity not found"});
-            let userEmail = req.userId;
-            beneficiaryModel.findOne({email: userEmail}, function (err, beneficiary) {
+            beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
                 if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
                 goodModel.find({"owner.id": entity._id}, function (err, goods) {
                     if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
