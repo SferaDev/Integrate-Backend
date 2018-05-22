@@ -171,5 +171,5 @@ apiRouter.get('/entity/:id', function (req, res) {
  * @apiGroup Orders
  */
 apiRouter.post('/orders/', function (req, res) {
-    orderController.checkOrder(req,res);
+    orderController.processOrder(req,res);
 });
