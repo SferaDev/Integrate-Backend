@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import passwordGenerator from "generate-random-password";
+import passwordGenerator from "password-generator";
 
 import {userModel} from "./userModel";
 
@@ -14,7 +14,7 @@ export const entityModel = userModel.discriminator('Entity', new mongoose.Schema
     },
     validationCode: {
         type: String,
-        default: "1"//passwordGenerator.generateRandomPassword(6)
+        default: passwordGenerator(6, false)
     },
     name: {
         type: String,

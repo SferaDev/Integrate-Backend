@@ -1,9 +1,10 @@
-import passwordGenerator from "generate-random-password";
+import passwordGenerator from "password-generator";
 
 import {sendMail} from "../../common/mail";
 import {entityModel} from "../models/entityModel";
 import * as constants from "../constants";
 import {goodModel} from "../models/goodModel";
+import {beneficiaryModel} from "../models/beneficiaryModel";
 
 export function getEntities(req, res) {
     if (req.userType === 'Beneficiary') {
@@ -55,11 +56,20 @@ export function getEntity (req, res) {
         entityModel.findById(id, entityParams, function (err, entity) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
             if (entity === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Entity not found"});
-            goodModel.find({"owner.id": entity._id}, function (err, goods) {
+            beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
                 if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                let entityJSON = entity.toObject();
-                entityJSON.goods = goods;
-                return res.status(constants.STATUS_OK).send(entityJSON);
+                goodModel.find({"owner.id": entity._id}, function (err, goods) {
+                    if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                    let entityJSON = entity.toObject();
+                    let goodsObject = [];
+                    for (let good of goods) {
+                        let goodObject = good.toObject();
+                        goodObject.isUsable = good.isUsable(beneficiary);
+                        goodsObject.push(goodObject);
+                    }
+                    entityJSON.goods = goodsObject;
+                    return res.status(constants.STATUS_OK).send(entityJSON);
+                });
             });
         });
     } else {
@@ -83,7 +93,7 @@ export function createNewEntity(req, res) {
         if (count > 0) return res.status(constants.STATUS_CONFLICT).send({message: 'NIF already exists'});
         entityModel.create(attributes, function (err, entity) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            entity.password = passwordGenerator.generateRandomPassword(8);
+            entity.password = passwordGenerator(8, false);
             sendMail(entity.email, 'Welcome to Integrate!', 'Welcome!\n\nYour account has been successfully created.\n\nAccount: ' +
                 entity.nif + '\nPassword: ' + entity.password + '\n\nPlease change your password after your first login.');
             entity.save();
