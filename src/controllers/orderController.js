@@ -41,7 +41,6 @@ export function processOrder (req, res) {
                                 });
                                 if (usedGoodIndex !== -1) {
                                     usedGoods[usedGoodIndex].date = Date.now();
-
                                 } else {
                                     usedGoods.push({
                                         id: good._id,
@@ -64,11 +63,9 @@ export function processOrder (req, res) {
                                 if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
                                 else return res.status(constants.STATUS_CREATED).send({message: "Order processed and stored"});
                             });
-                        }
-                        else return res.status(constants.STATUS_FORBIDDEN).send({message: "Validation code incorrect"});
+                        } else return res.status(constants.STATUS_FORBIDDEN).send({message: "Validation code incorrect"});
                     });
-                }
-                else return res.status(constants.STATUS_OK).send({totalDiscount: totalDiscount});
+                } else return res.status(constants.STATUS_OK).send({totalDiscount: totalDiscount});
             });
         });
     } else {
