@@ -39,11 +39,24 @@ export function resetPassword(req, res) {
         if (user === null) return res.status(constants.STATUS_NOT_FOUND).send({message: 'User not found'});
         user.password = passwordGenerator(8, false);
         let newPassword = user.password;
-        user.save(function(err) {
+        user.save(function (err) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
             sendMail(user.email, 'Password reset on Integrate', 'Hi there!\n\nYou have requested a password reset.\n\nAccount: ' +
-                     user.nif + '\nPassword: ' + newPassword + '\n\nPlease change your password after your next login.');
+                user.nif + '\nPassword: ' + newPassword + '\n\nPlease change your password after your next login.');
             res.status(constants.STATUS_CREATED).send();
         });
+    });
+}
+
+export function changePassword(req, res) {
+    userModel.findOne({email: req.userId}, function (err, user) {
+        if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
+        if (user.comparePassword(req.body.oldPassword)) {
+            user.password = req.body.newPassword;
+            user.save(function (err) {
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
+                return res.status(constants.STATUS_OK).send({message: 'Password changed'});
+            });
+        } else return res.status(constants.STATUS_BAD_REQUEST).send({message: 'Invalid old password'});
     });
 }
