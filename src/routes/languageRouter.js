@@ -11,11 +11,11 @@ export const languageRouter = express.Router();
  * @apiGroup Language
  */
 languageRouter.get('/', function (req, res) {
-    let result = LANGUAGES.slice(0);
+    let result = [];
     result.forEach(function (element) {
         element.name = ISO6391.getName(element.language);
         element.nativeName = ISO6391.getNativeName(element.language);
-        if (element.name === '') result.remove(element);
+        if (element.name !== '') result.push(element);
     });
     res.status(200).send(result);
 });
