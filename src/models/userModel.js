@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
+import {LANGUAGES} from '../constants';
+
 const baseOptions = {
     timestamps: true
 };
@@ -17,6 +19,16 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String
+    },
+    interfaceLanguage: {
+        type: String,
+        enum: ['en', 'es', 'ca'],
+        default: 'en'
+    },
+    goodLanguage: {
+        type: String,
+        enum: LANGUAGES.map(element => element.language),
+        default: 'en'
     }
 }, baseOptions);
 
