@@ -49,7 +49,7 @@ export function resetPassword(req, res) {
 }
 
 export function changePassword(req, res) {
-    userModel.findOne({_id: req.userId}, function (err, user) {
+    userModel.findOne({email: req.userId}, function (err, user) {
         if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
         if (user.comparePassword(req.body.oldPassword)) {
             user.password = req.body.newPassword;

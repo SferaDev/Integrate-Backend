@@ -111,7 +111,7 @@ describe('Operations that involve users', function() {
         });
     });
 
-    it ('should not change password (incorrect old)', function (done) {
+    it ('should not change password (incorrect old password)', function (done) {
         let token = base64url.encode(jwt.sign({
             userId: 'joanpuig@google.com',
             userType: 'Entity'
