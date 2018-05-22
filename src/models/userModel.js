@@ -17,6 +17,11 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String
+    },
+    language: {
+        type: String,
+        enum: ['en', 'es', 'cat'],
+        default: 'en'
     }
 }, baseOptions);
 
