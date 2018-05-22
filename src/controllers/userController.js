@@ -47,3 +47,16 @@ export function resetPassword(req, res) {
         });
     });
 }
+
+export function changePassword(req, res) {
+    userModel.findOne({_id: req.userId}, function (err, user) {
+        if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
+        if (user.comparePassword(req.body.oldPassword)) {
+            user.password = req.body.newPassword;
+            user.save(function (err) {
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
+                return res.status(constants.STATUS_OK).send('Password changed')
+            });
+        } else return res.status(constants.STATUS_BAD_REQUEST).send({message: 'Invalid old password'});
+    });
+}

@@ -6,6 +6,7 @@ import * as constants from "../constants";
 import * as goodController from "../controllers/goodController";
 import * as entityController from "../controllers/entityController";
 import * as orderController from "../controllers/orderController";
+import * as userController from "../controllers/userController";
 
 export const apiRouter = express.Router();
 
@@ -63,6 +64,15 @@ apiRouter.use(function (req, res, next) {
  */
 apiRouter.get('/', function (req, res) {
     res.send({success: true});
+});
+
+/**
+ * @api {put} /me/password Token validation
+ * @apiVersion 1.0.0
+ * @apiGroup Authentication
+ */
+apiRouter.put('/password', function (req, res) {
+    userController.changePassword(req, res);
 });
 
 /**
