@@ -5,6 +5,7 @@ import {entityModel} from "../models/entityModel";
 import * as constants from "../constants";
 import {goodModel} from "../models/goodModel";
 import {beneficiaryModel} from "../models/beneficiaryModel";
+import {orderModel} from "../models/orderModel";
 
 export function getEntities(req, res) {
     if (req.userType === 'Beneficiary') {
@@ -100,4 +101,34 @@ export function createNewEntity(req, res) {
             res.status(constants.STATUS_CREATED).send();
         });
     });
+}
+
+export function getEntityStats(req, res) {
+    if (req.userType === 'Entity') {
+        entityModel.findOne({email: req.userId}, function (err, entity) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            goodModel.count({'owner.id': entity._id}, function (err, goodsCreated) {
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                let aggregate = orderModel.aggregate();
+                aggregate.group({
+                    _id: {entity: '$entity', beneficiary: '$beneficiary'},
+                    savedMoney: {$sum: '$totalDiscount'}
+                });
+                aggregate.exec(function (err, records) {
+                    let beneficiariesHelped = records.length;
+                    let totalSavedMoney = 0
+                    for (let record of records) {
+                        totalSavedMoney += record.savedMoney;
+                    }
+                    res.status(constants.STATUS_OK).send({
+                        goodsCreated: goodsCreated,
+                        beneficiariesHelped: beneficiariesHelped,
+                        totalSavedMoney: totalSavedMoney
+                    });
+                });
+            })
+        });
+    } else {
+        res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
+    }
 }
