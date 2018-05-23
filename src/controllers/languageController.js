@@ -1,5 +1,7 @@
-import * as constants from "../constants";
+import axios from "axios";
 import ISO6391 from "iso-639-1";
+
+import * as constants from "../constants";
 import {userModel} from "../models/userModel";
 
 export function getAllLanguages(req, res) {
@@ -51,5 +53,16 @@ export function setUserGoodLanguage(req, res) {
             if (err2) return res.status(constants.STATUS_SERVER_ERROR).send(err2);
             res.status(constants.STATUS_OK).send({success: true, goodLanguage: user2.goodLanguage});
         });
+    });
+}
+
+export function translateString(language, string, callback) {
+    let validLanguages = constants.LANGUAGES.map(element => element.language);
+    if (validLanguages.indexOf(language) === -1) return callback('Wrong language', null);
+    axios.get("https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=" +
+        language + "&dt=t&q=" + encodeURI(string)).then(function (response) {
+        callback(null, response.data[0][0][0]);
+    }).catch(function (error) {
+        callback(error, null);
     });
 }

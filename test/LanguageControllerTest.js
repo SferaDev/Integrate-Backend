@@ -6,6 +6,7 @@ import {app} from "../server";
 import * as constants from "../src/constants";
 import {beneficiaryModel} from "../src/models/beneficiaryModel";
 import mongoose from "mongoose";
+import * as languageController from "../src/controllers/languageController";
 
 const expect = chai.expect;
 const mockgoose = new Mockgoose(mongoose);
@@ -119,5 +120,12 @@ describe("Test group for language calls", function () {
             expect(res).to.have.status(constants.STATUS_BAD_REQUEST);
             done();
         });
+    });
+
+    it('should not translate string (invalid language)', function (done) {
+        languageController.translateString('random', 'Hello friend', function (err, response) {
+            expect(err).to.equal('Wrong language');
+            done();
+        })
     });
 });
