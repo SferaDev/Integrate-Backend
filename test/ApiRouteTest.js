@@ -1,12 +1,14 @@
 import base64url from "base64url/dist/base64url";
 import jwt from "jsonwebtoken";
 import chai from "chai";
-
+import {Mockgoose} from "mockgoose";
 import {app} from "../server";
 import * as constants from "../src/constants";
 import {beneficiaryModel} from "../src/models/beneficiaryModel";
+import mongoose from "mongoose";
 
 const expect = chai.expect;
+const mockgoose = new Mockgoose(mongoose);
 
 describe("Test group for api calls", function () {
     before(function (done) {
@@ -21,6 +23,13 @@ describe("Test group for api calls", function () {
 
         beneficiaryItem.save(function () {
             done();
+        });
+    });
+
+    after(function (done) {
+        // Drop test database
+        mockgoose.helper.reset().then(() => {
+            done()
         });
     });
 
