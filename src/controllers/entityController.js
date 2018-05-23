@@ -59,7 +59,7 @@ export function getEntity (req, res) {
             if (entity === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Entity not found"});
             beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
                 if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                goodModel.find({"owner.id": entity._id}, function (err, goods) {
+                goodModel.find({"owner.id": entity._id, pendingUnits: {$gt: 0}}, function (err, goods) {
                     if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
                     let entityJSON = entity.toObject();
                     let goodsObject = [];
@@ -116,7 +116,7 @@ export function getEntityStats(req, res) {
                 });
                 aggregate.exec(function (err, records) {
                     let beneficiariesHelped = records.length;
-                    let totalSavedMoney = 0
+                    let totalSavedMoney = 0;
                     for (let record of records) {
                         totalSavedMoney += record.savedMoney;
                     }

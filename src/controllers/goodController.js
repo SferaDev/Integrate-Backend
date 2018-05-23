@@ -16,7 +16,7 @@ export function getGoods(req, res) {
             // Build the query
             let aggregate = goodModel.aggregate();
             let category;
-            if (categoryIndex !== "0") category = {category: parseInt(categoryIndex)};
+            if (categoryIndex !== "0") category = {category: parseInt(categoryIndex), pendingUnits: {$gt: 0}};
             // Filter by location (must be the first operation of the pipeline)
             if (orderIndex === "2") {
                 aggregate.near({
@@ -84,7 +84,7 @@ export function getFavouriteGoods(req, res) {
     if (req.userType === 'Beneficiary') {
         beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            goodModel.find({_id: {$in: beneficiary.favouriteGoods}}, function (err, goods) {
+            goodModel.find({_id: {$in: beneficiary.favouriteGoods}, pendingUnits: {$gt: 0}}, function (err, goods) {
                 if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
                 res.status(constants.STATUS_OK).send(goods);
             });
