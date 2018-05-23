@@ -173,3 +173,7 @@ apiRouter.get('/entity/:id', function (req, res) {
 apiRouter.post('/orders/', function (req, res) {
     orderController.processOrder(req,res);
 });
+
+apiRouter.get('/stats', function (req, res) {
+    entityController.getEntityStats(req, res);
+});

@@ -11,6 +11,7 @@ import * as constants from "../src/constants";
 import {entityModel} from "../src/models/entityModel";
 import {goodModel} from "../src/models/goodModel";
 import {beneficiaryModel} from "../src/models/beneficiaryModel";
+import {orderModel} from "../src/models/orderModel";
 
 chai.use(chai_http);
 const expect = chai.expect;
@@ -107,6 +108,8 @@ describe('Operations that involve entities', function () {
         });
     });
 
+    let good2Id;
+
     before(function (done) {
         let goodItem = new goodModel({
             'owner': {
@@ -125,7 +128,8 @@ describe('Operations that involve entities', function () {
             'numberFavs': 10
         });
 
-        goodItem.save(function () {
+        goodItem.save(function (err, good) {
+            good2Id = good._id;
             done();
         });
     });
@@ -153,6 +157,8 @@ describe('Operations that involve entities', function () {
         });
     });
 
+    let beneficiary1Id;
+
     before(function (done) {
         let beneficiaryItem = new beneficiaryModel({
             nif: '12345678Z',
@@ -163,10 +169,41 @@ describe('Operations that involve entities', function () {
             usedGoods: [{
                 id: good1Id,
                 date: Date.now()
+            },
+            {
+                id: good2Id,
+                date: Date.now()
             }]
         });
 
-        beneficiaryItem.save(function () {
+        beneficiaryItem.save(function (err, beneficiary) {
+            beneficiary1Id = beneficiary._id;
+            done();
+        });
+    });
+
+    before(function (done) {
+        let orderItem = new orderModel({
+            entity: entityId1,
+            beneficiary: beneficiary1Id,
+            orderedGoods: [good1Id],
+            totalDiscount: 10
+        });
+
+        orderItem.save(function () {
+            done();
+        });
+    });
+
+    before(function (done) {
+        let orderItem = new orderModel({
+            entity: entityId1,
+            beneficiary: beneficiary1Id,
+            orderedGoods: [good2Id],
+            totalDiscount: 10
+        });
+
+        orderItem.save(function () {
             done();
         });
     });
@@ -268,7 +305,7 @@ describe('Operations that involve entities', function () {
                     expect(res.body.goods[0].productName).to.equal('productTest1');
                     expect(res.body.goods[0].isUsable).to.equal(false);
                     expect(res.body.goods[1].productName).to.equal('productTest2');
-                    expect(res.body.goods[1].isUsable).to.equal(true);
+                    expect(res.body.goods[1].isUsable).to.equal(false);
                     done();
                 });
         });
@@ -440,6 +477,41 @@ describe('Operations that involve entities', function () {
                 })
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_CREATED);
+                    done();
+                });
+        });
+    });
+
+    describe ('Get entity stats', function () {
+        it ('should return stats of an entity successfully', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/stats/?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.goodsCreated).to.equal(2);
+                    expect(res.body.beneficiariesHelped).to.equal(1);
+                    expect(res.body.totalSavedMoney).to.equal(20);
+                    done();
+                });
+        });
+
+        it ('should not allow wrong type of user', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/stats/?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_FORBIDDEN);
                     done();
                 });
         });

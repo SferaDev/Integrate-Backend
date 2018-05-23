@@ -24,11 +24,18 @@ export function loginUser(req, res) {
                 userId: user.email,
                 userType: user.__t
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
-            res.send({token: token});
+            let userObject = user.toObject();
+            delete userObject._id;
+            delete userObject.password;
+            delete userObject.createdAt;
+            delete userObject.updatedAt;
+            delete userObject.__v;
+            if (userObject.hasOwnProperty('validationCode')) delete userObject.validationCode;
+            res.send({token: token, user: userObject});
         } else res.status(constants.STATUS_UNAUTHORIZED).send({
             code: constants.ERROR_INVALID_PASSWORD,
             status: 'Invalid password'
-        })
+        });
     });
 }
 
