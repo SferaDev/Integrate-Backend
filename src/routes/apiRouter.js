@@ -63,7 +63,7 @@ apiRouter.use(function (req, res, next) {
  * @apiGroup Authentication
  */
 apiRouter.get('/', function (req, res) {
-    res.send({success: true});
+    userController.validateUser(req, res);
 });
 
 /**

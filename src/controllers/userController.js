@@ -24,14 +24,7 @@ export function loginUser(req, res) {
                 userId: user.email,
                 userType: user.__t
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
-            let userObject = user.toObject();
-            delete userObject._id;
-            delete userObject.password;
-            delete userObject.createdAt;
-            delete userObject.updatedAt;
-            delete userObject.__v;
-            if (userObject.hasOwnProperty('validationCode')) delete userObject.validationCode;
-            res.send({token: token, user: userObject});
+            res.send({token: token, user: userInfo(user)});
         } else res.status(constants.STATUS_UNAUTHORIZED).send({
             code: constants.ERROR_INVALID_PASSWORD,
             status: 'Invalid password'
@@ -66,4 +59,22 @@ export function changePassword(req, res) {
             });
         } else return res.status(constants.STATUS_BAD_REQUEST).send({message: 'Invalid old password'});
     });
+}
+
+export function validateUser(req, res) {
+    userModel.findOne({email: req.userId}, function (err, user) {
+        if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
+        res.send({success: true, user: userInfo(user)});
+    });
+}
+
+function userInfo(user) {
+    let userObject = user.toObject();
+    delete userObject._id;
+    delete userObject.password;
+    delete userObject.createdAt;
+    delete userObject.updatedAt;
+    delete userObject.__v;
+    if (userObject.hasOwnProperty('validationCode')) delete userObject.validationCode;
+    return userObject;
 }
