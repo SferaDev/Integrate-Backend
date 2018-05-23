@@ -7,6 +7,7 @@ import * as goodController from "../controllers/goodController";
 import * as entityController from "../controllers/entityController";
 import * as orderController from "../controllers/orderController";
 import * as userController from "../controllers/userController";
+import * as languageController from "../controllers/languageController";
 
 export const apiRouter = express.Router();
 
@@ -80,7 +81,7 @@ apiRouter.put('/password', function (req, res) {
  * @apiVersion 1.0.0
  * @apiGroup Goods
  */
-apiRouter.get('/goods/', function (req, res) {
+apiRouter.get('/goods', function (req, res) {
     goodController.getGoods(req, res);
 });
 
@@ -89,7 +90,7 @@ apiRouter.get('/goods/', function (req, res) {
  * @apiVersion 1.0.0
  * @apiGroup Goods
  */
-apiRouter.post('/goods/', function (req, res) {
+apiRouter.post('/goods', function (req, res) {
     goodController.addGood(req, res);
 });
 
@@ -143,7 +144,7 @@ apiRouter.delete('/goods/favourites/:id', function (req, res) {
  * @apiVersion 1.0.0
  * @apiGroup Entities
  */
-apiRouter.get('/entities/', function (req, res) {
+apiRouter.get('/entities', function (req, res) {
     entityController.getEntities(req, res);
 });
 
@@ -170,10 +171,26 @@ apiRouter.get('/entity/:id', function (req, res) {
  * @apiVersion 1.0.0
  * @apiGroup Orders
  */
-apiRouter.post('/orders/', function (req, res) {
+apiRouter.post('/orders', function (req, res) {
     orderController.processOrder(req,res);
 });
 
 apiRouter.get('/stats', function (req, res) {
     entityController.getEntityStats(req, res);
+});
+
+apiRouter.get('/language/interface', function (req, res) {
+    languageController.getUserInterfaceLanguage(req, res);
+});
+
+apiRouter.put('/language/interface', function (req, res) {
+    languageController.setUserInterfaceLanguage(req, res);
+});
+
+apiRouter.get('/language/goods', function (req, res) {
+    languageController.getUserGoodLanguage(req, res);
+});
+
+apiRouter.put('/language/goods', function (req, res) {
+    languageController.setUserGoodLanguage(req, res);
 });
