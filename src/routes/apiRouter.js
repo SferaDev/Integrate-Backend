@@ -8,34 +8,9 @@ import * as entityController from "../controllers/entityController";
 import * as orderController from "../controllers/orderController";
 import * as userController from "../controllers/userController";
 import * as languageController from "../controllers/languageController";
+import {translationModel} from "../models/translationModel";
 
 export const apiRouter = express.Router();
-
-// Middleware to verify token
-apiRouter.use(function (req, res, next) {
-    // check header or url parameters or post parameters for token
-    let token = req.body.token || req.query.token || req.headers['token'];
-    if (token) {
-        jwt.verify(base64url.decode(token), constants.TOKEN_SECRET, function (err, decoded) {
-            if (err) {
-                return res.status(constants.STATUS_UNAUTHORIZED).send({
-                    success: false,
-                    message: 'Failed to authenticate token.'
-                });
-            } else {
-                // if everything is good, save to request for use in other routes
-                req.userId = decoded.userId;
-                req.userType = decoded.userType;
-                next();
-            }
-        });
-    } else {
-        res.status(constants.STATUS_FORBIDDEN).send({
-            success: false,
-            message: 'No token provided.'
-        });
-    }
-});
 
 // Middleware to prettify/filter/sort JSON result
 apiRouter.use(function (req, res, next) {
@@ -53,6 +28,79 @@ apiRouter.use(function (req, res, next) {
                 });
             }
             oldSend.call(this, JSON.stringify(obj, attributes, indent));
+        } else oldSend.call(this, obj);
+    };
+    next();
+});
+
+// Middleware to verify token
+apiRouter.use(function (req, res, next) {
+    // check header or url parameters or post parameters for token
+    let token = req.body.token || req.query.token || req.headers['token'];
+    if (token) {
+        jwt.verify(base64url.decode(token), constants.TOKEN_SECRET, function (err, decoded) {
+            if (err) {
+                return res.status(constants.STATUS_UNAUTHORIZED).send({
+                    success: false,
+                    message: 'Failed to authenticate token.'
+                });
+            } else {
+                // if everything is good, save to request for use in other routes
+                req.userId = decoded.userId;
+                req.userType = decoded.userType;
+                req.userGoodLanguage = decoded.userGoodLanguage;
+                next();
+            }
+        });
+    } else {
+        res.status(constants.STATUS_FORBIDDEN).send({
+            success: false,
+            message: 'No token provided.'
+        });
+    }
+});
+
+// Middleware to auto-translate object results
+apiRouter.use(function (req, res, next) {
+    let translateFunction = function (elements, callback) {
+        let promises = [];
+        let items = Array.isArray(elements) ? elements : [elements];
+        items.forEach(item => {
+            constants.TRANSLATABLE.forEach(property => {
+                // Check if result contains desired property
+                if (item[property] !== undefined) {
+                    // Check if content was already translated on our cache
+                    promises.push(translationModel.findOne({input: item[property]}, function (err, translation) {
+                        if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                        if (translation === null) {
+                            // If translation is not present on our database fetch and store
+                            let userGoodLanguage = req.userGoodLanguage || 'en';
+                            promises.push(languageController.translateString(userGoodLanguage, item[property], (err, response) => {
+                                if (err === null) {
+                                    translationModel.create({
+                                        input: item[property],
+                                        language: userGoodLanguage,
+                                        output: response
+                                    });
+                                    item[property] = response;
+                                }
+                            }));
+                        } else {
+                            // If translation is already present, output local copy
+                            item[property] = translation.output;
+                        }
+                    }));
+                }
+            });
+        });
+        Promise.all(promises).then(() => callback(Array.isArray(elements) ? items : items[0]));
+    };
+    let oldSend = res.send;
+    res.send = function (obj) {
+        if (typeof obj === 'object') {
+            translateFunction(obj, (newObj) => {
+                oldSend.call(this, newObj);
+            });
         } else oldSend.call(this, obj);
     };
     next();

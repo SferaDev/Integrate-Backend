@@ -59,8 +59,9 @@ export function setUserGoodLanguage(req, res) {
 export function translateString(language, string, callback) {
     let validLanguages = constants.LANGUAGES.map(element => element.language);
     if (validLanguages.indexOf(language) === -1) return callback('Wrong language', null);
-    axios.get("https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=" +
-        language + "&dt=t&q=" + encodeURI(string)).then(function (response) {
+    return axios.get("https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=" +
+        language + "&dt=t&q=" + encodeURI(string))
+    .then(function (response) {
         callback(null, response.data[0][0][0]);
     }).catch(function (error) {
         callback(error, null);

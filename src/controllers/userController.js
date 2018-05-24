@@ -22,7 +22,8 @@ export function loginUser(req, res) {
         if (user.comparePassword(req.query.password)) {
             let token = base64url.encode(jwt.sign({
                 userId: user.email,
-                userType: user.__t
+                userType: user.__t,
+                userGoodLanguage: user.goodLanguage
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
             res.send({token: token, user: userInfo(user)});
         } else res.status(constants.STATUS_UNAUTHORIZED).send({
