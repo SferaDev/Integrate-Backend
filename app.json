@@ -2,11 +2,20 @@
     "name":  "Integrate-Backend",
     "scripts":  {},
     "env":  {
-        "LOCAL_ADMINISTRATION_URI":  {
-            "required":  true
+        "LOCAL_ADMINISTRATION_URI": {
+            "required": true
         },
-        "MONGODB_URI":  {
-            "required":  true
+        "MONGODB_URI": {
+            "required": true
+        },
+        "EMAIL_SERVICE": {
+            "required": true
+        },
+        "EMAIL_USER": {
+            "required": true
+        },
+        "EMAIL_PASS": {
+            "required": true
         }
     },
     "formation":  {
