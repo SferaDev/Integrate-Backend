@@ -52,7 +52,7 @@ apiRouter.use(function (req, res, next) {
                     // if everything is good, save to request for use in other routes
                     req.userId = user.email;
                     req.userType = user.__t;
-                    req.userGoodLanguage = user.userGoodLanguage;
+                    req.userGoodLanguage = user.goodLanguage;
                     next();
                 });
             }
