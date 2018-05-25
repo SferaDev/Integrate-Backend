@@ -1,7 +1,7 @@
 {
-    "name":  "Integrate-Backend",
-    "scripts":  {},
-    "env":  {
+    "name": "Integrate-Backend",
+    "scripts": {},
+    "env": {
         "LOCAL_ADMINISTRATION_URI": {
             "required": true
         },
@@ -18,17 +18,17 @@
             "required": true
         }
     },
-    "formation":  {
-        "web":  {
-            "quantity":  1
+    "formation": {
+        "web": {
+            "quantity": 1
         }
     },
-    "addons":  [
+    "addons": [
         "mongolab"
     ],
-    "buildpacks":  [
+    "buildpacks": [
         {
-            "url":  "heroku/nodejs"
+            "url": "heroku/nodejs"
         }
     ]
 }
