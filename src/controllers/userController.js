@@ -1,4 +1,4 @@
-import passwordGenerator from "generate-random-password";
+import passwordGenerator from "password-generator";
 import jwt from "jsonwebtoken";
 import base64url from "base64url";
 
@@ -24,22 +24,57 @@ export function loginUser(req, res) {
                 userId: user.email,
                 userType: user.__t
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
-            res.send({token: token});
+            res.send({token: token, user: userInfo(user)});
         } else res.status(constants.STATUS_UNAUTHORIZED).send({
             code: constants.ERROR_INVALID_PASSWORD,
             status: 'Invalid password'
-        })
+        });
     });
 }
 
 export function resetPassword(req, res) {
-    userModel.findOne({nif: req.body.nif}, function (err, user) {
+    let nif = req.body.nif || req.query.nif;
+    userModel.findOne({nif: nif}, function (err, user) {
         if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
         if (user === null) return res.status(constants.STATUS_NOT_FOUND).send({message: 'User not found'});
-        user.password = passwordGenerator.generateRandomPassword(8);
-        sendMail(user.email, 'Password reset on Integrate', 'Hi there!\n\nYou have requested a password reset.\n\nAccount: ' +
-            user.nif + '\nPassword: ' + user.password + '\n\nPlease change your password after your next login.');
-        user.save();
-        res.status(constants.STATUS_CREATED).send();
+        user.password = passwordGenerator(8, false);
+        let newPassword = user.password;
+        user.save(function (err) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
+            sendMail(user.email, 'Password reset on Integrate', 'Hi there!\n\nYou have requested a password reset.\n\nAccount: ' +
+                user.nif + '\nPassword: ' + newPassword + '\n\nPlease change your password after your next login.');
+            res.status(constants.STATUS_CREATED).send();
+        });
     });
+}
+
+export function changePassword(req, res) {
+    userModel.findOne({email: req.userId}, function (err, user) {
+        if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
+        if (user.comparePassword(req.body.oldPassword)) {
+            user.password = req.body.newPassword;
+            user.save(function (err) {
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
+                return res.status(constants.STATUS_OK).send({message: 'Password changed'});
+            });
+        } else return res.status(constants.STATUS_BAD_REQUEST).send({message: 'Invalid old password'});
+    });
+}
+
+export function validateUser(req, res) {
+    userModel.findOne({email: req.userId}, function (err, user) {
+        if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
+        res.send({success: true, user: userInfo(user)});
+    });
+}
+
+function userInfo(user) {
+    let userObject = user.toObject();
+    delete userObject._id;
+    delete userObject.password;
+    delete userObject.createdAt;
+    delete userObject.updatedAt;
+    delete userObject.__v;
+    if (userObject.hasOwnProperty('validationCode')) delete userObject.validationCode;
+    return userObject;
 }

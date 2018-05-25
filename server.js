@@ -1,11 +1,12 @@
 import express from "express";
 import cors from "cors";
 
+import database from "./common/database";
 import {PORT} from "./src/constants";
 import {loginRouter} from "./src/routes/loginRouter";
 import {registerRouter} from "./src/routes/registerRouter";
 import {apiRouter} from "./src/routes/apiRouter";
-import database from "./common/database";
+import {languageRouter} from "./src/routes/languageRouter";
 
 // Load Express.js
 export const app = express();
@@ -23,6 +24,7 @@ app.use(cors());
 
 // Load routes
 app.use('/', express.static('apidoc'));
+app.use('/language', languageRouter);
 app.use('/login', loginRouter);
 app.use('/register', registerRouter);
 app.use('/me', apiRouter);

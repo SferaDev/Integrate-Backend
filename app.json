@@ -1,25 +1,34 @@
 {
-    "name":  "Integrate-Backend",
-    "scripts":  {},
-    "env":  {
-        "LOCAL_ADMINISTRATION_URI":  {
-            "required":  true
+    "name": "Integrate-Backend",
+    "scripts": {},
+    "env": {
+        "LOCAL_ADMINISTRATION_URI": {
+            "required": true
         },
-        "MONGODB_URI":  {
-            "required":  true
+        "MONGODB_URI": {
+            "required": true
+        },
+        "EMAIL_SERVICE": {
+            "required": true
+        },
+        "EMAIL_USER": {
+            "required": true
+        },
+        "EMAIL_PASS": {
+            "required": true
         }
     },
-    "formation":  {
-        "web":  {
-            "quantity":  1
+    "formation": {
+        "web": {
+            "quantity": 1
         }
     },
-    "addons":  [
+    "addons": [
         "mongolab"
     ],
-    "buildpacks":  [
+    "buildpacks": [
         {
-            "url":  "heroku/nodejs"
+            "url": "heroku/nodejs"
         }
     ]
 }

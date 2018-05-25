@@ -15,17 +15,6 @@ describe('Test group for GoodModel', function () {
     let entityName;
 
     before(function (done) {
-        // Connect to a test database
-        mockgoose.prepareStorage().then(function () {
-            mongoose.Promise = global.Promise;
-            mongoose.connect('mongodb://localhost/Integrate', function (error) {
-                if (error) console.error(error);
-                done();
-            });
-        });
-    });
-
-    beforeEach(function (done) {
         // Create a dummy user
         let entityItem = new entityModel({
             nif: '12345678F',
@@ -48,7 +37,25 @@ describe('Test group for GoodModel', function () {
         });
     });
 
-    afterEach(function (done) {
+    let beneficiaryObject;
+
+    before (function (done) {
+        let beneficiaryItem = new beneficiaryModel({
+            nif: '00000000F',
+            firstName: 'Sergey',
+            lastName: 'Brin',
+            email: 'sbrin@google.com',
+            password: 'randomPassword',
+            usedGoods: []
+        });
+
+        beneficiaryItem.save(function (err, beneficiary) {
+            beneficiaryObject = beneficiary;
+            done();
+        });
+    });
+
+    after(function (done) {
         // Drop test database
         mockgoose.helper.reset().then(() => {
             done()
@@ -142,35 +149,76 @@ describe('Test group for GoodModel', function () {
     });
 
     it('should not store a good with a reference to a non Entity user', function (done) {
+        let goodItem = new goodModel({
+            'owner': {
+                'id': beneficiaryObject._id,
+                'name': entityName
+            },
+            'productName': 'productTest',
+            'picture': 'picture.png',
+            'initialPrice': '100',
+            'discountType': '%',
+            'discount': '10',
+            'category': 1,
+            'reusePeriod': '7',
+            'pendingUnits': '100'
+        });
+        goodItem.save(function (err) {
+            expect(err).not.to.equal(null);
+            done();
+        });
+    });
 
-        let beneficiaryItem = new beneficiaryModel({
-            nif: '00000000F',
-            firstName: 'Sergey',
-            lastName: 'Brin',
-            email: 'sbrin@google.com',
-            password: 'randomPassword'
+    it('should detect usability of good', function (done) {
+        let goodItem = new goodModel({
+            'owner': {
+                'id': entityId,
+                'name': entityName
+            },
+            'productName': 'productTest',
+            'picture': 'picture.png',
+            'initialPrice': '100',
+            'discountType': '%',
+            'discount': '10',
+            'category': 1,
+            'reusePeriod': '7',
+            'pendingUnits': '100'
         });
 
-        beneficiaryItem.save(function (err, beneficiary) {
-            let goodItem = new goodModel({
-                'owner': {
-                    'id': beneficiary._id,
-                    'name': entityName
-                },
-                'productName': 'productTest',
-                'picture': 'picture.png',
-                'initialPrice': '100',
-                'discountType': '%',
-                'discount': '10',
-                'category': 1,
-                'reusePeriod': '7',
-                'pendingUnits': '100'
-            });
-            goodItem.save(function (err) {
-                expect(err).not.to.equal(null);
+        goodItem.save(function (err, good) {
+            expect(err).to.equal(null);
+            expect(good.isUsable(beneficiaryObject)).to.equal(true);
+            done();
+        });
+    });
+
+    it('should detect non usability of good', function (done) {
+        let goodItem = new goodModel({
+            'owner': {
+                'id': entityId,
+                'name': entityName
+            },
+            'productName': 'productTest',
+            'picture': 'picture.png',
+            'initialPrice': '100',
+            'discountType': '%',
+            'discount': '10',
+            'category': 1,
+            'reusePeriod': '7',
+            'pendingUnits': '100'
+        });
+
+        beneficiaryObject.usedGoods.push({
+            id: goodItem._id,
+            date: Date.now()
+        });
+
+        beneficiaryObject.save(function () {
+            goodItem.save(function (err, good) {
+                expect(err).to.equal(null);
+                expect(good.isUsable(beneficiaryObject)).to.equal(false);
                 done();
             });
         });
     });
-
 });

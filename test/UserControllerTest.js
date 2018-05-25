@@ -71,7 +71,7 @@ describe('Operations that involve users', function() {
         });
     });
 
-    it ('should reset password', function (done) {
+    it ('should reset password (body)', function (done) {
         chai.request(app)
         .post('/register/reset')
         .send({
@@ -79,6 +79,52 @@ describe('Operations that involve users', function() {
         })
         .then(function (res) {
             expect(res).to.have.status(constants.STATUS_CREATED);
+            done();
+        });
+    });
+
+    it ('should reset password (query)', function (done) {
+        chai.request(app)
+        .post('/register/reset?nif=12345678F')
+        .send()
+        .then(function (res) {
+            expect(res).to.have.status(constants.STATUS_CREATED);
+            done();
+        });
+    });
+
+    it ('should change password', function (done) {
+        let token = base64url.encode(jwt.sign({
+            userId: 'joanpuig@google.com',
+            userType: 'Entity'
+        }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+        chai.request(app)
+        .put('/me/password?token=' + token)
+        .send({
+            oldPassword: 'myPAsswd!',
+            newPassword: 'random1'
+        })
+        .then(function (res) {
+            expect(res).to.have.status(constants.STATUS_OK);
+            done();
+        });
+    });
+
+    it ('should not change password (incorrect old password)', function (done) {
+        let token = base64url.encode(jwt.sign({
+            userId: 'joanpuig@google.com',
+            userType: 'Entity'
+        }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+        chai.request(app)
+        .put('/me/password?token=' + token)
+        .send({
+            oldPassword: 'null0',
+            newPassword: 'random1'
+        })
+        .then(function (res) {
+            expect(res).to.have.status(constants.STATUS_BAD_REQUEST);
             done();
         });
     });

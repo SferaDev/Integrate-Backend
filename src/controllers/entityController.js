@@ -1,8 +1,11 @@
-import passwordGenerator from "generate-random-password";
+import passwordGenerator from "password-generator";
 
 import {sendMail} from "../../common/mail";
 import {entityModel} from "../models/entityModel";
 import * as constants from "../constants";
+import {goodModel} from "../models/goodModel";
+import {beneficiaryModel} from "../models/beneficiaryModel";
+import {orderModel} from "../models/orderModel";
 
 export function getEntities(req, res) {
     if (req.userType === 'Beneficiary') {
@@ -38,6 +41,43 @@ export function getEntities(req, res) {
     }
 }
 
+export function getEntity (req, res) {
+    if (req.userType === 'Beneficiary') {
+        let id = req.params.id;
+        let entityParams = {
+            name: 1,
+            email: 1,
+            description: 1,
+            addressName: 1,
+            coordinates: 1,
+            phone: 1,
+            picture: 1,
+            distance: 1
+        };
+        entityModel.findById(id, entityParams, function (err, entity) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            if (entity === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Entity not found"});
+            beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                goodModel.find({"owner.id": entity._id, pendingUnits: {$gt: 0}}, function (err, goods) {
+                    if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                    let entityJSON = entity.toObject();
+                    let goodsObject = [];
+                    for (let good of goods) {
+                        let goodObject = good.toObject();
+                        goodObject.isUsable = good.isUsable(beneficiary);
+                        goodsObject.push(goodObject);
+                    }
+                    entityJSON.goods = goodsObject;
+                    return res.status(constants.STATUS_OK).send(entityJSON);
+                });
+            });
+        });
+    } else {
+        res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
+    }
+}
+
 export function createNewEntity(req, res) {
     let attributes = {};
     for (let key in entityModel.schema.paths) {
@@ -54,11 +94,41 @@ export function createNewEntity(req, res) {
         if (count > 0) return res.status(constants.STATUS_CONFLICT).send({message: 'NIF already exists'});
         entityModel.create(attributes, function (err, entity) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            entity.password = passwordGenerator.generateRandomPassword(8);
+            entity.password = passwordGenerator(8, false);
             sendMail(entity.email, 'Welcome to Integrate!', 'Welcome!\n\nYour account has been successfully created.\n\nAccount: ' +
                 entity.nif + '\nPassword: ' + entity.password + '\n\nPlease change your password after your first login.');
             entity.save();
             res.status(constants.STATUS_CREATED).send();
         });
     });
+}
+
+export function getEntityStats(req, res) {
+    if (req.userType === 'Entity') {
+        entityModel.findOne({email: req.userId}, function (err, entity) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            goodModel.count({'owner.id': entity._id}, function (err, goodsCreated) {
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                let aggregate = orderModel.aggregate();
+                aggregate.group({
+                    _id: {entity: '$entity', beneficiary: '$beneficiary'},
+                    savedMoney: {$sum: '$totalDiscount'}
+                });
+                aggregate.exec(function (err, records) {
+                    let beneficiariesHelped = records.length;
+                    let totalSavedMoney = 0;
+                    for (let record of records) {
+                        totalSavedMoney += record.savedMoney;
+                    }
+                    res.status(constants.STATUS_OK).send({
+                        goodsCreated: goodsCreated,
+                        beneficiariesHelped: beneficiariesHelped,
+                        totalSavedMoney: totalSavedMoney
+                    });
+                });
+            })
+        });
+    } else {
+        res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
+    }
 }

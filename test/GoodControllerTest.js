@@ -120,6 +120,24 @@ describe('Operations that involve goods', function () {
         });
     });
 
+    before(function (done) {
+        let beneficiaryItem = new beneficiaryModel({
+            nif: '12345678F',
+            firstName: 'Sergey',
+            lastName: 'Brin',
+            email: 'sbrin@google.com',
+            password: 'myPAsswd!',
+            usedGoods: [{
+                id: good3Id,
+                date: Date.now()
+            }]
+        });
+
+        beneficiaryItem.save(function () {
+            done();
+        });
+    });
+
     after(function (done) {
         // Drop test database
         mockgoose.helper.reset().then(() => {
@@ -131,7 +149,7 @@ describe('Operations that involve goods', function () {
 
         it('should list all goods ordered by most recent', function (done) {
             let token = base64url.encode(jwt.sign({
-                userId: 'joanpuig@google.com',
+                userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
@@ -149,7 +167,7 @@ describe('Operations that involve goods', function () {
 
         it('should list all goods ordered by popularity', function (done) {
             let token = base64url.encode(jwt.sign({
-                userId: 'joanpuig@google.com',
+                userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
@@ -169,7 +187,7 @@ describe('Operations that involve goods', function () {
         it('should list all goods ordered by proximity', function (done) {
             goodModel.ensureIndexes(function () {
                 let token = base64url.encode(jwt.sign({
-                    userId: 'joanpuig@google.com',
+                    userId: 'sbrin@google.com',
                     userType: 'Beneficiary'
                 }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
@@ -188,7 +206,7 @@ describe('Operations that involve goods', function () {
 
         it('should filter goods by category', function (done) {
             let token = base64url.encode(jwt.sign({
-                userId: 'joanpuig@google.com',
+                userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
@@ -206,7 +224,7 @@ describe('Operations that involve goods', function () {
 
         it('should detect wrong query parameters', function (done) {
             let token = base64url.encode(jwt.sign({
-                userId: 'joanpuig@google.com',
+                userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
@@ -221,7 +239,7 @@ describe('Operations that involve goods', function () {
 
         it('should detect database errors', function (done) {
             let token = base64url.encode(jwt.sign({
-                userId: 'joanpuig@google.com',
+                userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
@@ -285,6 +303,75 @@ describe('Operations that involve goods', function () {
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
                     goodModel.find.restore();
+                    done();
+                });
+        });
+    });
+
+    describe('Get single good', function () {
+        it('should get single good successfully (entity)', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/goods/' + good1Id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.productName).to.equal('productTest1');
+                    done();
+                });
+        });
+
+        it('should get single good successfully (beneficiary)', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/goods/' + good1Id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.productName).to.equal('productTest1');
+                    done();
+                });
+        });
+
+        it('should detect not found good', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            let id = "5afa7fbdd6239a10cea50a2e";
+
+            chai.request(app)
+                .get('/me/goods/' + id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_NOT_FOUND);
+                    done();
+                });
+        });
+
+        it('should detect database errors', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            sinon.stub(goodModel, 'findById');
+            goodModel.findById.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
+            chai.request(app)
+                .get('/me/goods/' + good1Id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    goodModel.findById.restore();
                     done();
                 });
         });
@@ -524,6 +611,7 @@ describe('Operations that involve goods', function () {
 
     describe('Add good to favourites', function () {
 
+        /*
         before(function (done) {
             let beneficiaryItem = new beneficiaryModel({
                 nif: '12345678F',
@@ -537,6 +625,7 @@ describe('Operations that involve goods', function () {
                 done();
             });
         });
+        */
 
         it('should add good to favourites successfully', function (done) {
             let token = base64url.encode(jwt.sign({

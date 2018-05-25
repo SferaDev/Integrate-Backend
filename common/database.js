@@ -5,7 +5,6 @@ import {Mockgoose} from "mockgoose/built/mockgoose";
 import mongoose from "mongoose";
 
 // Connect to the database
-const mockgoose = new Mockgoose(mongoose);
 mongoose.Promise = global.Promise;
 
 export default function constructor() {
@@ -27,6 +26,7 @@ export default function constructor() {
             });
         });
     } else {
+        const mockgoose = new Mockgoose(mongoose);
         mockgoose.prepareStorage().then(function() {
             mongoose.connect(MONGODB_URI, function (error) {
                 if (error) console.error(error);
