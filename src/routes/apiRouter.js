@@ -25,12 +25,12 @@ apiRouter.use(function (req, res, next) {
                     message: 'Failed to authenticate token.'
                 });
             } else {
+                // if everything is good, save to request for use in other routes
+                req.userId = decoded.userId;
+                req.userType = decoded.userType;
                 userModel.findOne({email: decoded.userId}, function (err, user) {
                     if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
                     if (user === null) return res.status(constants.STATUS_UNAUTHORIZED).send({message: 'Invalid token user'});
-                    // if everything is good, save to request for use in other routes
-                    req.userId = user.email;
-                    req.userType = user.__t;
                     req.userGoodLanguage = user.goodLanguage;
                     next();
                 });
