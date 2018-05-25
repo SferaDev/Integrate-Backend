@@ -31,6 +31,11 @@ export const EMAIL_USER = process.env.EMAIL_USER || '';
 export const EMAIL_PASS = process.env.EMAIL_PASS || '';
 
 // Translate languages
+export const TRANSLATABLE = [
+    'description',
+    'productName',
+    'message'
+];
 export const LANGUAGES = [
     {
         "language": "af"
