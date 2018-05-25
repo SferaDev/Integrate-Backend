@@ -9,6 +9,7 @@ import * as orderController from "../controllers/orderController";
 import * as userController from "../controllers/userController";
 import * as languageController from "../controllers/languageController";
 import {translationModel} from "../models/translationModel";
+import {userModel} from "../models/userModel";
 
 export const apiRouter = express.Router();
 
@@ -45,11 +46,15 @@ apiRouter.use(function (req, res, next) {
                     message: 'Failed to authenticate token.'
                 });
             } else {
-                // if everything is good, save to request for use in other routes
-                req.userId = decoded.userId;
-                req.userType = decoded.userType;
-                req.userGoodLanguage = decoded.userGoodLanguage;
-                next();
+                userModel.findOne({email: decoded.userId}, function (err, user) {
+                    if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                    if (user === null) return res.status(constants.STATUS_UNAUTHORIZED).send('Invalid token user');
+                    // if everything is good, save to request for use in other routes
+                    req.userId = user.email;
+                    req.userType = user._t;
+                    req.userGoodLanguage = user.userGoodLanguage;
+                    next();
+                });
             }
         });
     } else {
