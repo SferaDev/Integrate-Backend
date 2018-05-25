@@ -51,7 +51,7 @@ apiRouter.use(function (req, res, next) {
                     if (user === null) return res.status(constants.STATUS_UNAUTHORIZED).send('Invalid token user');
                     // if everything is good, save to request for use in other routes
                     req.userId = user.email;
-                    req.userType = user._t;
+                    req.userType = user.__t;
                     req.userGoodLanguage = user.userGoodLanguage;
                     next();
                 });
