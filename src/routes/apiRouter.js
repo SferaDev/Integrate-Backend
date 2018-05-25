@@ -8,6 +8,7 @@ import * as entityController from "../controllers/entityController";
 import * as orderController from "../controllers/orderController";
 import * as userController from "../controllers/userController";
 import * as languageController from "../controllers/languageController";
+import * as googleTranslate from "../../common/googleTranslate";
 import {translationModel} from "../models/translationModel";
 import {userModel} from "../models/userModel";
 
@@ -80,7 +81,7 @@ apiRouter.use(function (req, res, next) {
                         if (translation === null) {
                             // If translation is not present on our database fetch and store
                             let userGoodLanguage = req.userGoodLanguage || 'en';
-                            promises.push(languageController.translateString(userGoodLanguage, item[property], (err, response) => {
+                            promises.push(googleTranslate.translateString(userGoodLanguage, item[property], (err, response) => {
                                 if (err === null) {
                                     translationModel.create({
                                         input: item[property],
