@@ -2,11 +2,11 @@ import base64url from "base64url/dist/base64url";
 import jwt from "jsonwebtoken";
 import chai from "chai";
 import {Mockgoose} from "mockgoose";
-import {app} from "../server";
-import * as constants from "../src/constants";
-import {beneficiaryModel} from "../src/models/beneficiaryModel";
 import mongoose from "mongoose";
-import * as languageController from "../src/controllers/languageController";
+import {app} from "../server";
+import {beneficiaryModel} from "../src/models/beneficiaryModel";
+import * as constants from "../src/constants";
+import * as googleTranslate from "../common/googleTranslate";
 
 const expect = chai.expect;
 const mockgoose = new Mockgoose(mongoose);
@@ -123,7 +123,7 @@ describe("Test group for language calls", function () {
     });
 
     it('should not translate string (invalid language)', function (done) {
-        languageController.translateString('random', 'Hello friend', function (err, response) {
+        googleTranslate.translateString('random', 'Hello friend', function (err, response) {
             expect(err).to.equal('Wrong language');
             done();
         })
