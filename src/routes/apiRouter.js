@@ -48,7 +48,7 @@ apiRouter.use(function (req, res, next) {
             } else {
                 userModel.findOne({email: decoded.userId}, function (err, user) {
                     if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                    if (user === null) return res.status(constants.STATUS_UNAUTHORIZED).send('Invalid token user');
+                    if (user === null) return res.status(constants.STATUS_UNAUTHORIZED).send({message: 'Invalid token user'});
                     // if everything is good, save to request for use in other routes
                     req.userId = user.email;
                     req.userType = user.__t;
