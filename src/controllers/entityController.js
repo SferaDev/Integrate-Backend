@@ -89,17 +89,16 @@ export function createNewEntity(req, res) {
             }
         }
     }
-    entityModel.count({nif: req.body.nif}, function (err, count) {
-        if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-        if (count > 0) return res.status(constants.STATUS_CONFLICT).send({message: 'NIF already exists'});
-        entityModel.create(attributes, function (err, entity) {
-            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            entity.password = passwordGenerator(8, false);
-            sendMail(entity.email, 'Welcome to Integrate!', 'Welcome!\n\nYour account has been successfully created.\n\nAccount: ' +
-                entity.nif + '\nPassword: ' + entity.password + '\n\nPlease change your password after your first login.');
-            entity.save();
-            res.status(constants.STATUS_CREATED).send();
-        });
+    entityModel.create(attributes, function (err, entity) {
+        if (err) {
+            if (err.code === 11000) return res.status(constants.STATUS_CONFLICT).send({message: 'NIF or email already exists'});
+            return res.status(constants.STATUS_SERVER_ERROR).send(err);
+        }
+        entity.password = passwordGenerator(8, false);
+        sendMail(entity.email, 'Welcome to Integrate!', 'Welcome!\n\nYour account has been successfully created.\n\nAccount: ' +
+            entity.nif + '\nPassword: ' + entity.password + '\n\nPlease change your password after your first login.');
+        entity.save();
+        res.status(constants.STATUS_CREATED).send();
     });
 }
 
