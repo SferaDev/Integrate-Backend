@@ -76,11 +76,15 @@ apiRouter.use(function (req, res, next) {
                 // Check if result contains desired property
                 if (item[property] !== undefined) {
                     // Check if content was already translated on our cache
-                    promises.push(translationModel.findOne({input: item[property]}, function (err, translation) {
+                    let userGoodLanguage = req.userGoodLanguage || 'en';
+                    promises.push(translationModel.findOne({input: item[property], language: userGoodLanguage},
+                        function (err, translation) {
                         if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                        if (translation === null) {
-                            // If translation is not present on our database fetch and store
-                            let userGoodLanguage = req.userGoodLanguage || 'en';
+                        if (translation !== null) {
+                            // If translation is already present, output local copy
+                            item[property + '-' + userGoodLanguage] = translation.output;
+                        } else {
+                            // If translation is not present, fetch and store it
                             promises.push(googleTranslate.translateString(userGoodLanguage, item[property], (err, response) => {
                                 if (err === null) {
                                     translationModel.create({
@@ -88,12 +92,9 @@ apiRouter.use(function (req, res, next) {
                                         language: userGoodLanguage,
                                         output: response
                                     });
-                                    item[property] = response;
+                                    item[property + '-' + userGoodLanguage] = response;
                                 }
                             }));
-                        } else {
-                            // If translation is already present, output local copy
-                            item[property] = translation.output;
                         }
                     }));
                 }
