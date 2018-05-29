@@ -77,7 +77,7 @@ apiRouter.use(function (req, res, next) {
                 if (item[property] !== undefined) {
                     // Check if content was already translated on our cache
                     let userGoodLanguage = req.userGoodLanguage || 'en';
-                    item[property + '-original'] = item[property];
+                    item[property + '_original'] = item[property];
                     promises.push(translationModel.findOne({input: item[property], language: userGoodLanguage},
                         function (err, translation) {
                         if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
