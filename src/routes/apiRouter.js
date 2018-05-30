@@ -1,6 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import base64url from "base64url";
+import traverse from "traverse";
 
 import * as constants from "../constants";
 import * as goodController from "../controllers/goodController";
@@ -49,42 +50,43 @@ apiRouter.use(function (req, res, next) {
 apiRouter.use(function (req, res, next) {
     let translateFunction = function (elements, callback) {
         let promises = [];
-        let items = Array.isArray(elements) ? elements : [elements];
-        items.forEach(item => {
-            constants.TRANSLATABLE.forEach(property => {
-                // Check if result contains desired property
-                if (item[property] !== undefined) {
-                    // Check if content was already translated on our cache
-                    let userGoodLanguage = req.userGoodLanguage || 'en';
-                    item[property + '_original'] = item[property];
-                    promises.push(translationModel.findOne({input: item[property], language: userGoodLanguage},
-                        function (err, translation) {
+        traverse(elements).forEach(function (item) {
+            let context = this;
+            if (context.isLeaf && constants.TRANSLATABLE.includes(context.key)) {
+                // Check if content was already translated on our cache
+                let userGoodLanguage = req.userGoodLanguage || 'en';
+                let parent = context.parent.node;
+                parent[context.key + '_original'] = item;
+                context.parent.update(parent);
+                promises.push(translationModel.findOne({input: item, language: userGoodLanguage},
+                    function (err, translation) {
                         if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
                         if (translation !== null) {
                             // If translation is already present, output local copy
-                            item[property] = translation.output;
+                            context.update(translation.output, true);
                         } else {
                             // If translation is not present, fetch and store it
-                            promises.push(googleTranslate.translateString(userGoodLanguage, item[property], (err, response) => {
+                            promises.push(googleTranslate.translateString(userGoodLanguage, item, (err, response) => {
                                 if (err === null) {
                                     translationModel.create({
-                                        input: item[property],
+                                        input: item,
                                         language: userGoodLanguage,
                                         output: response
                                     });
-                                    item[property] = response;
+                                    context.update(response, true);
                                 }
                             }));
                         }
-                    }));
-                }
-            });
+                    })
+                );
+            }
         });
-        Promise.all(promises).then(() => callback(Array.isArray(elements) ? items : items[0]));
+        Promise.all(promises).then(() => callback(elements));
     };
     let oldSend = res.send;
     res.send = function (obj) {
         if (typeof obj === 'object') {
+            obj = JSON.parse(JSON.stringify(obj));
             translateFunction(obj, (newObj) => {
                 oldSend.call(this, newObj);
             });
