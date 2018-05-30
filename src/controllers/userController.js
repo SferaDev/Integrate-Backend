@@ -75,6 +75,5 @@ function userInfo(user) {
     delete userObject.createdAt;
     delete userObject.updatedAt;
     delete userObject.__v;
-    if (userObject.hasOwnProperty('validationCode')) delete userObject.validationCode;
     return userObject;
 }
