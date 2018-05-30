@@ -52,7 +52,6 @@ apiRouter.use(function (req, res, next) {
         let promises = [];
         traverse(elements).forEach(function (item) {
             let context = this;
-            if (context.isLeaf) console.log('Traverse ' + context.key + ' with value ' + item);
             if (context.isLeaf && constants.TRANSLATABLE.includes(context.key)) {
                 // Check if content was already translated on our cache
                 let userGoodLanguage = req.userGoodLanguage || 'en';
@@ -65,7 +64,6 @@ apiRouter.use(function (req, res, next) {
                         if (translation !== null) {
                             // If translation is already present, output local copy
                             context.update(translation.output, true);
-                            console.log('Translation local: ' + translation.output);
                         } else {
                             // If translation is not present, fetch and store it
                             promises.push(googleTranslate.translateString(userGoodLanguage, item, (err, response) => {
@@ -76,7 +74,6 @@ apiRouter.use(function (req, res, next) {
                                         output: response
                                     });
                                     context.update(response, true);
-                                    console.log('Translation remote: ' + response);
                                 }
                             }));
                         }
