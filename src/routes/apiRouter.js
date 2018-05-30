@@ -89,6 +89,7 @@ apiRouter.use(function (req, res, next) {
     let oldSend = res.send;
     res.send = function (obj) {
         if (typeof obj === 'object') {
+            obj = JSON.parse(JSON.stringify(obj));
             translateFunction(obj, (newObj) => {
                 oldSend.call(this, newObj);
             });
