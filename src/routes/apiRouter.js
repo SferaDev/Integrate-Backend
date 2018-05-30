@@ -51,19 +51,20 @@ apiRouter.use(function (req, res, next) {
     let translateFunction = function (elements, callback) {
         let promises = [];
         traverse(elements).forEach(function (item) {
-            if (this.key !== undefined && this.isLeaf && constants.TRANSLATABLE.includes(this.key)) {
-                console.log('Traverse ' + this.key + ' with value ' + item);
+            let context = this;
+            if (context.key !== undefined && context.isLeaf && constants.TRANSLATABLE.includes(context.key)) {
+                console.log('Traverse ' + context.key + ' with value ' + item);
                 // Check if content was already translated on our cache
                 let userGoodLanguage = req.userGoodLanguage || 'en';
-                let parent = this.parent.node;
-                parent[this.key + '_original'] = item;
-                this.parent.update(parent);
+                let parent = context.parent.node;
+                parent[context.key + '_original'] = item;
+                context.parent.update(parent);
                 promises.push(translationModel.findOne({input: item, language: userGoodLanguage},
                     function (err, translation) {
                         if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
                         if (translation !== null) {
                             // If translation is already present, output local copy
-                            this.update(translation.output);
+                            context.update(translation.output);
                             console.log('Translation local: ' + translation.output);
                         } else {
                             // If translation is not present, fetch and store it
@@ -74,7 +75,7 @@ apiRouter.use(function (req, res, next) {
                                         language: userGoodLanguage,
                                         output: response
                                     });
-                                    this.update(response);
+                                    context.update(response);
                                     console.log('Translation remote: ' + response);
                                 }
                             }));
