@@ -52,8 +52,8 @@ apiRouter.use(function (req, res, next) {
         let promises = [];
         traverse(elements).forEach(function (item) {
             let context = this;
-            console.log('Traverse ' + context.key + ' with value ' + item);
-            if (context.key !== undefined && context.isLeaf && constants.TRANSLATABLE.includes(context.key)) {
+            if (context.isLeaf) console.log('Traverse ' + context.key + ' with value ' + item);
+            if (context.isLeaf && constants.TRANSLATABLE.includes(context.key)) {
                 // Check if content was already translated on our cache
                 let userGoodLanguage = req.userGoodLanguage || 'en';
                 let parent = context.parent.node;
