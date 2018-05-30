@@ -56,7 +56,7 @@ apiRouter.use(function (req, res, next) {
                 // Check if content was already translated on our cache
                 let userGoodLanguage = req.userGoodLanguage || 'en';
                 let parent = this.parent.node;
-                parent[key + '_original'] = item;
+                parent[this.key + '_original'] = item;
                 this.parent.update(parent);
                 promises.push(translationModel.findOne({input: item, language: userGoodLanguage},
                     function (err, translation) {
