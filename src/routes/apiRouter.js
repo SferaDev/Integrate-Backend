@@ -84,7 +84,7 @@ apiRouter.use(function (req, res, next) {
                 );
             }
         });
-        Promise.all(promises).then(() => callback(Array.isArray(elements) ? items : items[0]));
+        Promise.all(promises).then(() => callback(elements));
     };
     let oldSend = res.send;
     res.send = function (obj) {
