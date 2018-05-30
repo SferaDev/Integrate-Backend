@@ -105,6 +105,15 @@ apiRouter.get('/', function (req, res) {
 });
 
 /**
+ * @api {delete} /me Deactivate entity
+ * @apiVersion 1.0.0
+ * @apiGroup Authentication
+ */
+apiRouter.delete('/', function (req, res) {
+    entityController.deactivateEntity(req, res);
+});
+
+/**
  * @api {put} /me/password Token validation
  * @apiVersion 1.0.0
  * @apiGroup Authentication

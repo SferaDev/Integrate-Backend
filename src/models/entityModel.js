@@ -43,9 +43,5 @@ export const entityModel = userModel.discriminator('Entity', new mongoose.Schema
     numberLikes: {
         type: Number,
         default: 0
-    },
-    enabled: {
-        type: Boolean,
-        default: false
     }
 }).index({coordinates: '2dsphere'}));
