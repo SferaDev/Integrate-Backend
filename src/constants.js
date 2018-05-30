@@ -34,7 +34,8 @@ export const EMAIL_PASS = process.env.EMAIL_PASS || '';
 export const TRANSLATABLE = [
     'description',
     'productName',
-    'message'
+    'message',
+    'goods'
 ];
 export const LANGUAGES = [
     {

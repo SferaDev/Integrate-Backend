@@ -1,6 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import base64url from "base64url";
+import traverse from "traverse";
 
 import * as constants from "../constants";
 import * as goodController from "../controllers/goodController";
@@ -45,61 +46,42 @@ apiRouter.use(function (req, res, next) {
     }
 });
 
-// Middleware to prettify/filter/sort JSON result
-apiRouter.use(function (req, res, next) {
-    let oldSend = res.send;
-    res.set('Content-Type', 'application/json');
-    res.send = function (obj) {
-        if (typeof obj === 'object') {
-            let attributes = req.query.filter ? req.query.filter.split(',') : null;
-            let indent = !isNaN(parseInt(req.query.indent)) ? parseInt(req.query.indent) : 0;
-            if (Array.isArray(obj) && req.query.sort) {
-                obj.sort(function (a, b) {
-                    if (a[req.query.sort] > b[req.query.sort]) return 1;
-                    else if (a[req.query.sort] < b[req.query.sort]) return -1;
-                    return 0;
-                });
-            }
-            oldSend.call(this, JSON.stringify(obj, attributes, indent));
-        } else oldSend.call(this, obj);
-    };
-    next();
-});
-
 // Middleware to auto-translate object results
 apiRouter.use(function (req, res, next) {
     let translateFunction = function (elements, callback) {
         let promises = [];
-        let items = Array.isArray(elements) ? elements : [elements];
-        items.forEach(item => {
-            constants.TRANSLATABLE.forEach(property => {
-                // Check if result contains desired property
-                if (item[property] !== undefined) {
-                    // Check if content was already translated on our cache
-                    let userGoodLanguage = req.userGoodLanguage || 'en';
-                    item[property + '_original'] = item[property];
-                    promises.push(translationModel.findOne({input: item[property], language: userGoodLanguage},
-                        function (err, translation) {
+        traverse(elements).forEach(function (item) {
+            console.log('Traverse ' + this.key + ' with value ' + item);
+            if (this.key !== undefined && this.isLeaf && constants.TRANSLATABLE.includes(this.key)) {
+                // Check if content was already translated on our cache
+                let userGoodLanguage = req.userGoodLanguage || 'en';
+                let parent = this.parent.node;
+                parent[key + '_original'] = item;
+                this.parent.update(parent);
+                promises.push(translationModel.findOne({input: item, language: userGoodLanguage},
+                    function (err, translation) {
                         if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
                         if (translation !== null) {
                             // If translation is already present, output local copy
-                            item[property] = translation.output;
+                            this.update(translation.output);
+                            console.log('Translation local: ' + translation.output);
                         } else {
                             // If translation is not present, fetch and store it
-                            promises.push(googleTranslate.translateString(userGoodLanguage, item[property], (err, response) => {
+                            promises.push(googleTranslate.translateString(userGoodLanguage, item, (err, response) => {
                                 if (err === null) {
                                     translationModel.create({
-                                        input: item[property],
+                                        input: item,
                                         language: userGoodLanguage,
                                         output: response
                                     });
-                                    item[property] = response;
+                                    this.update(response);
+                                    console.log('Translation remote: ' + response);
                                 }
                             }));
                         }
-                    }));
-                }
-            });
+                    })
+                );
+            }
         });
         Promise.all(promises).then(() => callback(Array.isArray(elements) ? items : items[0]));
     };
