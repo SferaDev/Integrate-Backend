@@ -28,12 +28,22 @@ export function getEntities(req, res) {
                 coordinates: 1,
                 phone: 1,
                 picture: 1,
-                distance: 1
+                distance: 1,
+                numberLikes: 1
             });
             // Execute the query
             aggregate.exec(function (err, entities) {
-                if (err) res.status(constants.STATUS_SERVER_ERROR).send(err);
-                else res.status(constants.STATUS_OK).send(entities);
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                let userEmail = req.userId;
+                beneficiaryModel.findOne({email: userEmail}, function (err, beneficiary) {
+                    if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                    let entitiesObjects = [];
+                    for (let entity of entities) {
+                        entity.isLiked = (beneficiary.likedEntities.indexOf(entity._id) !== -1);
+                        entitiesObjects.push(entity);
+                    }
+                    res.status(constants.STATUS_OK).send(entitiesObjects);
+                });
             });
         }
     } else {
@@ -52,7 +62,8 @@ export function getEntity (req, res) {
             coordinates: 1,
             phone: 1,
             picture: 1,
-            distance: 1
+            distance: 1,
+            numberLikes: 1
         };
         entityModel.findById(id, entityParams, function (err, entity) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
@@ -62,6 +73,7 @@ export function getEntity (req, res) {
                 goodModel.find({"owner.id": entity._id, pendingUnits: {$gt: 0}}, function (err, goods) {
                     if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
                     let entityJSON = entity.toObject();
+                    entityJSON.isLiked = (beneficiary.likedEntities.indexOf(entity._id) !== -1);
                     let goodsObject = [];
                     for (let good of goods) {
                         let goodObject = good.toObject();
@@ -126,6 +138,56 @@ export function getEntityStats(req, res) {
                     });
                 });
             })
+        });
+    } else {
+        res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
+    }
+}
+
+export function likeEntity(req, res) {
+    if (req.userType === 'Beneficiary') {
+        let id = req.params.id;
+        entityModel.findById(id, function (err, entity) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            if (entity === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Entity not found"});
+            beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                let index = beneficiary.likedEntities.indexOf(entity._id);
+                if (index === -1) {
+                    beneficiary.likedEntities.push(entity._id);
+                    beneficiary.save();
+                    entity.numberLikes += 1;
+                    entity.save();
+                    return res.status(constants.STATUS_OK).send({likedEntities: beneficiary.likedEntities});
+                } else {
+                    return res.status(constants.STATUS_CONFLICT).send({message: "You already like this entity"});
+                }
+            });
+        });
+    } else {
+        res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
+    }
+}
+
+export function dislikeEntity(req, res) {
+    if (req.userType === 'Beneficiary') {
+        let id = req.params.id;
+        entityModel.findById(id, function (err, entity) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            if (entity === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Entity not found"});
+            beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                let index = beneficiary.likedEntities.indexOf(entity._id);
+                if (index !== -1) {
+                    beneficiary.likedEntities.splice(index,1);
+                    beneficiary.save();
+                    entity.numberLikes -= 1;
+                    entity.save();
+                    return res.status(constants.STATUS_OK).send({likedEntities: beneficiary.likedEntities});
+                } else {
+                    return res.status(constants.STATUS_CONFLICT).send({message: "You do not like this entity yet"});
+                }
+            });
         });
     } else {
         res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});

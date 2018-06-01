@@ -25,5 +25,9 @@ export const beneficiaryModel = userModel.discriminator('Beneficiary', new mongo
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Good'
     }],
+    likedEntities: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Entity'
+    }],
     usedGoods: [briefGoodSchema]
 }));
