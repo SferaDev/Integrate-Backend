@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
 import passwordGenerator from "password-generator";
+import mongoose_delete from "mongoose-delete";
 
 import {userModel} from "./userModel";
 
-export const entityModel = userModel.discriminator('Entity', new mongoose.Schema({
+const entitySchema = new mongoose.Schema({
     salesmanFirstName: {
         type: String,
         required: true
@@ -43,9 +44,9 @@ export const entityModel = userModel.discriminator('Entity', new mongoose.Schema
     numberLikes: {
         type: Number,
         default: 0
-    },
-    enabled: {
-        type: Boolean,
-        default: false
     }
-}).index({coordinates: '2dsphere'}));
+}).index({coordinates: '2dsphere'});
+
+entitySchema.plugin(mongoose_delete, { overrideMethods: true });
+
+export const entityModel = userModel.discriminator('Entity', entitySchema);
