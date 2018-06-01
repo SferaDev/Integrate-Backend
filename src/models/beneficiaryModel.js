@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import mongoose_delete from "mongoose-delete";
 
 import {userModel} from "./userModel";
 
@@ -12,7 +13,7 @@ const briefGoodSchema = new mongoose.Schema({
     }
 },{_id: false});
 
-export const beneficiaryModel = userModel.discriminator('Beneficiary', new mongoose.Schema({
+const beneficiarySchema = new mongoose.Schema({
     firstName: {
         type: String,
         required: true
@@ -30,4 +31,8 @@ export const beneficiaryModel = userModel.discriminator('Beneficiary', new mongo
         ref: 'Entity'
     }],
     usedGoods: [briefGoodSchema]
-}));
+});
+
+beneficiarySchema.plugin(mongoose_delete, { overrideMethods: true });
+
+export const beneficiaryModel = userModel.discriminator('Beneficiary', beneficiarySchema);

@@ -181,13 +181,24 @@ export function dislikeEntity(req, res) {
                 if (index !== -1) {
                     entity.numberLikes -= 1;
                     entity.save();
-                    beneficiary.likedEntities.splice(index,1);
+                    beneficiary.likedEntities.splice(index, 1);
                     beneficiary.save();
                     return res.status(constants.STATUS_OK).send({likedEntities: beneficiary.likedEntities});
                 } else {
                     return res.status(constants.STATUS_CONFLICT).send({message: "You do not like this entity yet"});
                 }
             });
+        });
+    } else {
+        res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
+    }
+}
+
+export function deactivateEntity(req, res) {
+    if (req.userType === 'Entity') {
+        entityModel.delete({email: req.userId}, function (err, result) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            res.status(constants.STATUS_OK).send({message: "Entity deactivation with result: " + result});
         });
     } else {
         res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});

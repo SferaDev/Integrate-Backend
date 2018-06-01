@@ -378,7 +378,7 @@ describe('Operations that involve entities', function () {
         });
     });
 
-    describe ('Create new Entity', function () {
+    describe ('Create/Deactivate Entity', function () {
         it ('should not create new entity (missing parameter)', function (done) {
             chai.request(app)
                 .post('/register')
@@ -454,6 +454,28 @@ describe('Operations that involve entities', function () {
                     expect(res).to.have.status(constants.STATUS_CREATED);
                     done();
                 });
+        });
+
+        it ('should deactivate existing entity', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig4@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+            .delete('/me' + '?token=' + token)
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(constants.STATUS_OK);
+                let promises = [];
+                promises.push(entityModel.count({email: 'joanpuig4@google.com'}, function (err, count) {
+                    expect(count).to.equal(0);
+                }));
+                promises.push(entityModel.countWithDeleted({email: 'joanpuig4@google.com'}, function (err, count) {
+                    expect(count).to.equal(1);
+                }));
+                Promise.all(promises).then(() => done());
+            });
         });
     });
 

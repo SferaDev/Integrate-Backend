@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import mongoose_delete from "mongoose-delete";
 
 import {LANGUAGES} from '../constants';
 
@@ -32,6 +33,8 @@ const userSchema = new mongoose.Schema({
         default: 'en'
     }
 }, baseOptions);
+
+userSchema.plugin(mongoose_delete, { overrideMethods: true });
 
 userSchema.pre('save', function (next) {
     if (!this.isModified('password')) return next();
