@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
+import mongoose_delete from "mongoose-delete";
 
 import {userModel} from "./userModel";
-import mongoose_delete from "mongoose-delete";
 
 const briefGoodSchema = new mongoose.Schema({
     id: {
