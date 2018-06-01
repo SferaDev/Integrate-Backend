@@ -145,6 +145,7 @@ export function addFavouriteGood(req, res) {
                 let index = beneficiary.favouriteGoods.indexOf(good._id);
                 if (index === -1) {
                     good.numberFavs = good.numberFavs + 1;
+                    good.save();
                     beneficiary.favouriteGoods.push(good._id);
                     beneficiary.save();
                     res.status(constants.STATUS_OK).send(beneficiary.favouriteGoods);
@@ -167,6 +168,7 @@ export function deleteFavouriteGood(req, res) {
                 let index = beneficiary.favouriteGoods.indexOf(good._id);
                 if (index !== -1) {
                     good.numberFavs = good.numberFavs - 1;
+                    good.save();
                     beneficiary.favouriteGoods.splice(index,1);
                     beneficiary.save();
                     res.status(constants.STATUS_OK).send(beneficiary.favouriteGoods);
