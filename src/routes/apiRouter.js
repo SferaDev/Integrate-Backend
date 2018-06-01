@@ -186,6 +186,24 @@ apiRouter.get('/entities', function (req, res) {
 });
 
 /**
+ * @api {post} /entities/likes/:id Like one entity
+ * @apiVersion 1.0.0
+ * @apiGroup Entities
+ */
+apiRouter.post('/entities/likes/:id', function (req, res) {
+    entityController.likeEntity(req, res);
+});
+
+/**
+ * @api {delete} /entities/likes/:id Dislike one entity
+ * @apiVersion 1.0.0
+ * @apiGroup Entities
+ */
+apiRouter.delete('/entities/likes/:id', function (req, res) {
+    entityController.dislikeEntity(req, res);
+});
+
+/**
  * @api {get} /goods/:id Get single Good
  * @apiVersion 1.0.0
  * @apiGroup Goods

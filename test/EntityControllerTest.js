@@ -400,7 +400,7 @@ describe('Operations that involve entities', function () {
                     salesmanFirstName: 'Joan',
                     salesmanLastName: 'Puig',
                     email: 'joanpuig4@google.com',
-                    name: 'Colmado1',
+                    name: 'Colmado4',
                     description: 'Botiga de queviures',
                     addressName: 'C/ Jordi Girona',
                     coordinates: [2.113018, 41.389165],
@@ -422,7 +422,7 @@ describe('Operations that involve entities', function () {
                     salesmanFirstName: 'Joan',
                     salesmanLastName: 'Puig',
                     email: 'joanpuig4@google.com',
-                    name: 'Colmado1',
+                    name: 'Colmado4',
                     description: 'Botiga de queviures',
                     addressName: 'C/ Jordi Girona',
                     coordinates: [2.113018, 41.389165],
@@ -443,7 +443,7 @@ describe('Operations that involve entities', function () {
                     salesmanFirstName: 'Joan',
                     salesmanLastName: 'Puig',
                     email: 'joanpuig4@google.com',
-                    name: 'Colmado1',
+                    name: 'Colmado4',
                     description: 'Botiga de queviures',
                     addressName: 'C/ Jordi Girona',
                     coordinates: [2.113018, 41.389165],
@@ -484,6 +484,208 @@ describe('Operations that involve entities', function () {
 
             chai.request(app)
                 .get('/me/stats/?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_FORBIDDEN);
+                    done();
+                });
+        });
+    });
+
+    describe ('Like one entity', function () {
+        it ('should like entity successfully', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .post('/me/entities/likes/' + entityId1 +'?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.likedEntities[0]).to.equal(entityId1.toString());
+                    entityModel.findById(entityId1, function (err, entity) {
+                        expect(entity.numberLikes).to.equal(1);
+                        done();
+                    });
+                });
+        });
+
+        it ('should show liked status when entity requested', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/entity/'+ entityId1 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res.body.isLiked).to.equal(true);
+                    done();
+                });
+        });
+
+        it ('should show liked status when all entities requested', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/entities?token=' + token + '&longitude=2.102137&latitude=41.319359')
+                .send()
+                .then(function (res) {
+                    expect(res.body[2].isLiked).to.equal(true);
+                    done();
+                });
+        });
+
+        it ('should not like entity already liked', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .post('/me/entities/likes/' + entityId1 +'?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_CONFLICT);
+                    entityModel.findById(entityId1, function (err, entity) {
+                        expect(entity.numberLikes).to.equal(1);
+                        done();
+                    });
+                });
+        });
+
+        it ('should detect wrong entity id', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            let id = "5afa7fbdd6239a10cea50a2e";
+
+            chai.request(app)
+                .post('/me/entities/likes/' + id +'?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_NOT_FOUND);
+                    done();
+                });
+        });
+
+        it ('should not allow wrong type of user', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .post('/me/entities/likes/' + entityId1 +'?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_FORBIDDEN);
+                    done();
+                });
+        });
+    });
+
+    describe ('Dislike one entity', function () {
+        it ('should dislike entity successfully', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .delete('/me/entities/likes/' + entityId1 +'?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.likedEntities.length).to.equal(0);
+                    entityModel.findById(entityId1, function (err, entity) {
+                        expect(entity.numberLikes).to.equal(0);
+                        done();
+                    });
+                });
+        });
+
+        it ('should show disliked status when entity requested', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/entity/'+ entityId1 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res.body.isLiked).to.equal(false);
+                    done();
+                });
+        });
+
+        it ('should show disliked status when all entities requested', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/entities?token=' + token + '&longitude=2.102137&latitude=41.319359')
+                .send()
+                .then(function (res) {
+                    expect(res.body[2].isLiked).to.equal(false);
+                    done();
+                });
+        });
+
+        it ('should not dislike entity not liked', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .delete('/me/entities/likes/' + entityId1 +'?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_CONFLICT);
+                    entityModel.findById(entityId1, function (err, entity) {
+                        expect(entity.numberLikes).to.equal(0);
+                        done();
+                    });
+                });
+        });
+
+        it ('should detect wrong entity id', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            let id = "5afa7fbdd6239a10cea50a2e";
+
+            chai.request(app)
+                .delete('/me/entities/likes/' + id +'?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_NOT_FOUND);
+                    done();
+                });
+        });
+
+        it ('should not allow wrong type of user', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .delete('/me/entities/likes/' + entityId1 +'?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_FORBIDDEN);
