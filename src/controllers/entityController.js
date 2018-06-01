@@ -154,10 +154,10 @@ export function likeEntity(req, res) {
                 if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
                 let index = beneficiary.likedEntities.indexOf(entity._id);
                 if (index === -1) {
-                    beneficiary.likedEntities.push(entity._id);
-                    beneficiary.save();
                     entity.numberLikes += 1;
                     entity.save();
+                    beneficiary.likedEntities.push(entity._id);
+                    beneficiary.save();
                     return res.status(constants.STATUS_OK).send({likedEntities: beneficiary.likedEntities});
                 } else {
                     return res.status(constants.STATUS_CONFLICT).send({message: "You already like this entity"});
@@ -179,10 +179,10 @@ export function dislikeEntity(req, res) {
                 if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
                 let index = beneficiary.likedEntities.indexOf(entity._id);
                 if (index !== -1) {
-                    beneficiary.likedEntities.splice(index,1);
-                    beneficiary.save();
                     entity.numberLikes -= 1;
                     entity.save();
+                    beneficiary.likedEntities.splice(index,1);
+                    beneficiary.save();
                     return res.status(constants.STATUS_OK).send({likedEntities: beneficiary.likedEntities});
                 } else {
                     return res.status(constants.STATUS_CONFLICT).send({message: "You do not like this entity yet"});
