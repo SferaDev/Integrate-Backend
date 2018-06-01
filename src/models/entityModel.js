@@ -47,6 +47,6 @@ const entitySchema = new mongoose.Schema({
     }
 }).index({coordinates: '2dsphere'});
 
-entitySchema.plugin(mongoose_delete);
+entitySchema.plugin(mongoose_delete, { overrideMethods: true });
 
 export const entityModel = userModel.discriminator('Entity', entitySchema);

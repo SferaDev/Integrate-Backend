@@ -33,6 +33,6 @@ const beneficiarySchema = new mongoose.Schema({
     usedGoods: [briefGoodSchema]
 });
 
-beneficiarySchema.plugin(mongoose_delete);
+beneficiarySchema.plugin(mongoose_delete, { overrideMethods: true });
 
 export const beneficiaryModel = userModel.discriminator('Beneficiary', beneficiarySchema);
