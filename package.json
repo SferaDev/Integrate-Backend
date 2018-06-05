@@ -30,12 +30,12 @@
     "express": "^4.16.3",
     "express.js": "^1.0.0",
     "iso-639-1": "^2.0.3",
-    "jsonwebtoken": "^8.2.1",
-    "mongoose": "^5.1.2",
+    "jsonwebtoken": "^8.2.2",
+    "mongoose": "^5.1.4",
     "mongoose-delete": "^0.4.0",
     "node-schedule": "^1.3.0",
-    "nodemailer": "^4.6.4",
-    "nodemon": "^1.17.4",
+    "nodemailer": "^4.6.5",
+    "nodemon": "^1.17.5",
     "password-generator": "^2.2.0",
     "traverse": "^0.6.6",
     "google-translate-api": "latest"
@@ -49,8 +49,8 @@
     "gulp-apidoc": "^0.2.7",
     "mocha": "^5.2.0",
     "mockgoose": "^7.3.5",
-    "nock": "^9.2.6",
-    "nyc": "^11.8.0",
-    "sinon": "^5.0.7"
+    "nock": "^9.3.0",
+    "nyc": "^12.0.2",
+    "sinon": "^5.0.10"
   }
 }
