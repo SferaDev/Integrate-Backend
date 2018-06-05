@@ -37,7 +37,8 @@
     "nodemailer": "^4.6.4",
     "nodemon": "^1.17.4",
     "password-generator": "^2.2.0",
-    "traverse": "^0.6.6"
+    "traverse": "^0.6.6",
+    "google-translate-api": "latest"
   },
   "devDependencies": {
     "axios": "^0.18.0",
