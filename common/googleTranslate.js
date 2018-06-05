@@ -1,15 +1,14 @@
 import * as constants from "../src/constants";
-import axios from "axios/index";
+import translate from "google-translate-api";
 
 export function translateString(language, string, callback) {
     let validLanguages = constants.LANGUAGES.map(element => element.language);
     if (validLanguages.indexOf(language) === -1) return callback('Wrong language', null);
     if (constants.ENV !== 'production') return string;
-    return axios.get("https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=" +
-        language + "&dt=t&q=" + encodeURI(string))
-    .then(function (response) {
-        callback(null, sentenceCase(response.data[0][0][0]));
-    }).catch(function (error) {
+    translate(string, {to: language}).then(res => {
+        if (res.from.language.iso === language) return string;
+        callback(null, sentenceCase(res.text));
+    }).catch(err => {
         callback(error, null);
     });
 }
