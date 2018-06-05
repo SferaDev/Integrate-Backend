@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
     }
 }, baseOptions);
 
-userSchema.plugin(mongoose_delete, { overrideMethods: true });
+userSchema.plugin(mongoose_delete, {overrideMethods: true});
 
 userSchema.pre('save', function (next) {
     if (!this.isModified('password')) return next();

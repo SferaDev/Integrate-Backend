@@ -18,6 +18,6 @@ const translationSchema = new mongoose.Schema({
     }
 });
 
-translationSchema.index({ input: 1, language: 2}, { unique: true });
+translationSchema.index({input: 1, language: 2}, {unique: true});
 
 export const translationModel = mongoose.model('Translation', translationSchema);

@@ -15,7 +15,7 @@ export function translateString(language, string, callback) {
 
 function sentenceCase(string) {
     // Remove duplicated spacings
-    string = string.replace(/\s+/g,' ').replace(/^\s+|\s+$/,'');
+    string = string.replace(/\s+/g, ' ').replace(/^\s+|\s+$/, '');
     // Upper case first letter
     string = string.charAt(0).toUpperCase() + string.slice(1);
     // Upper case after periods, question marks...

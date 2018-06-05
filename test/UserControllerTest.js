@@ -16,8 +16,8 @@ const expect = chai.expect;
 const mockgoose = new Mockgoose(mongoose);
 
 // Test group
-describe('Operations that involve users', function() {
-    beforeEach(function (done){
+describe('Operations that involve users', function () {
+    beforeEach(function (done) {
         let entityItem = new entityModel({
             nif: '12345678F',
             salesmanFirstName: 'Joan',
@@ -43,7 +43,7 @@ describe('Operations that involve users', function() {
         });
     });
 
-    it ('should not reset password (not found)', function (done) {
+    it('should not reset password (not found)', function (done) {
         chai.request(app)
         .post('/register/reset')
         .send({
@@ -54,11 +54,11 @@ describe('Operations that involve users', function() {
             done();
         });
     });
-    
-    it ('should not reset password (error)', function (done) {
+
+    it('should not reset password (error)', function (done) {
         sinon.stub(userModel, 'findOne');
         userModel.findOne.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
-        
+
         chai.request(app)
         .post('/register/reset')
         .send({
@@ -71,7 +71,7 @@ describe('Operations that involve users', function() {
         });
     });
 
-    it ('should reset password (body)', function (done) {
+    it('should reset password (body)', function (done) {
         chai.request(app)
         .post('/register/reset')
         .send({
@@ -83,7 +83,7 @@ describe('Operations that involve users', function() {
         });
     });
 
-    it ('should reset password (query)', function (done) {
+    it('should reset password (query)', function (done) {
         chai.request(app)
         .post('/register/reset?nif=12345678F')
         .send()
@@ -93,7 +93,7 @@ describe('Operations that involve users', function() {
         });
     });
 
-    it ('should change password', function (done) {
+    it('should change password', function (done) {
         let token = base64url.encode(jwt.sign({
             userId: 'joanpuig@google.com',
             userType: 'Entity'
@@ -111,7 +111,7 @@ describe('Operations that involve users', function() {
         });
     });
 
-    it ('should not change password (incorrect old password)', function (done) {
+    it('should not change password (incorrect old password)', function (done) {
         let token = base64url.encode(jwt.sign({
             userId: 'joanpuig@google.com',
             userType: 'Entity'

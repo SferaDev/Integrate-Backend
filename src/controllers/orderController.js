@@ -4,7 +4,7 @@ import {beneficiaryModel} from "../models/beneficiaryModel";
 import {entityModel} from "../models/entityModel";
 import {orderModel} from "../models/orderModel";
 
-export function processOrder (req, res) {
+export function processOrder(req, res) {
     if (req.userType === 'Beneficiary') {
         let userEmail = req.userId;
         beneficiaryModel.findOne({email: userEmail}, function (err, beneficiary) {
@@ -19,7 +19,10 @@ export function processOrder (req, res) {
                             let soldOutGoods = validation[0];
                             let nonUsableGoods = validation[1];
                             let totalDiscount = validation[2];
-                            if (soldOutGoods.length > 0 || nonUsableGoods.length > 0) return res.status(constants.STATUS_CONFLICT).send({soldOutGoods: soldOutGoods, nonUsableGoods: nonUsableGoods});
+                            if (soldOutGoods.length > 0 || nonUsableGoods.length > 0) return res.status(constants.STATUS_CONFLICT).send({
+                                soldOutGoods: soldOutGoods,
+                                nonUsableGoods: nonUsableGoods
+                            });
                             let usedGoods = beneficiary.usedGoods;
                             for (let good of goods) {
                                 good.pendingUnits -= 1;
@@ -58,7 +61,10 @@ export function processOrder (req, res) {
                     let soldOutGoods = validation[0];
                     let nonUsableGoods = validation[1];
                     let totalDiscount = validation[2];
-                    if (soldOutGoods.length > 0 || nonUsableGoods.length > 0) return res.status(constants.STATUS_CONFLICT).send({soldOutGoods: soldOutGoods, nonUsableGoods: nonUsableGoods});
+                    if (soldOutGoods.length > 0 || nonUsableGoods.length > 0) return res.status(constants.STATUS_CONFLICT).send({
+                        soldOutGoods: soldOutGoods,
+                        nonUsableGoods: nonUsableGoods
+                    });
                     return res.status(constants.STATUS_OK).send({totalDiscount: totalDiscount});
                 }
             });
@@ -68,7 +74,7 @@ export function processOrder (req, res) {
     }
 }
 
-function validateOrder (goods, beneficiary) {
+function validateOrder(goods, beneficiary) {
     let soldOutGoods = [];
     let nonUsableGoods = [];
     let totalDiscount = 0;

@@ -27,7 +27,7 @@ export default function constructor() {
         });
     } else {
         const mockgoose = new Mockgoose(mongoose);
-        mockgoose.prepareStorage().then(function() {
+        mockgoose.prepareStorage().then(function () {
             mongoose.connect(MONGODB_URI, function (error) {
                 if (error) console.error(error);
                 else console.log('Mockgoose connected');

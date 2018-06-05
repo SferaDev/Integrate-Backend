@@ -39,7 +39,7 @@ describe('Test group for GoodModel', function () {
 
     let beneficiaryObject;
 
-    before (function (done) {
+    before(function (done) {
         let beneficiaryItem = new beneficiaryModel({
             nif: '00000000F',
             firstName: 'Sergey',

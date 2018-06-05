@@ -236,7 +236,7 @@ apiRouter.get('/entity/:id', function (req, res) {
  * @apiGroup Orders
  */
 apiRouter.post('/orders', function (req, res) {
-    orderController.processOrder(req,res);
+    orderController.processOrder(req, res);
 });
 
 apiRouter.get('/stats', function (req, res) {

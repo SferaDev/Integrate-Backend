@@ -26,7 +26,7 @@ const briefEntitySchema = new mongoose.Schema({
         type: String,
         required: true
     }
-},{_id: false});
+}, {_id: false});
 
 const goodSchema = new mongoose.Schema({
     owner: briefEntitySchema,
@@ -73,11 +73,11 @@ const goodSchema = new mongoose.Schema({
     }
 }, {timestamps: true}).index({location: '2dsphere'});
 
-function daysToMilliseconds (days) {
+function daysToMilliseconds(days) {
     return days * 24 * 60 * 60 * 1000;
 }
 
-goodSchema.methods.isUsable = function(beneficiary) {
+goodSchema.methods.isUsable = function (beneficiary) {
     for (let usedGood of beneficiary.usedGoods) {
         if (usedGood.id.toString() === this._id.toString() && usedGood.date + daysToMilliseconds(this.reusePeriod) > Date.now()) {
             return false;

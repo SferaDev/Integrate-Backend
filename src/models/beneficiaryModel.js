@@ -11,7 +11,7 @@ const briefGoodSchema = new mongoose.Schema({
     date: {
         type: Number
     }
-},{_id: false});
+}, {_id: false});
 
 const beneficiarySchema = new mongoose.Schema({
     firstName: {
@@ -33,6 +33,6 @@ const beneficiarySchema = new mongoose.Schema({
     usedGoods: [briefGoodSchema]
 });
 
-beneficiarySchema.plugin(mongoose_delete, { overrideMethods: true });
+beneficiarySchema.plugin(mongoose_delete, {overrideMethods: true});
 
 export const beneficiaryModel = userModel.discriminator('Beneficiary', beneficiarySchema);

@@ -62,7 +62,7 @@ export function getGoods(req, res) {
     }
 }
 
-export function getGood (req, res) {
+export function getGood(req, res) {
     goodModel.findById(req.params.id, function (err, good) {
         if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
         if (good === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Good not found"});
@@ -175,7 +175,7 @@ export function deleteFavouriteGood(req, res) {
                 if (index !== -1) {
                     good.numberFavs = good.numberFavs - 1;
                     good.save();
-                    beneficiary.favouriteGoods.splice(index,1);
+                    beneficiary.favouriteGoods.splice(index, 1);
                     beneficiary.save();
                     res.status(constants.STATUS_OK).send(beneficiary.favouriteGoods);
                 } else {

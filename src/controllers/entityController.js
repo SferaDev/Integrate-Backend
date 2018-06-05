@@ -52,7 +52,7 @@ export function getEntities(req, res) {
     }
 }
 
-export function getEntity (req, res) {
+export function getEntity(req, res) {
     if (req.userType === 'Beneficiary') {
         let id = req.params.id;
         let entityParams = {
