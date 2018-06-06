@@ -526,11 +526,8 @@ describe('Operations that involve entities', function () {
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_OK);
-                    expect(res.body.likedEntities[0]).to.equal(entityId1.toString());
-                    entityModel.findById(entityId1, function (err, entity) {
-                        expect(entity.numberLikes).to.equal(1);
-                        done();
-                    });
+                    expect(res.body.numberLikes).to.equal(1);
+                    done();
                 });
         });
 
@@ -627,11 +624,8 @@ describe('Operations that involve entities', function () {
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_OK);
-                    expect(res.body.likedEntities.length).to.equal(0);
-                    entityModel.findById(entityId1, function (err, entity) {
-                        expect(entity.numberLikes).to.equal(0);
-                        done();
-                    });
+                    expect(res.body.numberLikes).to.equal(0);
+                    done();
                 });
         });
 
