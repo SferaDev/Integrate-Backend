@@ -121,6 +121,9 @@ export function getEntityStats(req, res) {
             goodModel.count({'owner.id': entity._id}, function (err, goodsCreated) {
                 if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
                 let aggregate = orderModel.aggregate();
+                aggregate.match({
+                    entity: entity._id
+                });
                 aggregate.group({
                     _id: {entity: '$entity', beneficiary: '$beneficiary'},
                     savedMoney: {$sum: '$totalDiscount'}
