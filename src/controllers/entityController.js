@@ -126,7 +126,7 @@ export function getEntityStats(req, res) {
                     savedMoney: {$sum: '$totalDiscount'}
                 });
                 aggregate.exec(function (err, records) {
-                    console.log("GROUP BY \n" + records);
+                    console.log("GROUP BY \n" + JSON.stringify(records, null, 2));
                     let beneficiariesHelped = records.length;
                     let totalSavedMoney = 0;
                     for (let record of records) {
