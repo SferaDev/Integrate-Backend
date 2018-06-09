@@ -243,6 +243,10 @@ apiRouter.get('/stats', function (req, res) {
     entityController.getEntityStats(req, res);
 });
 
+apiRouter.get('/salesChart', function (req, res) {
+    entityController.getSalesChart(req, res);
+});
+
 apiRouter.get('/language/interface', function (req, res) {
     languageController.getUserInterfaceLanguage(req, res);
 });
