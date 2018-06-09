@@ -6,6 +6,7 @@ import * as constants from "../constants";
 import {goodModel} from "../models/goodModel";
 import {beneficiaryModel} from "../models/beneficiaryModel";
 import {orderModel} from "../models/orderModel";
+import moment from "moment";
 
 export function getEntities(req, res) {
     if (req.userType === 'Beneficiary') {
@@ -141,6 +142,52 @@ export function getEntityStats(req, res) {
                     });
                 });
             })
+        });
+    } else {
+        res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
+    }
+}
+
+export function getSalesChart(req, res) {
+    if (req.userType === 'Entity') {
+        entityModel.findOne({email: req.userId}, function (err, entity) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            let interval = req.query.interval;
+            let beginingDate, endDate;
+            endDate = moment();
+            if (interval === "Day") beginingDate = moment().subtract(1, 'days');
+            else if (interval === "Week") beginingDate = moment().subtract(1, 'weeks');
+            else if (interval === "Month") beginingDate = moment().subtract(1, 'months');
+            else if (interval === "Year") beginingDate = moment().subtract(1, 'years');
+            else return res.status(constants.STATUS_BAD_REQUEST).send({message: "Incorrect interval"})
+            orderModel.find({
+                entity: entity._id,
+                createdAt: {
+                    "$gte": beginingDate,
+                    "$lte": endDate
+                }
+            }, function (err, orders) {
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                let stats = new Map();
+                for (let order of orders) {
+                    let date = moment(order.createdAt);
+                    date = date.startOf('date').format("YYYY-MM-DD");
+                    if (req.query.good) {
+                        let orderedGoodIndex = order.orderedGoods.findIndex(function (element) {
+                            return element.toString() === req.query.good;
+                        });
+                        if (orderedGoodIndex !== -1) {
+                            if (stats.has(date)) stats.set(date, stats.get(date) + 1);
+                            else stats.set(date, 1);
+                        }
+                    }
+                    else {
+                        if (stats.has(date)) stats.set(date, stats.get(date) + order.orderedGoods.length);
+                        else stats.set(date, order.orderedGoods.length);
+                    }
+                }
+                res.status(constants.STATUS_OK).send({stats: Array.from(stats)});
+            });
         });
     } else {
         res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});

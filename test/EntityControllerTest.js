@@ -12,6 +12,7 @@ import {entityModel} from "../src/models/entityModel";
 import {goodModel} from "../src/models/goodModel";
 import {beneficiaryModel} from "../src/models/beneficiaryModel";
 import {orderModel} from "../src/models/orderModel";
+import moment from "moment";
 
 chai.use(chai_http);
 const expect = chai.expect;
@@ -506,6 +507,271 @@ describe('Operations that involve entities', function () {
 
             chai.request(app)
                 .get('/me/stats/?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_FORBIDDEN);
+                    done();
+                });
+        });
+    });
+
+    describe ('Get sales chart', function () {
+        before(function (done) {
+            let orderItem = new orderModel({
+                entity: entityId1,
+                beneficiary: beneficiary1Id,
+                orderedGoods: [good2Id],
+                totalDiscount: 10
+            });
+
+            orderItem.save(function () {
+                done();
+            });
+        });
+
+        before(function (done) {
+            let orderItem = new orderModel({
+                entity: entityId1,
+                beneficiary: beneficiary1Id,
+                orderedGoods: [good1Id],
+                totalDiscount: 10,
+                createdAt: moment().subtract(2, 'days'),
+                updatedAt: moment().subtract(2, 'days')
+            });
+
+            orderItem.save(function () {
+                done();
+            });
+        });
+
+        before(function (done) {
+            let orderItem = new orderModel({
+                entity: entityId1,
+                beneficiary: beneficiary1Id,
+                orderedGoods: [good2Id],
+                totalDiscount: 10,
+                createdAt: moment().subtract(2, 'weeks'),
+                updatedAt: moment().subtract(2, 'weeks')
+            });
+
+            orderItem.save(function () {
+                done();
+            });
+        });
+
+        before(function (done) {
+            let orderItem = new orderModel({
+                entity: entityId1,
+                beneficiary: beneficiary1Id,
+                orderedGoods: [good2Id],
+                totalDiscount: 10,
+                createdAt: moment().subtract(2, 'months'),
+                updatedAt: moment().subtract(2, 'months')
+            });
+
+            orderItem.save(function () {
+                done();
+            });
+        });
+
+        before(function (done) {
+            let orderItem = new orderModel({
+                entity: entityId1,
+                beneficiary: beneficiary1Id,
+                orderedGoods: [good2Id],
+                totalDiscount: 10,
+                createdAt: moment().subtract(2, 'years'),
+                updatedAt: moment().subtract(2, 'years')
+            });
+
+            orderItem.save(function () {
+                done();
+            });
+        });
+
+        function isArrayInArray(arr, item){
+            let itemString = JSON.stringify(item);
+
+            return arr.some(function(ele){
+                return JSON.stringify(ele) === itemString;
+            });
+        }
+
+        it ('should return global stats for one day', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/salesChart/?interval=Day&token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.stats.length).to.equal(1);
+                    let date = moment();
+                    let dateFormat = date.startOf('date').format("YYYY-MM-DD").toString();
+                    expect(isArrayInArray(res.body.stats, [dateFormat, 3])).to.equal(true);
+                    done();
+                });
+        });
+
+        it ('should return global stats for one week', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/salesChart/?interval=Week&token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.stats.length).to.equal(2);
+                    let date = moment().subtract(2, 'days');
+                    let dateFormat = date.startOf('date').format("YYYY-MM-DD").toString();
+                    expect(isArrayInArray(res.body.stats, [dateFormat, 1])).to.equal(true);
+                    done();
+                });
+        });
+
+        it ('should return global stats for one month', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/salesChart/?interval=Month&token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.stats.length).to.equal(3);
+                    let date = moment().subtract(2, 'weeks');
+                    let dateFormat = date.startOf('date').format("YYYY-MM-DD").toString();
+                    expect(isArrayInArray(res.body.stats, [dateFormat, 1])).to.equal(true);
+                    done();
+                });
+        });
+
+        it ('should return global stats for one year', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/salesChart/?interval=Year&token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.stats.length).to.equal(4);
+                    let date = moment().subtract(2, 'months');
+                    let dateFormat = date.startOf('date').format("YYYY-MM-DD").toString();
+                    expect(isArrayInArray(res.body.stats, [dateFormat, 1])).to.equal(true);
+                    done();
+                });
+        });
+
+        it ('should return single good stats for one day', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/salesChart/?interval=Day&good=' + good2Id + '&token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.stats.length).to.equal(1);
+                    let date = moment();
+                    let dateFormat = date.startOf('date').format("YYYY-MM-DD").toString();
+                    expect(isArrayInArray(res.body.stats, [dateFormat, 2])).to.equal(true);
+                    done();
+                });
+        });
+
+        it ('should return single good stats for one week', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/salesChart/?interval=Week&good='+ good1Id + '&token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.stats.length).to.equal(2);
+                    let date = moment().subtract(2, 'days');
+                    let dateFormat = date.startOf('date').format("YYYY-MM-DD").toString();
+                    expect(isArrayInArray(res.body.stats, [dateFormat, 1])).to.equal(true);
+                    done();
+                });
+        });
+
+        it ('should return single good stats for one month', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/salesChart/?interval=Month&good='+ good2Id + '&token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.stats.length).to.equal(2);
+                    let date = moment().subtract(2, 'weeks');
+                    let dateFormat = date.startOf('date').format("YYYY-MM-DD").toString();
+                    expect(isArrayInArray(res.body.stats, [dateFormat, 1])).to.equal(true);
+                    done();
+                });
+        });
+
+        it ('should return single good stats for one year', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/salesChart/?interval=Year&good='+ good2Id + '&token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.stats.length).to.equal(3);
+                    let date = moment().subtract(2, 'months');
+                    let dateFormat = date.startOf('date').format("YYYY-MM-DD").toString();
+                    expect(isArrayInArray(res.body.stats, [dateFormat, 1])).to.equal(true);
+                    done();
+                });
+        });
+
+        it ('should detect incorrect interval', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/salesChart/?interval=Century&token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_BAD_REQUEST);
+                    done();
+                });
+        });
+
+        it ('should not allow wrong type of user', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/salesChart/?interval=Day&token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_FORBIDDEN);
