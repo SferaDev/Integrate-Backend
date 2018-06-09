@@ -85,7 +85,13 @@ export function getFavouriteGoods(req, res) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
             goodModel.find({_id: {$in: beneficiary.favouriteGoods}, pendingUnits: {$gt: 0}}, function (err, goods) {
                 if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                res.status(constants.STATUS_OK).send(goods);
+                let goodsObject = [];
+                for (let good of goods) {
+                    let goodObject = good.toObject();
+                    goodObject.isUsable = good.isUsable(beneficiary);
+                    goodsObject.push(goodObject);
+                }
+                res.status(constants.STATUS_OK).send(goodsObject);
             });
         });
     } else {
