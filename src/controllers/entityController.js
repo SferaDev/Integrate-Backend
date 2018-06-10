@@ -119,28 +119,9 @@ export function getEntityStats(req, res) {
     if (req.userType === 'Entity') {
         entityModel.findOne({email: req.userId}, function (err, entity) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            goodModel.count({'owner.id': entity._id}, function (err, goodsCreated) {
-                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                let aggregate = orderModel.aggregate();
-                aggregate.match({
-                    entity: entity._id
-                });
-                aggregate.group({
-                    _id: {entity: '$entity', beneficiary: '$beneficiary'},
-                    savedMoney: {$sum: '$totalDiscount'}
-                });
-                aggregate.exec(function (err, records) {
-                    let beneficiariesHelped = records.length;
-                    let totalSavedMoney = 0;
-                    for (let record of records) {
-                        totalSavedMoney += record.savedMoney;
-                    }
-                    res.status(constants.STATUS_OK).send({
-                        goodsCreated: goodsCreated,
-                        beneficiariesHelped: beneficiariesHelped,
-                        totalSavedMoney: totalSavedMoney
-                    });
-                });
+            entity.getStats((err, stats) => {
+                if (err) return res.status(err.code).send(err.message);
+                return res.status(constants.STATUS_OK).send(stats);
             });
         });
     } else {
