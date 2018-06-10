@@ -164,7 +164,7 @@ apiRouter.put('/goods/:id', function (req, res) {
  * @apiGroup Goods
  */
 apiRouter.get('/goods/favourites', function (req, res) {
-    goodController.getFavouriteGoods(req, res)
+    goodController.getFavouriteGoods(req, res);
 });
 
 /**
@@ -173,7 +173,7 @@ apiRouter.get('/goods/favourites', function (req, res) {
  * @apiGroup Goods
  */
 apiRouter.post('/goods/favourites/:id', function (req, res) {
-    goodController.addFavouriteGood(req, res)
+    goodController.addFavouriteGood(req, res);
 });
 
 /**
@@ -182,7 +182,7 @@ apiRouter.post('/goods/favourites/:id', function (req, res) {
  * @apiGroup Goods
  */
 apiRouter.delete('/goods/favourites/:id', function (req, res) {
-    goodController.deleteFavouriteGood(req, res)
+    goodController.deleteFavouriteGood(req, res);
 });
 
 /**

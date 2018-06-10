@@ -141,7 +141,7 @@ export function getEntityStats(req, res) {
                         totalSavedMoney: totalSavedMoney
                     });
                 });
-            })
+            });
         });
     } else {
         res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
@@ -159,7 +159,7 @@ export function getSalesChart(req, res) {
             else if (interval === "Week") beginingDate = moment().subtract(1, 'weeks');
             else if (interval === "Month") beginingDate = moment().subtract(1, 'months');
             else if (interval === "Year") beginingDate = moment().subtract(1, 'years');
-            else return res.status(constants.STATUS_BAD_REQUEST).send({message: "Incorrect interval"})
+            else return res.status(constants.STATUS_BAD_REQUEST).send({message: "Incorrect interval"});
             orderModel.find({
                 entity: entity._id,
                 createdAt: {

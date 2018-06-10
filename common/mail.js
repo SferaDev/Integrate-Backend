@@ -17,7 +17,7 @@ if (EMAIL_SERVICE) {
         streamTransport: true,
         newline: 'unix',
         buffer: true
-    })
+    });
 }
 
 
