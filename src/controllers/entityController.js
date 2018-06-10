@@ -1,11 +1,12 @@
 import passwordGenerator from "password-generator";
 import moment from "moment";
 
-import {sendMail} from "../../common/mail";
 import {entityModel} from "../models/entityModel";
 import {beneficiaryModel} from "../models/beneficiaryModel";
 import {orderModel} from "../models/orderModel";
+
 import * as constants from "../constants";
+import * as mailUtils from "../../common/mail";
 import * as requestUtils from "../helpers/requestUtils";
 
 export function getEntities(req, res) {
@@ -63,8 +64,7 @@ export function createNewEntity(req, res) {
                 return res.status(constants.STATUS_SERVER_ERROR).send(err);
             }
             entity.password = passwordGenerator(8, false);
-            sendMail(entity.email, 'Welcome to Integrate!', 'Welcome!\n\nYour account has been successfully created.\n\nAccount: ' +
-                entity.nif + '\nPassword: ' + entity.password + '\n\nPlease change your password after your first login.');
+            mailUtils.sendRegisterMail(entity.email, entity.nif, entity.password);
             entity.save();
             res.status(constants.STATUS_CREATED).send();
         });
