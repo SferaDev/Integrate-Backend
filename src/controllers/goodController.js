@@ -15,19 +15,19 @@ export function getGoods(req, res) {
         } else {
             // Build the query
             let aggregate = goodModel.aggregate();
-            let category;
-            if (categoryIndex !== "0") category = {category: parseInt(categoryIndex), pendingUnits: {$gt: 0}};
+            let filter = {pendingUnits: {$gt: 0}};
+            if (categoryIndex !== "0") filter = {category: parseInt(categoryIndex), pendingUnits: {$gt: 0}};
             // Filter by location (must be the first operation of the pipeline)
             if (orderIndex === "2") {
                 aggregate.near({
                     near: {type: "Point", coordinates: [parseFloat(longitude), parseFloat(latitude)]},
                     distanceField: "distance",
-                    query: category,
+                    query: filter,
                     spherical: true
                 });
             } else {
                 // Filter by category
-                if (category) aggregate.match(category);
+                aggregate.match(filter);
                 // Sort by update date or popularity
                 let order;
                 if (orderIndex === "0") order = {updatedAt: 'desc'};
