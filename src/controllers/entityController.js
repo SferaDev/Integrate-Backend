@@ -1,12 +1,12 @@
 import passwordGenerator from "password-generator";
+import moment from "moment";
 
 import {sendMail} from "../../common/mail";
 import {entityModel} from "../models/entityModel";
-import * as constants from "../constants";
 import {goodModel} from "../models/goodModel";
 import {beneficiaryModel} from "../models/beneficiaryModel";
 import {orderModel} from "../models/orderModel";
-import moment from "moment";
+import * as constants from "../constants";
 
 export function getEntities(req, res) {
     if (req.userType === 'Beneficiary') {
@@ -177,22 +177,11 @@ export function getSalesChart(req, res) {
 
 export function likeEntity(req, res) {
     if (req.userType === 'Beneficiary') {
-        let id = req.params.id;
-        entityModel.findById(id, function (err, entity) {
+        beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            if (entity === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Entity not found"});
-            beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
-                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                let index = beneficiary.likedEntities.indexOf(entity._id);
-                if (index === -1) {
-                    entity.numberLikes += 1;
-                    entity.save();
-                    beneficiary.likedEntities.push(entity._id);
-                    beneficiary.save();
-                    return res.status(constants.STATUS_OK).send({numberLikes: entity.numberLikes});
-                } else {
-                    return res.status(constants.STATUS_CONFLICT).send({message: "You already like this entity"});
-                }
+            beneficiary.likeEntity(req.params.id, (err, likes) => {
+                if (err) return res.status(err.code).send(err.message);
+                return res.status(constants.STATUS_OK).send(likes);
             });
         });
     } else {
@@ -202,22 +191,11 @@ export function likeEntity(req, res) {
 
 export function dislikeEntity(req, res) {
     if (req.userType === 'Beneficiary') {
-        let id = req.params.id;
-        entityModel.findById(id, function (err, entity) {
+        beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            if (entity === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Entity not found"});
-            beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
-                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                let index = beneficiary.likedEntities.indexOf(entity._id);
-                if (index !== -1) {
-                    entity.numberLikes -= 1;
-                    entity.save();
-                    beneficiary.likedEntities.splice(index, 1);
-                    beneficiary.save();
-                    return res.status(constants.STATUS_OK).send({numberLikes: entity.numberLikes});
-                } else {
-                    return res.status(constants.STATUS_CONFLICT).send({message: "You do not like this entity yet"});
-                }
+            beneficiary.dislikeEntity(req.params.id, (err, likes) => {
+                if (err) return res.status(err.code).send(err.message);
+                return res.status(constants.STATUS_OK).send(likes);
             });
         });
     } else {
