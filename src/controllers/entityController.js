@@ -3,19 +3,17 @@ import moment from "moment";
 
 import {sendMail} from "../../common/mail";
 import {entityModel} from "../models/entityModel";
-import {goodModel} from "../models/goodModel";
 import {beneficiaryModel} from "../models/beneficiaryModel";
 import {orderModel} from "../models/orderModel";
 import * as constants from "../constants";
 
 export function getEntities(req, res) {
     if (req.userType === 'Beneficiary') {
-        let latitude = req.query.latitude;
-        let longitude = req.query.longitude;
-        if (!latitude || !longitude)
-            res.status(constants.STATUS_BAD_REQUEST).send({message: "Missing query parameters"});
-        else {
-            // Build the query
+        beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            let latitude = req.query.latitude;
+            let longitude = req.query.longitude;
+            if (!latitude || !longitude) return res.status(constants.STATUS_BAD_REQUEST).send({message: "Missing query parameters"});
             let aggregate = entityModel.aggregate();
             aggregate.near({
                 near: {type: "Point", coordinates: [parseFloat(longitude), parseFloat(latitude)]},
@@ -23,30 +21,19 @@ export function getEntities(req, res) {
                 spherical: true
             });
             aggregate.project({
-                name: 1,
-                description: 1,
-                addressName: 1,
-                coordinates: 1,
-                phone: 1,
-                picture: 1,
-                distance: 1,
-                numberLikes: 1
+                name: 1, description: 1, addressName: 1, coordinates: 1, phone: 1,
+                picture: 1, distance: 1, numberLikes: 1
             });
-            // Execute the query
             aggregate.exec(function (err, entities) {
                 if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                let userEmail = req.userId;
-                beneficiaryModel.findOne({email: userEmail}, function (err, beneficiary) {
-                    if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                    let entitiesObjects = [];
-                    for (let entity of entities) {
-                        entity.isLiked = (beneficiary.likedEntities.indexOf(entity._id) !== -1);
-                        entitiesObjects.push(entity);
-                    }
-                    res.status(constants.STATUS_OK).send(entitiesObjects);
-                });
+                let result = [];
+                for (let entity of entities) {
+                    entity.isLiked = (beneficiary.likedEntities.indexOf(entity._id) !== -1);
+                    result.push(entity);
+                }
+                res.status(constants.STATUS_OK).send(result);
             });
-        }
+        });
     } else {
         res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
     }
