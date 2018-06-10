@@ -2,9 +2,10 @@ import passwordGenerator from "password-generator";
 import jwt from "jsonwebtoken";
 import base64url from "base64url";
 
-import {sendMail} from "../../common/mail";
 import {userModel} from "../models/userModel";
+
 import * as constants from "../constants";
+import * as mailUtils from "../../common/mail";
 
 export function loginUser(req, res) {
     if ((req.query.email !== undefined && req.query.nif !== undefined) || req.query.password === undefined ||
@@ -41,8 +42,7 @@ export function resetPassword(req, res) {
         let newPassword = user.password;
         user.save(function (err) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
-            sendMail(user.email, 'Password reset on Integrate', 'Hi there!\n\nYou have requested a password reset.\n\nAccount: ' +
-                user.nif + '\nPassword: ' + newPassword + '\n\nPlease change your password after your next login.');
+            mailUtils.sendRegisterMail(user.email, user.nif, newPassword);
             res.status(constants.STATUS_CREATED).send();
         });
     });
