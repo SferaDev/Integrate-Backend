@@ -79,4 +79,30 @@ entitySchema.methods.getStats = function (callback) {
     });
 };
 
+entitySchema.statics.getEntity = function (id, beneficiary, callback) {
+    entityModel.findById(id, {
+        name: 1, email: 1, description: 1, addressName: 1, coordinates: 1,
+        phone: 1, picture: 1, distance: 1, numberLikes: 1
+    }, function (err, entity) {
+        if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
+        if (entity === null) return callback({
+            code: constants.STATUS_NOT_FOUND,
+            message: {message: "Entity not found"}
+        }, null);
+        goodModel.find({"owner.id": entity._id, pendingUnits: {$gt: 0}}, function (err, goods) {
+            if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
+            let result = entity.toObject();
+            result.isLiked = (beneficiary.likedEntities.indexOf(entity._id) !== -1);
+            let goodsObject = [];
+            for (let good of goods) {
+                let goodObject = good.toObject();
+                goodObject.isUsable = good.isUsable(beneficiary);
+                goodsObject.push(goodObject);
+            }
+            result.goods = goodsObject;
+            return callback(null, result);
+        });
+    });
+};
+
 export const entityModel = userModel.discriminator('Entity', entitySchema);
