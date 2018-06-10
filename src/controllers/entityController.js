@@ -6,6 +6,7 @@ import {entityModel} from "../models/entityModel";
 import {beneficiaryModel} from "../models/beneficiaryModel";
 import {orderModel} from "../models/orderModel";
 import * as constants from "../constants";
+import * as requestUtils from "../helpers/requestUtils";
 
 export function getEntities(req, res) {
     if (req.userType === 'Beneficiary') {
@@ -41,36 +42,11 @@ export function getEntities(req, res) {
 
 export function getEntity(req, res) {
     if (req.userType === 'Beneficiary') {
-        let id = req.params.id;
-        let entityParams = {
-            name: 1,
-            email: 1,
-            description: 1,
-            addressName: 1,
-            coordinates: 1,
-            phone: 1,
-            picture: 1,
-            distance: 1,
-            numberLikes: 1
-        };
-        entityModel.findById(id, entityParams, function (err, entity) {
+        beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            if (entity === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Entity not found"});
-            beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
-                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                goodModel.find({"owner.id": entity._id, pendingUnits: {$gt: 0}}, function (err, goods) {
-                    if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                    let entityJSON = entity.toObject();
-                    entityJSON.isLiked = (beneficiary.likedEntities.indexOf(entity._id) !== -1);
-                    let goodsObject = [];
-                    for (let good of goods) {
-                        let goodObject = good.toObject();
-                        goodObject.isUsable = good.isUsable(beneficiary);
-                        goodsObject.push(goodObject);
-                    }
-                    entityJSON.goods = goodsObject;
-                    return res.status(constants.STATUS_OK).send(entityJSON);
-                });
+            entityModel.getEntity(req.params.id, beneficiary, function (err, entity) {
+                if (err) return res.status(err.code).send(err.message);
+                return res.status(constants.STATUS_OK).send(entity);
             });
         });
     } else {
@@ -79,26 +55,19 @@ export function getEntity(req, res) {
 }
 
 export function createNewEntity(req, res) {
-    let attributes = {};
-    for (let key in entityModel.schema.paths) {
-        if (entityModel.schema.paths.hasOwnProperty(key)) {
-            let value = entityModel.schema.paths[key];
-            if (value.isRequired) {
-                if (req.body[key]) attributes[key] = req.body[key];
-                else return res.status(constants.STATUS_BAD_REQUEST).send({message: "Missing parameter " + key});
+    requestUtils.getParameters(req.body, (err, attributes) => {
+        if (err) return res.status(constants.STATUS_BAD_REQUEST).send(err);
+        entityModel.create(attributes, function (err, entity) {
+            if (err) {
+                if (err.code === 11000) return res.status(constants.STATUS_CONFLICT).send({message: 'NIF or email already exists'});
+                return res.status(constants.STATUS_SERVER_ERROR).send(err);
             }
-        }
-    }
-    entityModel.create(attributes, function (err, entity) {
-        if (err) {
-            if (err.code === 11000) return res.status(constants.STATUS_CONFLICT).send({message: 'NIF or email already exists'});
-            return res.status(constants.STATUS_SERVER_ERROR).send(err);
-        }
-        entity.password = passwordGenerator(8, false);
-        sendMail(entity.email, 'Welcome to Integrate!', 'Welcome!\n\nYour account has been successfully created.\n\nAccount: ' +
-            entity.nif + '\nPassword: ' + entity.password + '\n\nPlease change your password after your first login.');
-        entity.save();
-        res.status(constants.STATUS_CREATED).send();
+            entity.password = passwordGenerator(8, false);
+            sendMail(entity.email, 'Welcome to Integrate!', 'Welcome!\n\nYour account has been successfully created.\n\nAccount: ' +
+                entity.nif + '\nPassword: ' + entity.password + '\n\nPlease change your password after your first login.');
+            entity.save();
+            res.status(constants.STATUS_CREATED).send();
+        });
     });
 }
 
