@@ -101,15 +101,9 @@ export function getFavouriteGoods(req, res) {
 
 export function addGood(req, res) {
     if (req.userType === 'Entity') {
-        entityModel.findOne({email: req.userId}, function (err, entity) {
-            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            req.body.owner = {id: entity._id, name: entity.name};
-            req.body.location = entity.coordinates;
-            let newGood = new goodModel(req.body);
-            newGood.save(function (err, good) {
-                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                res.status(constants.STATUS_CREATED).send(good);
-            });
+        goodModel.addGood(req.userId, req.body, (err, good) => {
+            if (err) return res.status(err.code).send(err.message);
+            return res.status(constants.STATUS_CREATED).send(good);
         });
     } else {
         res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
