@@ -40,7 +40,7 @@ describe('Operations that involve entities', function () {
         entityItem.save(function (err, entity) {
             entityId1 = entity._id;
             done();
-        })
+        });
     });
 
     before(function (done) {
@@ -60,7 +60,7 @@ describe('Operations that involve entities', function () {
         entityItem.save(function (err, entity) {
             entityId2 = entity._id;
             done();
-        })
+        });
     });
 
     before(function (done) {
@@ -80,7 +80,7 @@ describe('Operations that involve entities', function () {
         entityItem.save(function (err, entity) {
             entityId3 = entity._id;
             done();
-        })
+        });
     });
 
     let good1Id;
@@ -171,10 +171,10 @@ describe('Operations that involve entities', function () {
                 id: good1Id,
                 date: Date.now()
             },
-            {
-                id: good2Id,
-                date: Date.now()
-            }]
+                {
+                    id: good2Id,
+                    date: Date.now()
+                }]
         });
 
         beneficiaryItem.save(function (err, beneficiary) {
@@ -212,11 +212,11 @@ describe('Operations that involve entities', function () {
     after(function (done) {
         // Drop test database
         mockgoose.helper.reset().then(() => {
-            done()
+            done();
         });
     });
 
-    describe ('Get all entities', function () {
+    describe('Get all entities', function () {
         it('should get all entities', function (done) {
             entityModel.ensureIndexes(function () {
                 //get token
@@ -238,7 +238,7 @@ describe('Operations that involve entities', function () {
             });
         });
 
-        it ('should detect database errors', function (done) {
+        it('should detect database errors', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -287,7 +287,7 @@ describe('Operations that involve entities', function () {
         });
     });
 
-    describe ('Get single Entity', function () {
+    describe('Get single Entity', function () {
         it('should get single entity', function (done) {
             //get token
             let token = base64url.encode(jwt.sign({
@@ -296,7 +296,7 @@ describe('Operations that involve entities', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
             //test get entity
             chai.request(app)
-                .get('/me/entity/'+ entityId1 + '?token=' + token)
+                .get('/me/entity/' + entityId1 + '?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_OK);
@@ -311,7 +311,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should detect database errors when finding entity', function (done) {
+        it('should detect database errors when finding entity', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -329,7 +329,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should detect not found entity', function (done) {
+        it('should detect not found entity', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -345,7 +345,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should detect database errors when finding goods', function (done) {
+        it('should detect database errors when finding goods', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -370,7 +370,7 @@ describe('Operations that involve entities', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .get('/me/entity/'+ entityId1 + '?token=' + token)
+                .get('/me/entity/' + entityId1 + '?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_FORBIDDEN);
@@ -379,8 +379,8 @@ describe('Operations that involve entities', function () {
         });
     });
 
-    describe ('Create/Deactivate Entity', function () {
-        it ('should not create new entity (missing parameter)', function (done) {
+    describe('Create/Deactivate Entity', function () {
+        it('should not create new entity (missing parameter)', function (done) {
             chai.request(app)
                 .post('/register')
                 .send()
@@ -390,7 +390,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should not create new entity (error create)', function (done) {
+        it('should not create new entity (error create)', function (done) {
             sinon.stub(entityModel, 'create');
             entityModel.create.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
 
@@ -415,7 +415,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should not create new entity (conflict)', function (done) {
+        it('should not create new entity (conflict)', function (done) {
             chai.request(app)
                 .post('/register')
                 .send({
@@ -436,7 +436,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should create new entity', function (done) {
+        it('should create new entity', function (done) {
             chai.request(app)
                 .post('/register')
                 .send({
@@ -457,31 +457,31 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should deactivate existing entity', function (done) {
+        it('should deactivate existing entity', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig4@google.com',
                 userType: 'Entity'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .delete('/me' + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_OK);
-                let promises = [];
-                promises.push(entityModel.count({email: 'joanpuig4@google.com'}, function (err, count) {
-                    expect(count).to.equal(0);
-                }));
-                promises.push(entityModel.countWithDeleted({email: 'joanpuig4@google.com'}, function (err, count) {
-                    expect(count).to.equal(1);
-                }));
-                Promise.all(promises).then(() => done());
-            });
+                .delete('/me' + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    let promises = [];
+                    promises.push(entityModel.count({email: 'joanpuig4@google.com'}, function (err, count) {
+                        expect(count).to.equal(0);
+                    }));
+                    promises.push(entityModel.countWithDeleted({email: 'joanpuig4@google.com'}, function (err, count) {
+                        expect(count).to.equal(1);
+                    }));
+                    Promise.all(promises).then(() => done());
+                });
         });
     });
 
-    describe ('Get entity stats', function () {
-        it ('should return stats of an entity successfully', function (done) {
+    describe('Get entity stats', function () {
+        it('should return stats of an entity successfully', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
@@ -499,7 +499,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should not allow wrong type of user', function (done) {
+        it('should not allow wrong type of user', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -515,7 +515,7 @@ describe('Operations that involve entities', function () {
         });
     });
 
-    describe ('Get sales chart', function () {
+    describe('Get sales chart', function () {
         before(function (done) {
             let orderItem = new orderModel({
                 entity: entityId1,
@@ -589,15 +589,15 @@ describe('Operations that involve entities', function () {
             });
         });
 
-        function isArrayInArray(arr, item){
+        function isArrayInArray(arr, item) {
             let itemString = JSON.stringify(item);
 
-            return arr.some(function(ele){
+            return arr.some(function (ele) {
                 return JSON.stringify(ele) === itemString;
             });
         }
 
-        it ('should return global stats for one day', function (done) {
+        it('should return global stats for one day', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
@@ -616,7 +616,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should return global stats for one week', function (done) {
+        it('should return global stats for one week', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
@@ -635,7 +635,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should return global stats for one month', function (done) {
+        it('should return global stats for one month', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
@@ -654,7 +654,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should return global stats for one year', function (done) {
+        it('should return global stats for one year', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
@@ -673,7 +673,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should return single good stats for one day', function (done) {
+        it('should return single good stats for one day', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
@@ -692,14 +692,14 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should return single good stats for one week', function (done) {
+        it('should return single good stats for one week', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .get('/me/salesChart/?interval=Week&good='+ good1Id + '&token=' + token)
+                .get('/me/salesChart/?interval=Week&good=' + good1Id + '&token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_OK);
@@ -711,14 +711,14 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should return single good stats for one month', function (done) {
+        it('should return single good stats for one month', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .get('/me/salesChart/?interval=Month&good='+ good2Id + '&token=' + token)
+                .get('/me/salesChart/?interval=Month&good=' + good2Id + '&token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_OK);
@@ -730,14 +730,14 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should return single good stats for one year', function (done) {
+        it('should return single good stats for one year', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .get('/me/salesChart/?interval=Year&good='+ good2Id + '&token=' + token)
+                .get('/me/salesChart/?interval=Year&good=' + good2Id + '&token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_OK);
@@ -749,7 +749,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should detect incorrect interval', function (done) {
+        it('should detect incorrect interval', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
@@ -764,7 +764,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should not allow wrong type of user', function (done) {
+        it('should not allow wrong type of user', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -780,15 +780,15 @@ describe('Operations that involve entities', function () {
         });
     });
 
-    describe ('Like one entity', function () {
-        it ('should like entity successfully', function (done) {
+    describe('Like one entity', function () {
+        it('should like entity successfully', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .post('/me/entities/likes/' + entityId1 +'?token=' + token)
+                .post('/me/entities/likes/' + entityId1 + '?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_OK);
@@ -797,14 +797,14 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should show liked status when entity requested', function (done) {
+        it('should show liked status when entity requested', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .get('/me/entity/'+ entityId1 + '?token=' + token)
+                .get('/me/entity/' + entityId1 + '?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res.body.isLiked).to.equal(true);
@@ -812,7 +812,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should show liked status when all entities requested', function (done) {
+        it('should show liked status when all entities requested', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -827,14 +827,14 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should not like entity already liked', function (done) {
+        it('should not like entity already liked', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .post('/me/entities/likes/' + entityId1 +'?token=' + token)
+                .post('/me/entities/likes/' + entityId1 + '?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_CONFLICT);
@@ -845,7 +845,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should detect wrong entity id', function (done) {
+        it('should detect wrong entity id', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -854,7 +854,7 @@ describe('Operations that involve entities', function () {
             let id = "5afa7fbdd6239a10cea50a2e";
 
             chai.request(app)
-                .post('/me/entities/likes/' + id +'?token=' + token)
+                .post('/me/entities/likes/' + id + '?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_NOT_FOUND);
@@ -862,14 +862,14 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should not allow wrong type of user', function (done) {
+        it('should not allow wrong type of user', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .post('/me/entities/likes/' + entityId1 +'?token=' + token)
+                .post('/me/entities/likes/' + entityId1 + '?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_FORBIDDEN);
@@ -878,15 +878,15 @@ describe('Operations that involve entities', function () {
         });
     });
 
-    describe ('Dislike one entity', function () {
-        it ('should dislike entity successfully', function (done) {
+    describe('Dislike one entity', function () {
+        it('should dislike entity successfully', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .delete('/me/entities/likes/' + entityId1 +'?token=' + token)
+                .delete('/me/entities/likes/' + entityId1 + '?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_OK);
@@ -895,14 +895,14 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should show disliked status when entity requested', function (done) {
+        it('should show disliked status when entity requested', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .get('/me/entity/'+ entityId1 + '?token=' + token)
+                .get('/me/entity/' + entityId1 + '?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res.body.isLiked).to.equal(false);
@@ -910,7 +910,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should show disliked status when all entities requested', function (done) {
+        it('should show disliked status when all entities requested', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -925,14 +925,14 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should not dislike entity not liked', function (done) {
+        it('should not dislike entity not liked', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .delete('/me/entities/likes/' + entityId1 +'?token=' + token)
+                .delete('/me/entities/likes/' + entityId1 + '?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_CONFLICT);
@@ -943,7 +943,7 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should detect wrong entity id', function (done) {
+        it('should detect wrong entity id', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -952,7 +952,7 @@ describe('Operations that involve entities', function () {
             let id = "5afa7fbdd6239a10cea50a2e";
 
             chai.request(app)
-                .delete('/me/entities/likes/' + id +'?token=' + token)
+                .delete('/me/entities/likes/' + id + '?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_NOT_FOUND);
@@ -960,14 +960,14 @@ describe('Operations that involve entities', function () {
                 });
         });
 
-        it ('should not allow wrong type of user', function (done) {
+        it('should not allow wrong type of user', function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-                .delete('/me/entities/likes/' + entityId1 +'?token=' + token)
+                .delete('/me/entities/likes/' + entityId1 + '?token=' + token)
                 .send()
                 .then(function (res) {
                     expect(res).to.have.status(constants.STATUS_FORBIDDEN);
