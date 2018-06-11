@@ -1,9 +1,5 @@
-import passwordGenerator from "password-generator";
-
 import {userModel} from "../models/userModel";
-
 import * as constants from "../constants";
-import * as mailUtils from "../../common/mail";
 
 export function loginUser(req, res) {
     if (req.query.email !== undefined && req.query.nif !== undefined) return res.status(constants.STATUS_UNAUTHORIZED).send({
