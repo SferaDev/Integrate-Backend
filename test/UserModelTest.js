@@ -74,7 +74,7 @@ describe('Test group for BeneficiaryModel', function () {
             .then(function (res) {
                 expect(res).to.have.status(constants.STATUS_UNAUTHORIZED);
                 expect(res.body.code).to.equal(constants.ERROR_WRONG_PARAMETERS);
-                expect(res.body.status).to.equal('Wrong parameters');
+                expect(res.body.status).to.equal('Please input just one email or nif');
             });
         });
 
@@ -84,17 +84,17 @@ describe('Test group for BeneficiaryModel', function () {
             .then(function (res) {
                 expect(res).to.have.status(constants.STATUS_UNAUTHORIZED);
                 expect(res.body.code).to.equal(constants.ERROR_WRONG_PARAMETERS);
-                expect(res.body.status).to.equal('Wrong parameters');
+                expect(res.body.status).to.equal('Please input at least one email or nif');
             });
         });
 
         it('should not retrieve a non empty token (no password)', function () {
             return chai.request(app)
-            .get('/login?email=sbrin@google.com&nif=12345678F')
+            .get('/login?email=sbrin@google.com')
             .then(function (res) {
                 expect(res).to.have.status(constants.STATUS_UNAUTHORIZED);
                 expect(res.body.code).to.equal(constants.ERROR_WRONG_PARAMETERS);
-                expect(res.body.status).to.equal('Wrong parameters');
+                expect(res.body.status).to.equal('Please input one password');
             });
         });
 
