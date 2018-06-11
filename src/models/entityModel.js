@@ -6,6 +6,7 @@ import {userModel} from "./userModel";
 import {goodModel} from "./goodModel";
 import {orderModel} from "./orderModel";
 import * as constants from "../constants";
+import moment from "moment/moment";
 
 const entitySchema = new mongoose.Schema({
     salesmanFirstName: {
@@ -77,6 +78,40 @@ entitySchema.methods.getStats = function (callback) {
                 numberLikes: entity.numberLikes
             });
         });
+    });
+};
+
+entitySchema.methods.getSalesChart = function (interval, good, callback) {
+    let entity = this;
+    let baseInterval = constants.INTERVALS[interval];
+    if (baseInterval === undefined)
+        return callback({code: constants.STATUS_BAD_REQUEST, message: {message: "Incorrect interval"}}, null);
+    let startDate = moment().subtract(1, baseInterval);
+    let endDate = moment();
+    orderModel.find({
+        entity: entity._id,
+        createdAt: {
+            "$gte": startDate,
+            "$lte": endDate
+        }
+    }, function (err, orders) {
+        if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
+        let stats = new Map();
+        for (let order of orders) {
+            let date = moment(order.createdAt).startOf('date').format("YYYY-MM-DD");
+            if (good) {
+                let orderedGoodIndex = order.orderedGoods.findIndex(element => element.toString() === good);
+                if (orderedGoodIndex !== -1) {
+                    if (stats.has(date)) stats.set(date, stats.get(date) + 1);
+                    else stats.set(date, 1);
+                }
+            }
+            else {
+                if (stats.has(date)) stats.set(date, stats.get(date) + order.orderedGoods.length);
+                else stats.set(date, order.orderedGoods.length);
+            }
+        }
+        return callback(null, {stats: Array.from(stats)});
     });
 };
 
