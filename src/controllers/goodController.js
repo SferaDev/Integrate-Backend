@@ -26,18 +26,9 @@ export function getGood(req, res) {
 
 export function getFavouriteGoods(req, res) {
     if (req.userType === 'Beneficiary') {
-        beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
-            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            goodModel.find({_id: {$in: beneficiary.favouriteGoods}, pendingUnits: {$gt: 0}}, function (err, goods) {
-                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                let goodsObject = [];
-                for (let good of goods) {
-                    let goodObject = good.toObject();
-                    goodObject.isUsable = good.isUsable(beneficiary);
-                    goodsObject.push(goodObject);
-                }
-                res.status(constants.STATUS_OK).send(goodsObject);
-            });
+        goodModel.getFavouriteGoods(req.userId, (err, goods) => {
+            if (err) return res.status(err.code).send(err.message);
+            return res.status(constants.STATUS_OK).send(goods);
         });
     } else {
         res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});

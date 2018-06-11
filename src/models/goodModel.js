@@ -170,5 +170,21 @@ goodSchema.statics.getGood = function(userType, userEmail, id, callback) {
     });
 };
 
+goodSchema.statics.getFavouriteGoods = function(userEmail, callback) {
+    beneficiaryModel.findOne({email: userEmail}, function (err, beneficiary) {
+        if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
+        goodModel.find({_id: {$in: beneficiary.favouriteGoods}, pendingUnits: {$gt: 0}}, function (err, goods) {
+            if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
+            let goodsObject = [];
+            for (let good of goods) {
+                let goodObject = good.toObject();
+                goodObject.isUsable = good.isUsable(beneficiary);
+                goodsObject.push(goodObject);
+            }
+            return callback(null, goodsObject);
+        });
+    });
+};
+
 export const goodModel = mongoose.model('Good', goodSchema);
 
