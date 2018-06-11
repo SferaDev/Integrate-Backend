@@ -30,6 +30,14 @@ export const EMAIL_SERVICE = process.env.EMAIL_SERVICE || '';
 export const EMAIL_USER = process.env.EMAIL_USER || '';
 export const EMAIL_PASS = process.env.EMAIL_PASS || '';
 
+// Intervals
+export const INTERVALS = {
+    Day: 'days',
+    Week: 'weeks',
+    Month: 'months',
+    Year: 'years'
+};
+
 // Translate languages
 export const TRANSLATABLE = [
     'description',
