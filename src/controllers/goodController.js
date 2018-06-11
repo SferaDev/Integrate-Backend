@@ -18,19 +18,9 @@ export function getGoods(req, res) {
 }
 
 export function getGood(req, res) {
-    goodModel.findById(req.params.id, function (err, good) {
-        if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-        if (good === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Good not found"});
-        if (req.userType === 'Beneficiary') {
-            let userEmail = req.userId;
-            beneficiaryModel.findOne({email: userEmail}, function (err, beneficiary) {
-                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                let goodObject = good.toObject();
-                goodObject.isUsable = good.isUsable(beneficiary);
-                return res.status(constants.STATUS_OK).send(goodObject);
-            });
-        }
-        else res.status(constants.STATUS_OK).send(good);
+    goodModel.getGood(req.userType, req.userId, req.params.id, (err, good) => {
+        if (err) return res.status(err.code).send(err.message);
+        return res.status(constants.STATUS_OK).send(good);
     });
 }
 
