@@ -73,7 +73,8 @@ entitySchema.methods.getStats = function (callback) {
             return callback(null, {
                 goodsCreated: goodsCreated,
                 beneficiariesHelped: beneficiariesHelped,
-                totalSavedMoney: totalSavedMoney
+                totalSavedMoney: totalSavedMoney,
+                numberLikes: entity.numberLikes
             });
         });
     });
