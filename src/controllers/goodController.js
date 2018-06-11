@@ -72,20 +72,13 @@ export function updateGood(req, res) {
 
 export function addFavouriteGood(req, res) {
     if (req.userType === 'Beneficiary') {
-        beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
+        let id = req.params.id;
+        goodModel.findById(id, function (err, good) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            let id = req.params.id;
-            goodModel.findById(id, function (err, good) {
-                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                if (!good) return res.status(constants.STATUS_NOT_FOUND).send({error: "Good doesn't exist"});
-                let index = beneficiary.favouriteGoods.indexOf(good._id);
-                if (index === -1) {
-                    good.numberFavs = good.numberFavs + 1;
-                    good.save();
-                    beneficiary.favouriteGoods.push(good._id);
-                    beneficiary.save();
-                    res.status(constants.STATUS_OK).send(beneficiary.favouriteGoods);
-                } else res.status(constants.STATUS_CONFLICT).send({error: "This good is already in your favourite list"});
+            if (!good) return res.status(constants.STATUS_NOT_FOUND).send({error: "Good doesn't exist"});
+            good.addFavouriteGood(req.userId, (err, favouriteGoods) => {
+                if (err) return res.status(err.code).send(err.message);
+                return res.status(constants.STATUS_OK).send(favouriteGoods);
             });
         });
     } else {
@@ -95,22 +88,13 @@ export function addFavouriteGood(req, res) {
 
 export function deleteFavouriteGood(req, res) {
     if (req.userType === 'Beneficiary') {
-        beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
+        let id = req.params.id;
+        goodModel.findById(id, function (err, good) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            let id = req.params.id;
-            goodModel.findById(id, function (err, good) {
-                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                if (!good) return res.status(constants.STATUS_NOT_FOUND).send({error: "Good doesn't exist"});
-                let index = beneficiary.favouriteGoods.indexOf(good._id);
-                if (index !== -1) {
-                    good.numberFavs = good.numberFavs - 1;
-                    good.save();
-                    beneficiary.favouriteGoods.splice(index, 1);
-                    beneficiary.save();
-                    res.status(constants.STATUS_OK).send(beneficiary.favouriteGoods);
-                } else {
-                    res.status(constants.STATUS_NOT_FOUND).send({error: "This good is not in your favourite list"});
-                }
+            if (!good) return res.status(constants.STATUS_NOT_FOUND).send({error: "Good doesn't exist"});
+            good.deleteFavouriteGood(req.userId, (err, favouriteGoods) => {
+                if (err) return res.status(err.code).send(err.message);
+                return res.status(constants.STATUS_OK).send(favouriteGoods);
             });
         });
     } else {

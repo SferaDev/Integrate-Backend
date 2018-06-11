@@ -186,5 +186,35 @@ goodSchema.statics.getFavouriteGoods = function(userEmail, callback) {
     });
 };
 
+goodSchema.methods.addFavouriteGood = function (userEmail, callback) {
+    let good = this;
+    beneficiaryModel.findOne({email: userEmail}, function (err, beneficiary) {
+        if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
+        let index = beneficiary.favouriteGoods.indexOf(good._id);
+        if (index === -1) {
+            good.numberFavs = good.numberFavs + 1;
+            good.save();
+            beneficiary.favouriteGoods.push(good._id);
+            beneficiary.save();
+            return callback(null, beneficiary.favouriteGoods);
+        } else return callback({code: constants.STATUS_CONFLICT, message: "This good is already in your favourite list"}, null);
+    });
+};
+
+goodSchema.methods.deleteFavouriteGood = function (userEmail, callback) {
+    let good = this;
+    beneficiaryModel.findOne({email: userEmail}, function (err, beneficiary) {
+        if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
+        let index = beneficiary.favouriteGoods.indexOf(good._id);
+        if (index !== -1) {
+            good.numberFavs = good.numberFavs - 1;
+            good.save();
+            beneficiary.favouriteGoods.splice(index, 1);
+            beneficiary.save();
+            return callback(null, beneficiary.favouriteGoods);
+        } else return callback({code: constants.STATUS_NOT_FOUND, message: "This good is not in your favourite list"}, null);
+    });
+};
+
 export const goodModel = mongoose.model('Good', goodSchema);
 
