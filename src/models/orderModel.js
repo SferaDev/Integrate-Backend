@@ -55,10 +55,12 @@ orderSchema.statics.processOrder = function (userEmail, goodIds, entityId, valid
                         let soldOutGoods = validation[0];
                         let nonUsableGoods = validation[1];
                         let totalDiscount = validation[2];
-                        if (soldOutGoods.length > 0 || nonUsableGoods.length > 0) return callback({code: constants.STATUS_CONFLICT, message: {
-                            soldOutGoods: soldOutGoods,
-                            nonUsableGoods: nonUsableGoods
-                            }}, null);
+                        if (soldOutGoods.length > 0 || nonUsableGoods.length > 0) return callback({
+                            code: constants.STATUS_CONFLICT, message: {
+                                soldOutGoods: soldOutGoods,
+                                nonUsableGoods: nonUsableGoods
+                            }
+                        }, null);
                         let usedGoods = beneficiary.usedGoods;
                         for (let good of goods) {
                             good.pendingUnits -= 1;
@@ -88,7 +90,10 @@ orderSchema.statics.processOrder = function (userEmail, goodIds, entityId, valid
                         });
                         order.save(function (err) {
                             if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
-                            else return callback(null, {code: constants.STATUS_CREATED, body: "Order processed and stored"});
+                            else return callback(null, {
+                                code: constants.STATUS_CREATED,
+                                body: "Order processed and stored"
+                            });
                         });
                     } else return callback({code: constants.STATUS_FORBIDDEN, message: "Validation code incorrect"});
                 });
@@ -97,11 +102,13 @@ orderSchema.statics.processOrder = function (userEmail, goodIds, entityId, valid
                 let soldOutGoods = validation[0];
                 let nonUsableGoods = validation[1];
                 let totalDiscount = validation[2];
-                if (soldOutGoods.length > 0 || nonUsableGoods.length > 0) return callback({code: constants.STATUS_CONFLICT, message: {
+                if (soldOutGoods.length > 0 || nonUsableGoods.length > 0) return callback({
+                    code: constants.STATUS_CONFLICT, message: {
                         soldOutGoods: soldOutGoods,
                         nonUsableGoods: nonUsableGoods
-                    }}, null);
-                return callback(null, {code: constants.STATUS_OK, body:{totalDiscount: totalDiscount}});
+                    }
+                }, null);
+                return callback(null, {code: constants.STATUS_OK, body: {totalDiscount: totalDiscount}});
             }
         });
     });

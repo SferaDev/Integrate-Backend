@@ -1,5 +1,4 @@
 import {entityModel} from "../models/entityModel";
-import * as constants from "../constants";
 
 export function getParameters(requestBody, callback) {
     let attributes = {};

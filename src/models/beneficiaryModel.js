@@ -41,7 +41,10 @@ beneficiarySchema.methods.likeEntity = function (id, callback) {
     let beneficiary = this;
     entityModel.findById(id, function (err, entity) {
         if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err});
-        if (entity === null) return callback({code: constants.STATUS_NOT_FOUND, message: {message: "Entity not found"}});
+        if (entity === null) return callback({
+            code: constants.STATUS_NOT_FOUND,
+            message: {message: "Entity not found"}
+        });
         let index = beneficiary.likedEntities.indexOf(entity._id);
         if (index === -1) {
             entity.numberLikes += 1;
@@ -59,7 +62,10 @@ beneficiarySchema.methods.dislikeEntity = function (id, callback) {
     let beneficiary = this;
     entityModel.findById(id, function (err, entity) {
         if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err});
-        if (entity === null) return callback({code: constants.STATUS_NOT_FOUND, message: {message: "Entity not found"}});
+        if (entity === null) return callback({
+            code: constants.STATUS_NOT_FOUND,
+            message: {message: "Entity not found"}
+        });
         let index = beneficiary.likedEntities.indexOf(entity._id);
         if (index === -1) {
             return callback({code: constants.STATUS_CONFLICT, message: {message: "You do not like this entity yet"}});

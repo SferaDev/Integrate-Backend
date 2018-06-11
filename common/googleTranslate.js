@@ -7,7 +7,8 @@ export function translateString(language, string, callback) {
     if (constants.ENV !== 'production') return string;
     translate(string, {to: language}).then(res => {
         if (res.from.language.iso === language) return string;
-        callback(null, sentenceCase(res.text));
+        let result = sentenceCase(res.text);
+        callback(null, result);
     }).catch(err => {
         callback(error, null);
     });
@@ -15,10 +16,12 @@ export function translateString(language, string, callback) {
 
 function sentenceCase(string) {
     // Remove duplicated spacings
-    string = string.replace(/\s+/g, ' ').replace(/^\s+|\s+$/, '');
+    let result = string.replace(/\s+/g, ' ').replace(/^\s+|\s+$/, '');
     // Upper case first letter
-    string = string.charAt(0).toUpperCase() + string.slice(1);
+    result = result.charAt(0).toUpperCase() + result.slice(1);
     // Upper case after periods, question marks...
-    string = string.replace(/([!?.]\s+)([a-z])/g, (m, $1, $2) => $1 + $2.toUpperCase());
-    return string;
+    result = result.replace(/([!?.]\s+)([a-z])/g, (m, $1, $2) => {
+        return $1 + $2.toUpperCase();
+    });
+    return result;
 }

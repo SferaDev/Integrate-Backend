@@ -5,7 +5,7 @@ import {ERROR_NIF_DUPLICATED, LOCAL_ADMINISTRATION_URI} from "../constants";
 
 export function loadBeneficiaries(callback) {
     axios.get(LOCAL_ADMINISTRATION_URI).then(function (response) {
-        let message = 'Beneficiaries loaded successfuly';
+        let message = 'Beneficiaries loaded successfully';
         let err = null;
         response.data.forEach(function (beneficiary) {
             let newBeneficiary = new beneficiaryModel(beneficiary);
@@ -18,7 +18,6 @@ export function loadBeneficiaries(callback) {
         });
         callback(err, message);
     }).catch(function (error) {
-        let message = 'Error on fetching beneficiaries from local administration';
-        callback(error, message);
+        callback(error, 'Error on fetching beneficiaries from local administration');
     });
 }
