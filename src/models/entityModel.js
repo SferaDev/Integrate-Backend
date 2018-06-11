@@ -80,6 +80,28 @@ entitySchema.methods.getStats = function (callback) {
     });
 };
 
+entitySchema.statics.getEntities = function (id, beneficiary, location, callback) {
+    let aggregate = entityModel.aggregate();
+    aggregate.near({
+        near: {type: "Point", coordinates: [parseFloat(location.longitude), parseFloat(location.latitude)]},
+        distanceField: "distance",
+        spherical: true
+    });
+    aggregate.project({
+        name: 1, description: 1, addressName: 1, coordinates: 1, phone: 1,
+        picture: 1, distance: 1, numberLikes: 1
+    });
+    aggregate.exec(function (err, entities) {
+        if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
+        let result = [];
+        for (let entity of entities) {
+            entity.isLiked = (beneficiary.likedEntities.indexOf(entity._id) !== -1);
+            result.push(entity);
+        }
+        return callback(null, result);
+    });
+};
+
 entitySchema.statics.getEntity = function (id, beneficiary, callback) {
     entityModel.findById(id, {
         name: 1, email: 1, description: 1, addressName: 1, coordinates: 1,
