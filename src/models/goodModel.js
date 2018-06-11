@@ -154,5 +154,21 @@ goodSchema.statics.getEntityGoods = function(entityEmail, callback) {
     });
 };
 
+goodSchema.statics.getGood = function(userType, userEmail, id, callback) {
+    goodModel.findById(id, function (err, good) {
+        if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
+        if (good === null) return callback({code: constants.STATUS_NOT_FOUND, message: "Good not found"}, null);
+        if (userType === 'Beneficiary') {
+            beneficiaryModel.findOne({email: userEmail}, function (err, beneficiary) {
+                if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
+                let goodObject = good.toObject();
+                goodObject.isUsable = good.isUsable(beneficiary);
+                return callback(null, goodObject);
+            });
+        }
+        else return callback(null, good);
+    });
+};
+
 export const goodModel = mongoose.model('Good', goodSchema);
 
