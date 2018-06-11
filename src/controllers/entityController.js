@@ -13,27 +13,12 @@ export function getEntities(req, res) {
     if (req.userType === 'Beneficiary') {
         beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            let latitude = req.query.latitude;
-            let longitude = req.query.longitude;
-            if (!latitude || !longitude) return res.status(constants.STATUS_BAD_REQUEST).send({message: "Missing query parameters"});
-            let aggregate = entityModel.aggregate();
-            aggregate.near({
-                near: {type: "Point", coordinates: [parseFloat(longitude), parseFloat(latitude)]},
-                distanceField: "distance",
-                spherical: true
-            });
-            aggregate.project({
-                name: 1, description: 1, addressName: 1, coordinates: 1, phone: 1,
-                picture: 1, distance: 1, numberLikes: 1
-            });
-            aggregate.exec(function (err, entities) {
-                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                let result = [];
-                for (let entity of entities) {
-                    entity.isLiked = (beneficiary.likedEntities.indexOf(entity._id) !== -1);
-                    result.push(entity);
-                }
-                res.status(constants.STATUS_OK).send(result);
+            let location = {latitude: req.query.latitude, longitude: req.query.longitude};
+            if (!location.latitude || !location.longitude)
+                return res.status(constants.STATUS_BAD_REQUEST).send({message: "Missing location parameters"});
+            entityModel.getEntities(req.params.id, beneficiary, location, function (err, entities) {
+                if (err) return res.status(err.code).send(err.message);
+                return res.status(constants.STATUS_OK).send(entities);
             });
         });
     } else {
