@@ -42,7 +42,7 @@ export function resetPassword(req, res) {
         let newPassword = user.password;
         user.save(function (err) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send();
-            mailUtils.sendRegisterMail(user.email, user.nif, newPassword);
+            mailUtils.sendResetMail(user.email, user.nif, newPassword);
             res.status(constants.STATUS_CREATED).send();
         });
     });
