@@ -5,60 +5,15 @@ import * as constants from "../constants";
 
 export function getGoods(req, res) {
     if (req.userType === 'Beneficiary') {
-        // Query params
-        let categoryIndex = req.query.category;
-        let orderIndex = req.query.order;
-        let latitude = req.query.latitude;
-        let longitude = req.query.longitude;
-        if ((!categoryIndex || !orderIndex) || (orderIndex === 3 && (!latitude || !longitude))) {
-            res.status(constants.STATUS_BAD_REQUEST).send({message: "Missing query parameters"});
-        } else {
-            // Build the query
-            let aggregate = goodModel.aggregate();
-            let filter = {pendingUnits: {$gt: 0}};
-            if (categoryIndex !== "0") filter = {category: parseInt(categoryIndex), pendingUnits: {$gt: 0}};
-            // Filter by location (must be the first operation of the pipeline)
-            if (orderIndex === "2") {
-                aggregate.near({
-                    near: {type: "Point", coordinates: [parseFloat(longitude), parseFloat(latitude)]},
-                    distanceField: "distance",
-                    query: filter,
-                    spherical: true
-                });
-            } else {
-                // Filter by category
-                aggregate.match(filter);
-                // Sort by update date or popularity
-                let order;
-                if (orderIndex === "0") order = {updatedAt: 'desc'};
-                else order = {numberFavs: 'desc'};
-                aggregate.sort(order);
-            }
-            // Execute the query
-            aggregate.exec(function (err, goods) {
-                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                let userEmail = req.userId;
-                beneficiaryModel.findOne({email: userEmail}, function (err, beneficiary) {
-                    if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                    let goodsObject = [];
-                    for (let good of goods) {
-                        good = new goodModel(good);
-                        let goodObject = good.toObject();
-                        goodObject.isUsable = good.isUsable(beneficiary);
-                        goodsObject.push(goodObject);
-                    }
-                    res.status(constants.STATUS_OK).send(goodsObject);
-                });
-            });
-        }
-    } else {
-        entityModel.findOne({email: req.userId}, function (err, entity) {
-            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            goodModel.find({'owner.id': entity._id}, function (err, goods) {
-                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                res.status(constants.STATUS_OK).send(goods);
-            });
+        goodModel.getGoods(req.userId, req.query.category, req.query.order, req.query.latitude, req.query.longitude, (err, goods) => {
+            if (err) return res.status(err.code).send(err.message);
+            return res.status(constants.STATUS_OK).send(goods);
         });
+    } else {
+        goodModel.getEntityGoods(req.userId, (err, goods) => {
+            if (err) return res.status(err.code).send(err.message);
+            return res.status(constants.STATUS_OK).send(goods);
+        })
     }
 }
 
