@@ -1,6 +1,6 @@
-// Create mail service
-import {EMAIL_PASS, EMAIL_SERVICE, EMAIL_USER} from "../src/constants";
 import nodemailer from "nodemailer";
+
+import {EMAIL_PASS, EMAIL_SERVICE, EMAIL_USER} from "../src/constants";
 
 let mailTransporter;
 
@@ -19,7 +19,6 @@ if (EMAIL_SERVICE) {
         buffer: true
     });
 }
-
 
 function sendMail(recipient, subject, message) {
     mailTransporter.sendMail({

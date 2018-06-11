@@ -1,10 +1,10 @@
-import {ENV, MONGODB_URI} from "../src/constants";
-import schedule from "node-schedule";
-import {loadBeneficiaries} from "../src/controllers/beneficiaryController";
-import {Mockgoose} from "mockgoose/built/mockgoose";
 import mongoose from "mongoose";
+import schedule from "node-schedule";
+import {Mockgoose} from "mockgoose/built/mockgoose";
 
-// Connect to the database
+import {ENV, MONGODB_URI} from "../src/constants";
+import {loadBeneficiaries} from "../src/controllers/beneficiaryController";
+
 mongoose.Promise = global.Promise;
 
 export default function constructor() {

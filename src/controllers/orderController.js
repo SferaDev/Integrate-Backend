@@ -1,7 +1,4 @@
 import * as constants from "../constants";
-import {goodModel} from "../models/goodModel";
-import {beneficiaryModel} from "../models/beneficiaryModel";
-import {entityModel} from "../models/entityModel";
 import {orderModel} from "../models/orderModel";
 
 export function processOrder(req, res) {

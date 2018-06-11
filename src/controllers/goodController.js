@@ -1,5 +1,3 @@
-import {entityModel} from "../models/entityModel";
-import {beneficiaryModel} from "../models/beneficiaryModel";
 import {goodModel} from "../models/goodModel";
 import * as constants from "../constants";
 
@@ -13,7 +11,7 @@ export function getGoods(req, res) {
         goodModel.getEntityGoods(req.userId, (err, goods) => {
             if (err) return res.status(err.code).send(err.message);
             return res.status(constants.STATUS_OK).send(goods);
-        })
+        });
     }
 }
 

@@ -18,9 +18,10 @@ export const apiRouter = express.Router();
 // Middleware to verify token
 apiRouter.use(function (req, res, next) {
     // check header or url parameters or post parameters for token
-    let token = req.body.token || req.query.token || req.headers['token'];
+    let token = req.body.token || req.query.token || req.headers.token;
     if (token) {
-        jwt.verify(base64url.decode(token), constants.TOKEN_SECRET, function (err, decoded) {
+        let decodedToken = base64url.decode(token);
+        jwt.verify(decodedToken, constants.TOKEN_SECRET, function (err, decoded) {
             if (err) {
                 return res.status(constants.STATUS_UNAUTHORIZED).send({
                     success: false,
@@ -61,10 +62,7 @@ apiRouter.use(function (req, res, next) {
                 promises.push(translationModel.findOne({input: item, language: userGoodLanguage},
                     function (err, translation) {
                         if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                        if (translation !== null) {
-                            // If translation is already present, output local copy
-                            context.update(translation.output, true);
-                        } else {
+                        if (translation === null) {
                             // If translation is not present, fetch and store it
                             promises.push(googleTranslate.translateString(userGoodLanguage, item, (err, response) => {
                                 if (err === null) {
@@ -76,6 +74,9 @@ apiRouter.use(function (req, res, next) {
                                     context.update(response, true);
                                 }
                             }));
+                        } else {
+                            // If translation is already present, output local copy
+                            context.update(translation.output, true);
                         }
                     })
                 );
@@ -86,8 +87,8 @@ apiRouter.use(function (req, res, next) {
     let oldSend = res.send;
     res.send = function (obj) {
         if (typeof obj === 'object') {
-            obj = JSON.parse(JSON.stringify(obj));
-            translateFunction(obj, (newObj) => {
+            let result = JSON.parse(JSON.stringify(obj));
+            translateFunction(result, (newObj) => {
                 oldSend.call(this, newObj);
             });
         } else oldSend.call(this, obj);
@@ -239,26 +240,56 @@ apiRouter.post('/orders', function (req, res) {
     orderController.processOrder(req, res);
 });
 
+/**
+ * @api {get} /stats View stats
+ * @apiVersion 1.0.0
+ * @apiGroup Stats
+ */
 apiRouter.get('/stats', function (req, res) {
     entityController.getEntityStats(req, res);
 });
 
+/**
+ * @api {get} /salesChart View sales chart
+ * @apiVersion 1.0.0
+ * @apiGroup Stats
+ */
 apiRouter.get('/salesChart', function (req, res) {
     entityController.getSalesChart(req, res);
 });
 
+/**
+ * @api {get} /language/interface Get interface language
+ * @apiVersion 1.0.0
+ * @apiGroup Language
+ */
 apiRouter.get('/language/interface', function (req, res) {
     languageController.getUserInterfaceLanguage(req, res);
 });
 
+/**
+ * @api {put} /language/interface Update interface language
+ * @apiVersion 1.0.0
+ * @apiGroup Language
+ */
 apiRouter.put('/language/interface', function (req, res) {
     languageController.setUserInterfaceLanguage(req, res);
 });
 
+/**
+ * @api {get} /language/goods Get good language
+ * @apiVersion 1.0.0
+ * @apiGroup Language
+ */
 apiRouter.get('/language/goods', function (req, res) {
     languageController.getUserGoodLanguage(req, res);
 });
 
+/**
+ * @api {put} /language/goods Update good language
+ * @apiVersion 1.0.0
+ * @apiGroup Language
+ */
 apiRouter.put('/language/goods', function (req, res) {
     languageController.setUserGoodLanguage(req, res);
 });

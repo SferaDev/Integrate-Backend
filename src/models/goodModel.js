@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
 import {entityModel} from "../models/entityModel";
-import * as constants from "../constants";
 import {beneficiaryModel} from "./beneficiaryModel";
+import * as constants from "../constants";
 
 const briefEntitySchema = new mongoose.Schema({
     id: {
@@ -102,8 +102,10 @@ goodSchema.statics.addGood = function (entityEmail, goodContent, callback) {
 };
 
 goodSchema.statics.getGoods = function (userEmail, categoryIndex, orderIndex, latitude, longitude, callback) {
-    if ((!categoryIndex || !orderIndex) || (orderIndex === 3 && (!latitude || !longitude))) {
-        return callback({code: constants.STATUS_BAD_REQUEST, message: "Missing query parameters"}, null);
+    if (!categoryIndex || !orderIndex) {
+        return callback({code: constants.STATUS_BAD_REQUEST, message: "Missing category/order parameters"}, null);
+    } else if (orderIndex === 3 && (!latitude || !longitude)) {
+        return callback({code: constants.STATUS_BAD_REQUEST, message: "Missing location parameters"}, null);
     } else {
         // Build the query
         let aggregate = goodModel.aggregate();
@@ -144,7 +146,7 @@ goodSchema.statics.getGoods = function (userEmail, categoryIndex, orderIndex, la
     }
 };
 
-goodSchema.statics.getEntityGoods = function(entityEmail, callback) {
+goodSchema.statics.getEntityGoods = function (entityEmail, callback) {
     entityModel.findOne({email: entityEmail}, function (err, entity) {
         if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
         goodModel.find({'owner.id': entity._id}, function (err, goods) {
@@ -154,7 +156,7 @@ goodSchema.statics.getEntityGoods = function(entityEmail, callback) {
     });
 };
 
-goodSchema.statics.getGood = function(userType, userEmail, id, callback) {
+goodSchema.statics.getGood = function (userType, userEmail, id, callback) {
     goodModel.findById(id, function (err, good) {
         if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
         if (good === null) return callback({code: constants.STATUS_NOT_FOUND, message: "Good not found"}, null);
@@ -170,7 +172,7 @@ goodSchema.statics.getGood = function(userType, userEmail, id, callback) {
     });
 };
 
-goodSchema.statics.getFavouriteGoods = function(userEmail, callback) {
+goodSchema.statics.getFavouriteGoods = function (userEmail, callback) {
     beneficiaryModel.findOne({email: userEmail}, function (err, beneficiary) {
         if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
         goodModel.find({_id: {$in: beneficiary.favouriteGoods}, pendingUnits: {$gt: 0}}, function (err, goods) {
@@ -192,12 +194,15 @@ goodSchema.methods.addFavouriteGood = function (userEmail, callback) {
         if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
         let index = beneficiary.favouriteGoods.indexOf(good._id);
         if (index === -1) {
-            good.numberFavs = good.numberFavs + 1;
+            good.numberFavs += 1;
             good.save();
             beneficiary.favouriteGoods.push(good._id);
             beneficiary.save();
             return callback(null, beneficiary.favouriteGoods);
-        } else return callback({code: constants.STATUS_CONFLICT, message: "This good is already in your favourite list"}, null);
+        } else return callback({
+            code: constants.STATUS_CONFLICT,
+            message: "This good is already in your favourite list"
+        }, null);
     });
 };
 
@@ -206,13 +211,18 @@ goodSchema.methods.deleteFavouriteGood = function (userEmail, callback) {
     beneficiaryModel.findOne({email: userEmail}, function (err, beneficiary) {
         if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
         let index = beneficiary.favouriteGoods.indexOf(good._id);
-        if (index !== -1) {
-            good.numberFavs = good.numberFavs - 1;
+        if (index === -1) {
+            return callback({
+                code: constants.STATUS_NOT_FOUND,
+                message: "This good is not in your favourite list"
+            }, null);
+        } else {
+            good.numberFavs -= 1;
             good.save();
             beneficiary.favouriteGoods.splice(index, 1);
             beneficiary.save();
             return callback(null, beneficiary.favouriteGoods);
-        } else return callback({code: constants.STATUS_NOT_FOUND, message: "This good is not in your favourite list"}, null);
+        }
     });
 };
 
