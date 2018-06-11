@@ -141,7 +141,7 @@ describe('Operations that involve goods', function () {
     after(function (done) {
         // Drop test database
         mockgoose.helper.reset().then(() => {
-            done()
+            done();
         });
     });
 
@@ -154,15 +154,15 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .get('/me/goods/?token=' + token + '&category=0&order=0')
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_OK);
-                expect(res.body[0].productName).to.equal('productTest3');
-                expect(res.body[1].productName).to.equal('productTest2');
-                expect(res.body[2].productName).to.equal('productTest1');
-                done();
-            });
+                .get('/me/goods/?token=' + token + '&category=0&order=0')
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body[0].productName).to.equal('productTest3');
+                    expect(res.body[1].productName).to.equal('productTest2');
+                    expect(res.body[2].productName).to.equal('productTest1');
+                    done();
+                });
         });
 
         it('should list all goods ordered by popularity', function (done) {
@@ -172,15 +172,15 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .get('/me/goods/?token=' + token + '&category=0&order=1')
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_OK);
-                expect(res.body[0].productName).to.equal('productTest3');
-                expect(res.body[1].productName).to.equal('productTest1');
-                expect(res.body[2].productName).to.equal('productTest2');
-                done();
-            });
+                .get('/me/goods/?token=' + token + '&category=0&order=1')
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body[0].productName).to.equal('productTest3');
+                    expect(res.body[1].productName).to.equal('productTest1');
+                    expect(res.body[2].productName).to.equal('productTest2');
+                    done();
+                });
         });
 
 
@@ -192,15 +192,15 @@ describe('Operations that involve goods', function () {
                 }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
                 chai.request(app)
-                .get('/me/goods/?token=' + token + '&category=0&order=2&longitude=2.102137&latitude=41.319359')
-                .send()
-                .then(function (res) {
-                    expect(res).to.have.status(constants.STATUS_OK);
-                    expect(res.body[0].productName).to.equal('productTest1');
-                    expect(res.body[1].productName).to.equal('productTest2');
-                    expect(res.body[2].productName).to.equal('productTest3');
-                    done();
-                });
+                    .get('/me/goods/?token=' + token + '&category=0&order=2&longitude=2.102137&latitude=41.319359')
+                    .send()
+                    .then(function (res) {
+                        expect(res).to.have.status(constants.STATUS_OK);
+                        expect(res.body[0].productName).to.equal('productTest1');
+                        expect(res.body[1].productName).to.equal('productTest2');
+                        expect(res.body[2].productName).to.equal('productTest3');
+                        done();
+                    });
             });
         });
 
@@ -211,15 +211,15 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .get('/me/goods/?token=' + token + '&category=7&order=0')
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_OK);
-                expect(res.body.length).to.equal(2);
-                expect(res.body[0].productName).to.equal('productTest3');
-                expect(res.body[1].productName).to.equal('productTest2');
-                done();
-            });
+                .get('/me/goods/?token=' + token + '&category=7&order=0')
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.length).to.equal(2);
+                    expect(res.body[0].productName).to.equal('productTest3');
+                    expect(res.body[1].productName).to.equal('productTest2');
+                    done();
+                });
         });
 
         it('should detect wrong query parameters', function (done) {
@@ -229,12 +229,12 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .get('/me/goods/?token=' + token + '&categoryy=7&orderr=0')
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_BAD_REQUEST);
-                done();
-            });
+                .get('/me/goods/?token=' + token + '&categoryy=7&orderr=0')
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_BAD_REQUEST);
+                    done();
+                });
         });
 
         it('should detect database errors', function (done) {
@@ -246,13 +246,13 @@ describe('Operations that involve goods', function () {
             sinon.stub(mongoose.Aggregate.prototype, 'exec');
             mongoose.Aggregate.prototype.exec.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-            .get('/me/goods/?token=' + token + '&category=0&order=0')
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
-                mongoose.Aggregate.prototype.exec.restore();
-                done();
-            });
+                .get('/me/goods/?token=' + token + '&category=0&order=0')
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    mongoose.Aggregate.prototype.exec.restore();
+                    done();
+                });
         });
 
         it('should list goods from one entity', function (done) {
@@ -262,13 +262,13 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .get('/me/goods/?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_OK);
-                expect(res.body.length).to.equal(3);
-                done();
-            });
+                .get('/me/goods/?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.length).to.equal(3);
+                    done();
+                });
         });
 
         it('should detect database errors when finding entity', function (done) {
@@ -280,13 +280,13 @@ describe('Operations that involve goods', function () {
             sinon.stub(entityModel, 'findOne');
             entityModel.findOne.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-            .get('/me/goods/?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
-                entityModel.findOne.restore();
-                done();
-            });
+                .get('/me/goods/?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    entityModel.findOne.restore();
+                    done();
+                });
         });
 
         it('should detect database errors when finding goods', function (done) {
@@ -298,13 +298,13 @@ describe('Operations that involve goods', function () {
             sinon.stub(goodModel, 'find');
             goodModel.find.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-            .get('/me/goods/?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
-                goodModel.find.restore();
-                done();
-            });
+                .get('/me/goods/?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    goodModel.find.restore();
+                    done();
+                });
         });
     });
 
@@ -316,13 +316,13 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .get('/me/goods/' + good1Id + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_OK);
-                expect(res.body.productName).to.equal('productTest1');
-                done();
-            });
+                .get('/me/goods/' + good1Id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.productName).to.equal('productTest1');
+                    done();
+                });
         });
 
         it('should get single good successfully (beneficiary)', function (done) {
@@ -332,13 +332,13 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .get('/me/goods/' + good1Id + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_OK);
-                expect(res.body.productName).to.equal('productTest1');
-                done();
-            });
+                .get('/me/goods/' + good1Id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.productName).to.equal('productTest1');
+                    done();
+                });
         });
 
         it('should detect not found good', function (done) {
@@ -350,12 +350,12 @@ describe('Operations that involve goods', function () {
             let id = "5afa7fbdd6239a10cea50a2e";
 
             chai.request(app)
-            .get('/me/goods/' + id + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_NOT_FOUND);
-                done();
-            });
+                .get('/me/goods/' + id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_NOT_FOUND);
+                    done();
+                });
         });
 
         it('should detect database errors', function (done) {
@@ -367,13 +367,13 @@ describe('Operations that involve goods', function () {
             sinon.stub(goodModel, 'findById');
             goodModel.findById.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-            .get('/me/goods/' + good1Id + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
-                goodModel.findById.restore();
-                done();
-            });
+                .get('/me/goods/' + good1Id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    goodModel.findById.restore();
+                    done();
+                });
         });
     });
 
@@ -385,21 +385,21 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .post('/me/goods?token=' + token)
-            .send({
-                'productName': 'productTest4',
-                'picture': 'picture.png',
-                'initialPrice': '100',
-                'discountType': '%',
-                'discount': '10',
-                'category': 1,
-                'reusePeriod': '7',
-                'pendingUnits': '100'
-            })
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_CREATED);
-                done();
-            });
+                .post('/me/goods?token=' + token)
+                .send({
+                    'productName': 'productTest4',
+                    'picture': 'picture.png',
+                    'initialPrice': '100',
+                    'discountType': '%',
+                    'discount': '10',
+                    'category': 1,
+                    'reusePeriod': '7',
+                    'pendingUnits': '100'
+                })
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_CREATED);
+                    done();
+                });
         });
 
         it('should detect database errors', function (done) {
@@ -411,22 +411,22 @@ describe('Operations that involve goods', function () {
             sinon.stub(goodModel.prototype, 'save');
             goodModel.prototype.save.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-            .post('/me/goods?token=' + token)
-            .send({
-                'productName': 'productTest',
-                'picture': 'picture.png',
-                'initialPrice': '100',
-                'discountType': '%',
-                'discount': '10',
-                'category': 1,
-                'reusePeriod': '7',
-                'pendingUnits': '100'
-            })
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
-                goodModel.prototype.save.restore();
-                done();
-            });
+                .post('/me/goods?token=' + token)
+                .send({
+                    'productName': 'productTest',
+                    'picture': 'picture.png',
+                    'initialPrice': '100',
+                    'discountType': '%',
+                    'discount': '10',
+                    'category': 1,
+                    'reusePeriod': '7',
+                    'pendingUnits': '100'
+                })
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    goodModel.prototype.save.restore();
+                    done();
+                });
         });
 
         it('should not allow wrong type of user', function (done) {
@@ -436,21 +436,21 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .post('/me/goods?token=' + token)
-            .send({
-                'productName': 'productTest',
-                'picture': 'picture.png',
-                'initialPrice': '100',
-                'discountType': '%',
-                'discount': '10',
-                'category': 1,
-                'reusePeriod': '7',
-                'pendingUnits': '100'
-            })
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_FORBIDDEN);
-                done();
-            });
+                .post('/me/goods?token=' + token)
+                .send({
+                    'productName': 'productTest',
+                    'picture': 'picture.png',
+                    'initialPrice': '100',
+                    'discountType': '%',
+                    'discount': '10',
+                    'category': 1,
+                    'reusePeriod': '7',
+                    'pendingUnits': '100'
+                })
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_FORBIDDEN);
+                    done();
+                });
         });
     });
 
@@ -488,12 +488,12 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .delete('/me/goods/' + goodId4 + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_OK);
-                done();
-            });
+                .delete('/me/goods/' + goodId4 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    done();
+                });
         });
 
         it('should detect database errors', function (done) {
@@ -505,13 +505,13 @@ describe('Operations that involve goods', function () {
             sinon.stub(goodModel, 'findByIdAndRemove');
             goodModel.findByIdAndRemove.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-            .delete('/me/goods/' + 1 + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
-                goodModel.findByIdAndRemove.restore();
-                done();
-            });
+                .delete('/me/goods/' + 1 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    goodModel.findByIdAndRemove.restore();
+                    done();
+                });
         });
 
         it('should not allow wrong type of user', function (done) {
@@ -521,12 +521,12 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .delete('/me/goods/' + 1 + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_FORBIDDEN);
-                done();
-            });
+                .delete('/me/goods/' + 1 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_FORBIDDEN);
+                    done();
+                });
         });
     });
 
@@ -566,13 +566,13 @@ describe('Operations that involve goods', function () {
             goodItem.discount = 20;
 
             chai.request(app)
-            .put('/me/goods/' + goodItem._id + '?token=' + token)
-            .send(goodItem)
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_OK);
-                expect(res.body.discount).to.equal(20);
-                done();
-            });
+                .put('/me/goods/' + goodItem._id + '?token=' + token)
+                .send(goodItem)
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.discount).to.equal(20);
+                    done();
+                });
         });
 
         it('should detect database errors', function (done) {
@@ -584,13 +584,13 @@ describe('Operations that involve goods', function () {
             sinon.stub(goodModel, 'findByIdAndUpdate');
             goodModel.findByIdAndUpdate.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-            .put('/me/goods/' + 1 + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
-                goodModel.findByIdAndUpdate.restore();
-                done();
-            });
+                .put('/me/goods/' + 1 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    goodModel.findByIdAndUpdate.restore();
+                    done();
+                });
         });
 
         it('should not allow wrong type of user', function (done) {
@@ -600,12 +600,12 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .put('/me/goods/' + 1 + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_FORBIDDEN);
-                done();
-            });
+                .put('/me/goods/' + 1 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_FORBIDDEN);
+                    done();
+                });
         });
     });
 
@@ -634,13 +634,13 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .post('/me/goods/favourites/' + good1Id + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_OK);
-                expect(res.body[0]).to.equal(good1Id.toString());
-                done();
-            });
+                .post('/me/goods/favourites/' + good1Id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body[0]).to.equal(good1Id.toString());
+                    done();
+                });
         });
 
         it('should detect database errors when finding beneficiary', function (done) {
@@ -652,13 +652,13 @@ describe('Operations that involve goods', function () {
             sinon.stub(beneficiaryModel, 'findOne');
             beneficiaryModel.findOne.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-            .post('/me/goods/favourites/' + 1 + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
-                beneficiaryModel.findOne.restore();
-                done();
-            });
+                .post('/me/goods/favourites/' + 1 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    beneficiaryModel.findOne.restore();
+                    done();
+                });
         });
 
         it('should detect invalid good ids', function (done) {
@@ -668,12 +668,12 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .post('/me/goods/favourites/5ae9869d1fda296beeb99d86?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_NOT_FOUND);
-                done();
-            });
+                .post('/me/goods/favourites/5ae9869d1fda296beeb99d86?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_NOT_FOUND);
+                    done();
+                });
         });
 
         it('should detect database errors when finding goods', function (done) {
@@ -685,13 +685,13 @@ describe('Operations that involve goods', function () {
             sinon.stub(goodModel, 'findById');
             goodModel.findById.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-            .post('/me/goods/favourites/' + 1 + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
-                goodModel.findById.restore();
-                done();
-            });
+                .post('/me/goods/favourites/' + 1 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    goodModel.findById.restore();
+                    done();
+                });
         });
 
         it('should detect duplicate goods', function (done) {
@@ -701,12 +701,12 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .post('/me/goods/favourites/' + good1Id + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_CONFLICT);
-                done();
-            });
+                .post('/me/goods/favourites/' + good1Id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_CONFLICT);
+                    done();
+                });
         });
 
         it('should not allow wrong type of user', function (done) {
@@ -716,12 +716,12 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .post('/me/goods/favourites/' + 1 + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_FORBIDDEN);
-                done();
-            });
+                .post('/me/goods/favourites/' + 1 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_FORBIDDEN);
+                    done();
+                });
         });
 
     });
@@ -735,13 +735,13 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .get('/me/goods/favourites/?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_OK);
-                expect(res.body[0].productName).to.equal('productTest1');
-                done();
-            });
+                .get('/me/goods/favourites/?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body[0].productName).to.equal('productTest1');
+                    done();
+                });
         });
 
         it('should detect database errors when finding beneficiary', function (done) {
@@ -753,13 +753,13 @@ describe('Operations that involve goods', function () {
             sinon.stub(beneficiaryModel, 'findOne');
             beneficiaryModel.findOne.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-            .get('/me/goods/favourites/?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
-                beneficiaryModel.findOne.restore();
-                done();
-            });
+                .get('/me/goods/favourites/?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    beneficiaryModel.findOne.restore();
+                    done();
+                });
         });
 
         it('should detect database errors when finding goods', function (done) {
@@ -771,13 +771,13 @@ describe('Operations that involve goods', function () {
             sinon.stub(goodModel, 'find');
             goodModel.find.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-            .get('/me/goods/favourites/?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
-                goodModel.find.restore();
-                done();
-            });
+                .get('/me/goods/favourites/?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    goodModel.find.restore();
+                    done();
+                });
         });
 
         it('should not allow wrong type of user', function (done) {
@@ -787,12 +787,12 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .get('/me/goods/favourites/?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_FORBIDDEN);
-                done();
-            });
+                .get('/me/goods/favourites/?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_FORBIDDEN);
+                    done();
+                });
         });
     });
 
@@ -805,14 +805,14 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .delete('/me/goods/favourites/' + good1Id + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_OK);
-                let index = res.body.indexOf(good1Id);
-                expect(index).to.equal(-1);
-                done();
-            });
+                .delete('/me/goods/favourites/' + good1Id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    let index = res.body.indexOf(good1Id);
+                    expect(index).to.equal(-1);
+                    done();
+                });
         });
 
         it('should detect database errors when finding beneficiary', function (done) {
@@ -824,13 +824,13 @@ describe('Operations that involve goods', function () {
             sinon.stub(beneficiaryModel, 'findOne');
             beneficiaryModel.findOne.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-            .delete('/me/goods/favourites/' + 1 + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
-                beneficiaryModel.findOne.restore();
-                done();
-            });
+                .delete('/me/goods/favourites/' + 1 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    beneficiaryModel.findOne.restore();
+                    done();
+                });
         });
 
         it('should detect invalid good ids', function (done) {
@@ -840,12 +840,12 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .delete('/me/goods/favourites/5ae9869d1fda296beeb99d86?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_NOT_FOUND);
-                done();
-            });
+                .delete('/me/goods/favourites/5ae9869d1fda296beeb99d86?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_NOT_FOUND);
+                    done();
+                });
         });
 
         it('should detect database errors when finding goods', function (done) {
@@ -857,13 +857,13 @@ describe('Operations that involve goods', function () {
             sinon.stub(goodModel, 'findById');
             goodModel.findById.yields({code: constants.ERROR_DEFAULT, err: 'Internal error'});
             chai.request(app)
-            .delete('/me/goods/favourites/' + 1 + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
-                goodModel.findById.restore();
-                done();
-            });
+                .delete('/me/goods/favourites/' + 1 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_SERVER_ERROR);
+                    goodModel.findById.restore();
+                    done();
+                });
         });
 
         it('should detect non favourite goods', function (done) {
@@ -873,12 +873,12 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .delete('/me/goods/favourites/' + good1Id + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_NOT_FOUND);
-                done();
-            });
+                .delete('/me/goods/favourites/' + good1Id + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_NOT_FOUND);
+                    done();
+                });
         });
 
         it('should not allow wrong type of user', function (done) {
@@ -888,12 +888,12 @@ describe('Operations that involve goods', function () {
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
 
             chai.request(app)
-            .delete('/me/goods/favourites/' + 1 + '?token=' + token)
-            .send()
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_FORBIDDEN);
-                done();
-            });
+                .delete('/me/goods/favourites/' + 1 + '?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_FORBIDDEN);
+                    done();
+                });
         });
 
     });

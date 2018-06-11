@@ -30,7 +30,7 @@ describe("Test group for language calls", function () {
     after(function (done) {
         // Drop test database
         mockgoose.helper.reset().then(() => {
-            done()
+            done();
         });
     });
 
@@ -40,13 +40,13 @@ describe("Test group for language calls", function () {
             userType: 'Beneficiary'
         }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
         chai.request(app)
-        .get('/me/language/interface?token=' + token)
-        .send()
-        .then(function (res) {
-            expect(res).to.have.status(constants.STATUS_OK);
-            expect(res.body.interfaceLanguage).to.equal('en');
-            done();
-        });
+            .get('/me/language/interface?token=' + token)
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(constants.STATUS_OK);
+                expect(res.body.interfaceLanguage).to.equal('en');
+                done();
+            });
     });
 
     it("should update interface language", function (done) {
@@ -55,13 +55,13 @@ describe("Test group for language calls", function () {
             userType: 'Beneficiary'
         }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
         chai.request(app)
-        .put('/me/language/interface?token=' + token)
-        .send({interfaceLanguage: 'es'})
-        .then(function (res) {
-            expect(res).to.have.status(constants.STATUS_OK);
-            expect(res.body.interfaceLanguage).to.equal('es');
-            done();
-        });
+            .put('/me/language/interface?token=' + token)
+            .send({interfaceLanguage: 'es'})
+            .then(function (res) {
+                expect(res).to.have.status(constants.STATUS_OK);
+                expect(res.body.interfaceLanguage).to.equal('es');
+                done();
+            });
     });
 
     it("should not update interface language", function (done) {
@@ -70,12 +70,12 @@ describe("Test group for language calls", function () {
             userType: 'Beneficiary'
         }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
         chai.request(app)
-        .put('/me/language/interface?token=' + token)
-        .send({interfaceLanguage: 'random'})
-        .then(function (res) {
-            expect(res).to.have.status(constants.STATUS_BAD_REQUEST);
-            done();
-        });
+            .put('/me/language/interface?token=' + token)
+            .send({interfaceLanguage: 'random'})
+            .then(function (res) {
+                expect(res).to.have.status(constants.STATUS_BAD_REQUEST);
+                done();
+            });
     });
 
     it("should get goods language", function (done) {
@@ -84,13 +84,13 @@ describe("Test group for language calls", function () {
             userType: 'Beneficiary'
         }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
         chai.request(app)
-        .get('/me/language/goods?token=' + token)
-        .send()
-        .then(function (res) {
-            expect(res).to.have.status(constants.STATUS_OK);
-            expect(res.body.goodLanguage).to.equal('en');
-            done();
-        });
+            .get('/me/language/goods?token=' + token)
+            .send()
+            .then(function (res) {
+                expect(res).to.have.status(constants.STATUS_OK);
+                expect(res.body.goodLanguage).to.equal('en');
+                done();
+            });
     });
 
     it("should update goods language", function (done) {
@@ -99,13 +99,13 @@ describe("Test group for language calls", function () {
             userType: 'Beneficiary'
         }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
         chai.request(app)
-        .put('/me/language/goods?token=' + token)
-        .send({goodLanguage: 'es'})
-        .then(function (res) {
-            expect(res).to.have.status(constants.STATUS_OK);
-            expect(res.body.goodLanguage).to.equal('es');
-            done();
-        });
+            .put('/me/language/goods?token=' + token)
+            .send({goodLanguage: 'es'})
+            .then(function (res) {
+                expect(res).to.have.status(constants.STATUS_OK);
+                expect(res.body.goodLanguage).to.equal('es');
+                done();
+            });
     });
 
     it("should not update good language", function (done) {
@@ -114,18 +114,18 @@ describe("Test group for language calls", function () {
             userType: 'Beneficiary'
         }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
         chai.request(app)
-        .put('/me/language/goods?token=' + token)
-        .send({goodLanguage: 'random'})
-        .then(function (res) {
-            expect(res).to.have.status(constants.STATUS_BAD_REQUEST);
-            done();
-        });
+            .put('/me/language/goods?token=' + token)
+            .send({goodLanguage: 'random'})
+            .then(function (res) {
+                expect(res).to.have.status(constants.STATUS_BAD_REQUEST);
+                done();
+            });
     });
 
     it('should not translate string (invalid language)', function (done) {
         googleTranslate.translateString('random', 'Hello friend', function (err, response) {
             expect(err).to.equal('Wrong language');
             done();
-        })
+        });
     });
 });

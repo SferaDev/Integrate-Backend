@@ -58,7 +58,7 @@ describe('Test group for GoodModel', function () {
     after(function (done) {
         // Drop test database
         mockgoose.helper.reset().then(() => {
-            done()
+            done();
         });
     });
 
