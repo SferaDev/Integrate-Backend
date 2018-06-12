@@ -120,6 +120,7 @@ entitySchema.statics.getEntities = function (id, beneficiary, location, callback
     aggregate.near({
         near: {type: "Point", coordinates: [parseFloat(location.longitude), parseFloat(location.latitude)]},
         distanceField: "distance",
+        query: {deleted: false},
         spherical: true
     });
     aggregate.project({
