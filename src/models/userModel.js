@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import mongoose_delete from "mongoose-delete";
-
-import * as constants from '../constants';
-import {LANGUAGES} from '../constants';
 import base64url from "base64url";
 import jwt from "jsonwebtoken";
 import passwordGenerator from "password-generator/index";
+
+import {goodModel} from "./goodModel";
+import * as constants from '../constants';
 import * as mailUtils from "../../common/mail";
 
 const baseOptions = {
@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
     },
     goodLanguage: {
         type: String,
-        enum: LANGUAGES.map(element => element.language),
+        enum: constants.LANGUAGES.map(element => element.language),
         default: 'en'
     }
 }, baseOptions);
@@ -62,6 +62,7 @@ userSchema.statics.loginUser = function (email, nif, password, callback) {
             }
         }, null);
         if (user.deleted) user.restore();
+        if (user.__t === 'Entity') goodModel.restore({'owner.id': user._id});
         if (user.comparePassword(password)) {
             let token = base64url.encode(jwt.sign({
                 userId: user.email,
