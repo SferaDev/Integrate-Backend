@@ -105,8 +105,7 @@ entitySchema.methods.getSalesChart = function (interval, good, callback) {
                     if (stats.has(date)) stats.set(date, stats.get(date) + 1);
                     else stats.set(date, 1);
                 }
-            }
-            else {
+            } else {
                 if (stats.has(date)) stats.set(date, stats.get(date) + order.orderedGoods.length);
                 else stats.set(date, order.orderedGoods.length);
             }

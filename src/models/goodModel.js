@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import mongoose_delete from "mongoose-delete";
 
 import {entityModel} from "../models/entityModel";
 import {beneficiaryModel} from "./beneficiaryModel";
@@ -74,6 +75,8 @@ const goodSchema = new mongoose.Schema({
         type: [Number]
     }
 }, {timestamps: true}).index({location: '2dsphere'});
+
+goodSchema.plugin(mongoose_delete, {overrideMethods: true});
 
 function daysToMilliseconds(days) {
     return days * 24 * 60 * 60 * 1000;
