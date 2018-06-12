@@ -53,7 +53,7 @@ userSchema.methods.comparePassword = function (candidatePassword) {
 };
 
 userSchema.statics.loginUser = function (email, nif, password, callback) {
-    userModel.findOne({$or: [{email: email}, {nif: nif}]}, function (err, user) {
+    userModel.findOneWithDeleted({$or: [{email: email}, {nif: nif}]}, function (err, user) {
         if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
         if (user === null) return callback({
             code: constants.STATUS_UNAUTHORIZED, message: {
@@ -61,6 +61,7 @@ userSchema.statics.loginUser = function (email, nif, password, callback) {
                 status: "User doesn't exist"
             }
         }, null);
+        if (user.deleted) user.restore();
         if (user.comparePassword(password)) {
             let token = base64url.encode(jwt.sign({
                 userId: user.email,
