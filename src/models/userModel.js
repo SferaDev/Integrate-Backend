@@ -5,7 +5,6 @@ import base64url from "base64url";
 import jwt from "jsonwebtoken";
 import passwordGenerator from "password-generator/index";
 
-import {goodModel} from "./goodModel";
 import * as constants from '../constants';
 import * as mailUtils from "../../common/mail";
 
@@ -62,7 +61,6 @@ userSchema.statics.loginUser = function (email, nif, password, callback) {
             }
         }, null);
         if (user.deleted) user.restore();
-        if (user.__t === 'Entity') goodModel.restore({'owner.id': user._id});
         if (user.comparePassword(password)) {
             let token = base64url.encode(jwt.sign({
                 userId: user.email,
