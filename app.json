@@ -16,6 +16,9 @@
         },
         "EMAIL_PASS": {
             "required": true
+        },
+        "AZURE_API_KEY": {
+            "required": true
         }
     },
     "formation": {
