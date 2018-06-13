@@ -4,13 +4,13 @@ import translate from "google-translate-api";
 export function translateString(language, string, callback) {
     let validLanguages = constants.LANGUAGES.map(element => element.language);
     if (validLanguages.indexOf(language) === -1) return callback('Wrong language', null);
-    if (constants.ENV !== 'production') return string;
+    if (constants.ENV !== 'production') return callback(null, string);
     translate(string, {to: language}).then(res => {
-        if (res.from.language.iso === language) return string;
+        if (res.from.language.iso === language) return callback(null, string);
         let result = sentenceCase(res.text);
         callback(null, result);
     }).catch(err => {
-        callback(error, null);
+        callback(err, null);
     });
 }
 

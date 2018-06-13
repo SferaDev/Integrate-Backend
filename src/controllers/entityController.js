@@ -1,6 +1,7 @@
 import passwordGenerator from "password-generator";
 
 import {entityModel} from "../models/entityModel";
+import {goodModel} from "../models/goodModel";
 import {beneficiaryModel} from "../models/beneficiaryModel";
 
 import * as constants from "../constants";
@@ -112,9 +113,13 @@ export function dislikeEntity(req, res) {
 
 export function deactivateEntity(req, res) {
     if (req.userType === 'Entity') {
-        entityModel.delete({email: req.userId}, function (err, result) {
+        entityModel.findOne({email: req.userId}, function (err, entity) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            res.status(constants.STATUS_OK).send({message: "Entity deactivation with result: " + result});
+            entity.delete();
+            goodModel.delete({'owner.id': entity._id}, function (err) {
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                return res.status(constants.STATUS_OK).send({message: "Entity deactivated"});
+            });
         });
     } else {
         res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});

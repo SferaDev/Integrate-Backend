@@ -975,4 +975,106 @@ describe('Operations that involve entities', function () {
                 });
         });
     });
+
+    describe('Deactivate entity and its goods', function () {
+        it('should deactivate entity successfully', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'joanpuig@google.com',
+                userType: 'Entity'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .delete('/me?token=' + token)
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    done();
+                });
+        });
+
+        it('should hide deactivated entity', function (done) {
+            entityModel.ensureIndexes(function () {
+                let token = base64url.encode(jwt.sign({
+                    userId: 'sbrin@google.com',
+                    userType: 'Beneficiary'
+                }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+                chai.request(app)
+                    .get('/me/entities?token=' + token + '&longitude=2.102137&latitude=41.319359')
+                    .send()
+                    .then(function (res) {
+                        expect(res).to.have.status(constants.STATUS_OK);
+                        expect(res.body.length).to.equal(2);
+                        expect(res.body[0].name).to.equal('Colmado2');
+                        expect(res.body[1].name).to.equal('Colmado3');
+                        done();
+                    });
+            });
+        });
+
+        it('should hide goods from deactivated entity', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/goods/?token=' + token + '&category=0&order=0')
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.length).to.equal(1);
+                    expect(res.body[0].productName).to.equal('productTest3');
+                    done();
+                });
+        });
+
+        it('should reactivate entity successully', function (done) {
+            chai.request(app)
+                .get('/login?email=joanpuig@google.com&password=myPAsswd!')
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.token).not.to.equal(null);
+                    done();
+                });
+        });
+
+        it('should show reactivated entity', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/entities?token=' + token + '&longitude=2.102137&latitude=41.319359')
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.length).to.equal(3);
+                    expect(res.body[0].name).to.equal('Colmado2');
+                    expect(res.body[1].name).to.equal('Colmado3');
+                    expect(res.body[2].name).to.equal('Colmado1');
+                    done();
+                });
+        });
+
+        it('should show goods from reactivated entity', function (done) {
+            let token = base64url.encode(jwt.sign({
+                userId: 'sbrin@google.com',
+                userType: 'Beneficiary'
+            }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
+
+            chai.request(app)
+                .get('/me/goods/?token=' + token + '&category=0&order=0')
+                .send()
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.length).to.equal(3);
+                    expect(res.body[0].productName).to.equal('productTest3');
+                    expect(res.body[1].productName).to.equal('productTest2');
+                    expect(res.body[2].productName).to.equal('productTest1');
+                    done();
+                });
+        });
+    });
 });

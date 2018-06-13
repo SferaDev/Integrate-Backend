@@ -1,4 +1,5 @@
 import {userModel} from "../models/userModel";
+import {goodModel} from "../models/goodModel";
 import * as constants from "../constants";
 
 export function loginUser(req, res) {
@@ -14,9 +15,12 @@ export function loginUser(req, res) {
         code: constants.ERROR_WRONG_PARAMETERS,
         status: 'Please input one password'
     });
-    userModel.loginUser(req.query.email, req.query.nif, req.query.password, (err, user) => {
+    userModel.loginUser(req.query.email, req.query.nif, req.query.password, (err, infoUser, wasDeleted) => {
         if (err) return res.status(err.code).send(err.message);
-        return res.status(constants.STATUS_OK).send(user);
+        if (wasDeleted && infoUser.user.__t === 'Entity') goodModel.restore({'owner.id': infoUser.user._id}, function (err) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+        });
+        return res.status(constants.STATUS_OK).send(infoUser);
     });
 }
 
