@@ -15,10 +15,12 @@ export function loginUser(req, res) {
         code: constants.ERROR_WRONG_PARAMETERS,
         status: 'Please input one password'
     });
-    userModel.loginUser(req.query.email, req.query.nif, req.query.password, (err, user) => {
+    userModel.loginUser(req.query.email, req.query.nif, req.query.password, (err, infoUser) => {
         if (err) return res.status(err.code).send(err.message);
-        if (user.__t === 'Entity') goodModel.restore({'owner.id': user._id});
-        return res.status(constants.STATUS_OK).send(user);
+        if (infoUser.user.__t === 'Entity') goodModel.restore({'owner.id': infoUser.user._id}, function (err) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+        });
+        return res.status(constants.STATUS_OK).send(infoUser);
     });
 }
 
