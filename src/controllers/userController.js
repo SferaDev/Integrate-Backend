@@ -1,4 +1,5 @@
 import {userModel} from "../models/userModel";
+import {goodModel} from "../models/goodModel";
 import * as constants from "../constants";
 
 export function loginUser(req, res) {
@@ -16,6 +17,7 @@ export function loginUser(req, res) {
     });
     userModel.loginUser(req.query.email, req.query.nif, req.query.password, (err, user) => {
         if (err) return res.status(err.code).send(err.message);
+        if (user.__t === 'Entity') goodModel.restore({'owner.id': user._id});
         return res.status(constants.STATUS_OK).send(user);
     });
 }
