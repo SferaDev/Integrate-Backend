@@ -10,10 +10,13 @@ export function translateString(language, string, callback) {
     if (validLanguages.indexOf(language) === -1) return callback('Wrong language', null);
     if (constants.ENV !== 'production') return string;
     client.translate({text: string, to: language}, (err, data) => {
-        let result = sentenceCase(data);
-        callback(null, result);
-    }).catch(err => {
-        callback(error, null);
+        if (err) {
+            console.error(err);
+            callback(err, string);
+        } else {
+            let result = sentenceCase(data);
+            callback(null, result);
+        }
     });
 }
 
