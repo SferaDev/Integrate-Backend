@@ -9,7 +9,7 @@ import * as entityController from "../controllers/entityController";
 import * as orderController from "../controllers/orderController";
 import * as userController from "../controllers/userController";
 import * as languageController from "../controllers/languageController";
-import * as googleTranslate from "../../common/googleTranslate";
+import * as azureTranslate from "../../common/azureTranslate";
 import {translationModel} from "../models/translationModel";
 import {userModel} from "../models/userModel";
 
@@ -64,7 +64,7 @@ apiRouter.use(function (req, res, next) {
                         if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
                         if (translation === null) {
                             // If translation is not present, fetch and store it
-                            promises.push(googleTranslate.translateString(userGoodLanguage, item, (err, response) => {
+                            promises.push(azureTranslate.translateString(userGoodLanguage, item, (err, response) => {
                                 if (err === null) {
                                     translationModel.create({
                                         input: item,
