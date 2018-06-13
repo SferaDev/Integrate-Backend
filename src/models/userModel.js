@@ -53,26 +53,27 @@ userSchema.methods.comparePassword = function (candidatePassword) {
 
 userSchema.statics.loginUser = function (email, nif, password, callback) {
     userModel.findOneWithDeleted({$or: [{email: email}, {nif: nif}]}, function (err, user) {
-        if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
+        if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null, null);
         if (user === null) return callback({
             code: constants.STATUS_UNAUTHORIZED, message: {
                 code: constants.ERROR_USER_DOESNT_EXIST,
                 status: "User doesn't exist"
             }
-        }, null);
-        if (user.deleted) user.restore();
+        }, null, null);
+        let wasDeleted = user.deleted;
+        if (wasDeleted) user.restore();
         if (user.comparePassword(password)) {
             let token = base64url.encode(jwt.sign({
                 userId: user.email,
                 userType: user.__t
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
-            return callback(null, {token: token, user: user.userInfo()});
+            return callback(null, {token: token, user: user.userInfo()}, wasDeleted);
         } else return callback({
             code: constants.STATUS_UNAUTHORIZED, message: {
                 code: constants.ERROR_INVALID_PASSWORD,
                 status: 'Invalid password'
             }
-        }, null);
+        }, null, null);
     });
 };
 
