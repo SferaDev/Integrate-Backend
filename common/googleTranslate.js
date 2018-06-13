@@ -10,7 +10,7 @@ export function translateString(language, string, callback) {
         let result = sentenceCase(res.text);
         callback(null, result);
     }).catch(err => {
-        callback(error, null);
+        callback(err, null);
     });
 }
 
