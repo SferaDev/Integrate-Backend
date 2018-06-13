@@ -100,7 +100,6 @@ userSchema.methods.changePassword = function (oldPassword, newPassword, callback
 
 userSchema.methods.userInfo = function () {
     let userObject = this.toObject();
-    delete userObject._id;
     delete userObject.password;
     delete userObject.createdAt;
     delete userObject.updatedAt;

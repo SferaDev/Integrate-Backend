@@ -116,7 +116,9 @@ export function deactivateEntity(req, res) {
         entityModel.findOne({email: req.userId}, function (err, entity) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
             entity.delete();
-            goodModel.delete({'owner.id': entity._id});
+            goodModel.delete({'owner.id': entity._id}, function (err) {
+                if (err) res.status(constants.STATUS_SERVER_ERROR).send(err);
+            });
             res.status(constants.STATUS_OK).send({message: "Entity deactivated"});
         });
     } else {

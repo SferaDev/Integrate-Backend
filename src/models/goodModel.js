@@ -112,8 +112,8 @@ goodSchema.statics.getGoods = function (userEmail, categoryIndex, orderIndex, la
     } else {
         // Build the query
         let aggregate = goodModel.aggregate();
-        let filter = {pendingUnits: {$gt: 0}};
-        if (categoryIndex !== "0") filter = {category: parseInt(categoryIndex), pendingUnits: {$gt: 0}};
+        let filter = {pendingUnits: {$gt: 0}, deleted: false};
+        if (categoryIndex !== "0") filter = {category: parseInt(categoryIndex), pendingUnits: {$gt: 0}, deleted: false};
         // Filter by location (must be the first operation of the pipeline)
         if (orderIndex === "2") {
             aggregate.near({
@@ -127,7 +127,7 @@ goodSchema.statics.getGoods = function (userEmail, categoryIndex, orderIndex, la
             aggregate.match(filter);
             // Sort by update date or popularity
             let order;
-            if (orderIndex === "0") order = {updatedAt: 'desc'};
+            if (orderIndex === "0") order = {createdAt: 'desc'};
             else order = {numberFavs: 'desc'};
             aggregate.sort(order);
         }
@@ -178,7 +178,7 @@ goodSchema.statics.getGood = function (userType, userEmail, id, callback) {
 goodSchema.statics.getFavouriteGoods = function (userEmail, callback) {
     beneficiaryModel.findOne({email: userEmail}, function (err, beneficiary) {
         if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
-        goodModel.find({_id: {$in: beneficiary.favouriteGoods}, pendingUnits: {$gt: 0}}, function (err, goods) {
+        goodModel.find({_id: {$in: beneficiary.favouriteGoods}, pendingUnits: {$gt: 0}, deleted: false}, function (err, goods) {
             if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
             let goodsObject = [];
             for (let good of goods) {
