@@ -117,9 +117,9 @@ export function deactivateEntity(req, res) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
             entity.delete();
             goodModel.delete({'owner.id': entity._id}, function (err) {
-                if (err) res.status(constants.STATUS_SERVER_ERROR).send(err);
+                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                return res.status(constants.STATUS_OK).send({message: "Entity deactivated"});
             });
-            res.status(constants.STATUS_OK).send({message: "Entity deactivated"});
         });
     } else {
         res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
