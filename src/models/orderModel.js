@@ -92,10 +92,10 @@ orderSchema.statics.processOrder = function (userEmail, goodIds, entityId, valid
                             if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
                             else return callback(null, {
                                 code: constants.STATUS_CREATED,
-                                body: "Order processed and stored"
+                                body: {message: "Order processed and stored"}
                             });
                         });
-                    } else return callback({code: constants.STATUS_FORBIDDEN, message: "Validation code incorrect"});
+                    } else return callback({code: constants.STATUS_FORBIDDEN, message: {error: "Validation code incorrect"}});
                 });
             } else {
                 let validation = validateOrder(goods, beneficiary);
