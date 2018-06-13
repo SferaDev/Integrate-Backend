@@ -1,12 +1,11 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import mongoose_delete from "mongoose-delete";
-
-import * as constants from '../constants';
-import {LANGUAGES} from '../constants';
 import base64url from "base64url";
 import jwt from "jsonwebtoken";
 import passwordGenerator from "password-generator/index";
+
+import * as constants from '../constants';
 import * as mailUtils from "../../common/mail";
 
 const baseOptions = {
@@ -34,7 +33,7 @@ const userSchema = new mongoose.Schema({
     },
     goodLanguage: {
         type: String,
-        enum: LANGUAGES.map(element => element.language),
+        enum: constants.LANGUAGES.map(element => element.language),
         default: 'en'
     }
 }, baseOptions);
@@ -54,26 +53,27 @@ userSchema.methods.comparePassword = function (candidatePassword) {
 
 userSchema.statics.loginUser = function (email, nif, password, callback) {
     userModel.findOneWithDeleted({$or: [{email: email}, {nif: nif}]}, function (err, user) {
-        if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null);
+        if (err) return callback({code: constants.STATUS_SERVER_ERROR, message: err}, null, null);
         if (user === null) return callback({
             code: constants.STATUS_UNAUTHORIZED, message: {
                 code: constants.ERROR_USER_DOESNT_EXIST,
                 status: "User doesn't exist"
             }
-        }, null);
-        if (user.deleted) user.restore();
+        }, null, null);
+        let wasDeleted = user.deleted;
+        if (wasDeleted) user.restore();
         if (user.comparePassword(password)) {
             let token = base64url.encode(jwt.sign({
                 userId: user.email,
                 userType: user.__t
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
-            return callback(null, {token: token, user: user.userInfo()});
+            return callback(null, {token: token, user: user.userInfo()}, wasDeleted);
         } else return callback({
             code: constants.STATUS_UNAUTHORIZED, message: {
                 code: constants.ERROR_INVALID_PASSWORD,
                 status: 'Invalid password'
             }
-        }, null);
+        }, null, null);
     });
 };
 
@@ -101,7 +101,6 @@ userSchema.methods.changePassword = function (oldPassword, newPassword, callback
 
 userSchema.methods.userInfo = function () {
     let userObject = this.toObject();
-    delete userObject._id;
     delete userObject.password;
     delete userObject.createdAt;
     delete userObject.updatedAt;

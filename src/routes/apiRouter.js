@@ -61,11 +61,12 @@ apiRouter.use(function (req, res, next) {
                 context.parent.update(parent);
                 promises.push(translationModel.findOne({input: item, language: userGoodLanguage},
                     function (err, translation) {
-                        if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                        if (err) return console.error(err);
                         if (translation === null) {
                             // If translation is not present, fetch and store it
                             promises.push(azureTranslate.translateString(userGoodLanguage, item, (err, response) => {
-                                if (err === null) {
+                                if (err) console.error(err);
+                                else {
                                     translationModel.create({
                                         input: item,
                                         language: userGoodLanguage,

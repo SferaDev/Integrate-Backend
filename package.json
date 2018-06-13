@@ -4,8 +4,8 @@
   "description": "Backend for Integrate platform, with RESTful API",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --use-strict server.js --exec babel-node",
-    "test": "nyc --reporter=html --reporter=text --root 'src/' mocha --require babel-core/register --timeout 120000 --exit",
+    "start": "cross-env NODE_ENV=production nodemon --use-strict server.js --exec babel-node",
+    "test": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text --root 'src/' mocha --require babel-core/register --timeout 120000 --exit",
     "coveralls": "nyc report --reporter=text-lcov --root 'src/' | coveralls",
     "postinstall": "gulp apidoc"
   },
@@ -27,6 +27,7 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
+    "cross-env": "^5.2.0",
     "eslint": "^4.19.1",
     "express": "^4.16.3",
     "express.js": "^1.0.0",

@@ -1,12 +1,13 @@
 import express from "express";
 import cors from "cors";
 
-import database from "./common/database";
 import {PORT} from "./src/constants";
 import {loginRouter} from "./src/routes/loginRouter";
 import {registerRouter} from "./src/routes/registerRouter";
 import {apiRouter} from "./src/routes/apiRouter";
 import {languageRouter} from "./src/routes/languageRouter";
+import * as constants from "./src/constants";
+import database from "./common/database";
 
 // Load Express.js
 export const app = express();
@@ -33,4 +34,4 @@ app.use('/me', apiRouter);
 app.listen(PORT);
 
 // Load finish
-console.log('Integrate server started on: ' + PORT);
+console.log('Integrate server started on ' + PORT + ' with configuration ' + constants.ENV);
