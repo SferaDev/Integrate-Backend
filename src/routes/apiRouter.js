@@ -65,7 +65,8 @@ apiRouter.use(function (req, res, next) {
                         if (translation === null) {
                             // If translation is not present, fetch and store it
                             promises.push(googleTranslate.translateString(userGoodLanguage, item, (err, response) => {
-                                if (err === null) {
+                                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+                                else {
                                     translationModel.create({
                                         input: item,
                                         language: userGoodLanguage,
