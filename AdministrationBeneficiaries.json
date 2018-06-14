@@ -75,5 +75,61 @@
         "lastName": "Nadai",
         "email": "anjelina.nadai@gmail.com",
         "password": "1234"
+    },
+    {
+        "nif": "12345678H",
+        "firstName": "Aleix",
+        "lastName": "Balletbó",
+        "email": "aleix.balletbo@gmail.com",
+        "password": "12345678H"
+    },
+    {
+        "nif": "12345678J",
+        "firstName": "Alexis",
+        "lastName": "Rico",
+        "email": "alexisrico.carreto@gmail.com",
+        "password": "12345678J"
+    },
+    {
+        "nif": "12345678K",
+        "firstName": "Àlex",
+        "lastName": "Contreras",
+        "email": "aleex.28.05@gmail.com",
+        "password": "12345678K"
+    },
+    {
+        "nif": "12345678L",
+        "firstName": "Aleix",
+        "lastName": "Sanfeliu",
+        "email": "aleix.sanfeliu@gmail.com",
+        "password": "12345678L"
+    },
+    {
+        "nif": "12345678Z",
+        "firstName": "Pol",
+        "lastName": "Moya",
+        "email": "moyapol@gmail.com",
+        "password": "12345678Z"
+    },
+    {
+        "nif": "12345678X",
+        "firstName": "Àlex",
+        "lastName": "Serra",
+        "email": "AlexSV1996@gmail.com",
+        "password": "12345678X"
+    },
+    {
+        "nif": "12345678C",
+        "firstName": "Jordi",
+        "lastName": "Mora",
+        "email": "jmorapruna@gmail.com",
+        "password": "12345678C"
+    },
+    {
+        "nif": "12345678V",
+        "firstName": "Pau",
+        "lastName": "Gonzàlez",
+        "email": "paugonzalezmontiel@gmail.com",
+        "password": "12345678V"
     }
 ]
