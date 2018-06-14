@@ -1,6 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import base64url from "base64url";
+import traverse from "traverse";
 
 import * as constants from "../constants";
 import * as goodController from "../controllers/goodController";
@@ -8,7 +9,7 @@ import * as entityController from "../controllers/entityController";
 import * as orderController from "../controllers/orderController";
 import * as userController from "../controllers/userController";
 import * as languageController from "../controllers/languageController";
-import * as googleTranslate from "../../common/googleTranslate";
+import * as azureTranslate from "../../common/azureTranslate";
 import {translationModel} from "../models/translationModel";
 import {userModel} from "../models/userModel";
 
@@ -17,9 +18,10 @@ export const apiRouter = express.Router();
 // Middleware to verify token
 apiRouter.use(function (req, res, next) {
     // check header or url parameters or post parameters for token
-    let token = req.body.token || req.query.token || req.headers['token'];
+    let token = req.body.token || req.query.token || req.headers.token;
     if (token) {
-        jwt.verify(base64url.decode(token), constants.TOKEN_SECRET, function (err, decoded) {
+        let decodedToken = base64url.decode(token);
+        jwt.verify(decodedToken, constants.TOKEN_SECRET, function (err, decoded) {
             if (err) {
                 return res.status(constants.STATUS_UNAUTHORIZED).send({
                     success: false,
@@ -45,66 +47,49 @@ apiRouter.use(function (req, res, next) {
     }
 });
 
-// Middleware to prettify/filter/sort JSON result
-apiRouter.use(function (req, res, next) {
-    let oldSend = res.send;
-    res.set('Content-Type', 'application/json');
-    res.send = function (obj) {
-        if (typeof obj === 'object') {
-            let attributes = req.query.filter ? req.query.filter.split(',') : null;
-            let indent = !isNaN(parseInt(req.query.indent)) ? parseInt(req.query.indent) : 0;
-            if (Array.isArray(obj) && req.query.sort) {
-                obj.sort(function (a, b) {
-                    if (a[req.query.sort] > b[req.query.sort]) return 1;
-                    else if (a[req.query.sort] < b[req.query.sort]) return -1;
-                    return 0;
-                });
-            }
-            oldSend.call(this, JSON.stringify(obj, attributes, indent));
-        } else oldSend.call(this, obj);
-    };
-    next();
-});
-
 // Middleware to auto-translate object results
 apiRouter.use(function (req, res, next) {
     let translateFunction = function (elements, callback) {
         let promises = [];
-        let items = Array.isArray(elements) ? elements : [elements];
-        items.forEach(item => {
-            constants.TRANSLATABLE.forEach(property => {
-                // Check if result contains desired property
-                if (item[property] !== undefined) {
-                    // Check if content was already translated on our cache
-                    promises.push(translationModel.findOne({input: item[property]}, function (err, translation) {
-                        if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+        traverse(elements).forEach(function (item) {
+            let context = this;
+            if (context.isLeaf && constants.TRANSLATABLE.includes(context.key)) {
+                // Check if content was already translated on our cache
+                let userGoodLanguage = req.userGoodLanguage || 'en';
+                let parent = context.parent.node;
+                parent[context.key + '_original'] = item;
+                context.parent.update(parent);
+                promises.push(translationModel.findOne({input: item, language: userGoodLanguage},
+                    function (err, translation) {
+                        if (err) return console.error(err);
                         if (translation === null) {
-                            // If translation is not present on our database fetch and store
-                            let userGoodLanguage = req.userGoodLanguage || 'en';
-                            promises.push(googleTranslate.translateString(userGoodLanguage, item[property], (err, response) => {
-                                if (err === null) {
+                            // If translation is not present, fetch and store it
+                            promises.push(azureTranslate.translateString(userGoodLanguage, item, (err, response) => {
+                                if (err) console.error(err);
+                                else {
                                     translationModel.create({
-                                        input: item[property],
+                                        input: item,
                                         language: userGoodLanguage,
                                         output: response
                                     });
-                                    item[property] = response;
+                                    context.update(response, true);
                                 }
                             }));
                         } else {
                             // If translation is already present, output local copy
-                            item[property] = translation.output;
+                            context.update(translation.output, true);
                         }
-                    }));
-                }
-            });
+                    })
+                );
+            }
         });
-        Promise.all(promises).then(() => callback(Array.isArray(elements) ? items : items[0]));
+        Promise.all(promises).then(() => callback(elements));
     };
     let oldSend = res.send;
     res.send = function (obj) {
         if (typeof obj === 'object') {
-            translateFunction(obj, (newObj) => {
+            let result = JSON.parse(JSON.stringify(obj));
+            translateFunction(result, (newObj) => {
                 oldSend.call(this, newObj);
             });
         } else oldSend.call(this, obj);
@@ -119,6 +104,15 @@ apiRouter.use(function (req, res, next) {
  */
 apiRouter.get('/', function (req, res) {
     userController.validateUser(req, res);
+});
+
+/**
+ * @api {delete} /me Deactivate entity
+ * @apiVersion 1.0.0
+ * @apiGroup Authentication
+ */
+apiRouter.delete('/', function (req, res) {
+    entityController.deactivateEntity(req, res);
 });
 
 /**
@@ -172,7 +166,7 @@ apiRouter.put('/goods/:id', function (req, res) {
  * @apiGroup Goods
  */
 apiRouter.get('/goods/favourites', function (req, res) {
-    goodController.getFavouriteGoods(req, res)
+    goodController.getFavouriteGoods(req, res);
 });
 
 /**
@@ -181,7 +175,7 @@ apiRouter.get('/goods/favourites', function (req, res) {
  * @apiGroup Goods
  */
 apiRouter.post('/goods/favourites/:id', function (req, res) {
-    goodController.addFavouriteGood(req, res)
+    goodController.addFavouriteGood(req, res);
 });
 
 /**
@@ -190,7 +184,7 @@ apiRouter.post('/goods/favourites/:id', function (req, res) {
  * @apiGroup Goods
  */
 apiRouter.delete('/goods/favourites/:id', function (req, res) {
-    goodController.deleteFavouriteGood(req, res)
+    goodController.deleteFavouriteGood(req, res);
 });
 
 /**
@@ -200,6 +194,24 @@ apiRouter.delete('/goods/favourites/:id', function (req, res) {
  */
 apiRouter.get('/entities', function (req, res) {
     entityController.getEntities(req, res);
+});
+
+/**
+ * @api {post} /entities/likes/:id Like one entity
+ * @apiVersion 1.0.0
+ * @apiGroup Entities
+ */
+apiRouter.post('/entities/likes/:id', function (req, res) {
+    entityController.likeEntity(req, res);
+});
+
+/**
+ * @api {delete} /entities/likes/:id Dislike one entity
+ * @apiVersion 1.0.0
+ * @apiGroup Entities
+ */
+apiRouter.delete('/entities/likes/:id', function (req, res) {
+    entityController.dislikeEntity(req, res);
 });
 
 /**
@@ -226,25 +238,59 @@ apiRouter.get('/entity/:id', function (req, res) {
  * @apiGroup Orders
  */
 apiRouter.post('/orders', function (req, res) {
-    orderController.processOrder(req,res);
+    orderController.processOrder(req, res);
 });
 
+/**
+ * @api {get} /stats View stats
+ * @apiVersion 1.0.0
+ * @apiGroup Stats
+ */
 apiRouter.get('/stats', function (req, res) {
     entityController.getEntityStats(req, res);
 });
 
+/**
+ * @api {get} /salesChart View sales chart
+ * @apiVersion 1.0.0
+ * @apiGroup Stats
+ */
+apiRouter.get('/salesChart', function (req, res) {
+    entityController.getSalesChart(req, res);
+});
+
+/**
+ * @api {get} /language/interface Get interface language
+ * @apiVersion 1.0.0
+ * @apiGroup Language
+ */
 apiRouter.get('/language/interface', function (req, res) {
     languageController.getUserInterfaceLanguage(req, res);
 });
 
+/**
+ * @api {put} /language/interface Update interface language
+ * @apiVersion 1.0.0
+ * @apiGroup Language
+ */
 apiRouter.put('/language/interface', function (req, res) {
     languageController.setUserInterfaceLanguage(req, res);
 });
 
+/**
+ * @api {get} /language/goods Get good language
+ * @apiVersion 1.0.0
+ * @apiGroup Language
+ */
 apiRouter.get('/language/goods', function (req, res) {
     languageController.getUserGoodLanguage(req, res);
 });
 
+/**
+ * @api {put} /language/goods Update good language
+ * @apiVersion 1.0.0
+ * @apiGroup Language
+ */
 apiRouter.put('/language/goods', function (req, res) {
     languageController.setUserGoodLanguage(req, res);
 });

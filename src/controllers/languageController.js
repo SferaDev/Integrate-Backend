@@ -1,4 +1,3 @@
-import axios from "axios";
 import ISO6391 from "iso-639-1";
 
 import * as constants from "../constants";

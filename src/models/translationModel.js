@@ -5,8 +5,7 @@ import {LANGUAGES} from '../constants';
 const translationSchema = new mongoose.Schema({
     input: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     language: {
         type: String,
@@ -18,5 +17,7 @@ const translationSchema = new mongoose.Schema({
         required: true
     }
 });
+
+translationSchema.index({input: 1, language: 2}, {unique: true});
 
 export const translationModel = mongoose.model('Translation', translationSchema);

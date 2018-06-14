@@ -30,7 +30,7 @@ describe('Test group for BeneficiaryModel', function () {
     afterEach(function (done) {
         // Drop test database
         mockgoose.helper.reset().then(() => {
-            done()
+            done();
         });
     });
 
@@ -52,80 +52,80 @@ describe('Test group for BeneficiaryModel', function () {
 
         it('should retrieve a non empty token (email)', function () {
             return chai.request(app)
-            .get('/login?email=sbrin@google.com&password=myPAsswd!')
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_OK);
-                expect(res.body.token).not.to.equal(null);
-            });
+                .get('/login?email=sbrin@google.com&password=myPAsswd!')
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.token).not.to.equal(null);
+                });
         });
 
         it('should retrieve a non empty token (nif)', function () {
             return chai.request(app)
-            .get('/login?nif=12345678F&password=myPAsswd!')
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_OK);
-                expect(res.body.token).not.to.equal(null);
-            });
+                .get('/login?nif=12345678F&password=myPAsswd!')
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.token).not.to.equal(null);
+                });
         });
 
         it('should not retrieve a non empty token (two identifiers)', function () {
             return chai.request(app)
-            .get('/login?email=sbrin@google.com&nif=12345678F&password=myPAsswd!')
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_UNAUTHORIZED);
-                expect(res.body.code).to.equal(constants.ERROR_WRONG_PARAMETERS);
-                expect(res.body.status).to.equal('Wrong parameters');
-            });
+                .get('/login?email=sbrin@google.com&nif=12345678F&password=myPAsswd!')
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_UNAUTHORIZED);
+                    expect(res.body.code).to.equal(constants.ERROR_WRONG_PARAMETERS);
+                    expect(res.body.status).to.equal('Please input just one email or nif');
+                });
         });
 
         it('should not retrieve a non empty token (no identifiers)', function () {
             return chai.request(app)
-            .get('/login?password=myPAsswd!')
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_UNAUTHORIZED);
-                expect(res.body.code).to.equal(constants.ERROR_WRONG_PARAMETERS);
-                expect(res.body.status).to.equal('Wrong parameters');
-            });
+                .get('/login?password=myPAsswd!')
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_UNAUTHORIZED);
+                    expect(res.body.code).to.equal(constants.ERROR_WRONG_PARAMETERS);
+                    expect(res.body.status).to.equal('Please input at least one email or nif');
+                });
         });
 
         it('should not retrieve a non empty token (no password)', function () {
             return chai.request(app)
-            .get('/login?email=sbrin@google.com&nif=12345678F')
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_UNAUTHORIZED);
-                expect(res.body.code).to.equal(constants.ERROR_WRONG_PARAMETERS);
-                expect(res.body.status).to.equal('Wrong parameters');
-            });
+                .get('/login?email=sbrin@google.com')
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_UNAUTHORIZED);
+                    expect(res.body.code).to.equal(constants.ERROR_WRONG_PARAMETERS);
+                    expect(res.body.status).to.equal('Please input one password');
+                });
         });
 
         it('should not retrieve a token (invalid password)', function () {
             return chai.request(app)
-            .get('/login?email=sbrin@google.com&password=muuu!')
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_UNAUTHORIZED);
-                expect(res.body.code).to.equal(constants.ERROR_INVALID_PASSWORD);
-                expect(res.body.status).to.equal('Invalid password');
-            });
+                .get('/login?email=sbrin@google.com&password=muuu!')
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_UNAUTHORIZED);
+                    expect(res.body.code).to.equal(constants.ERROR_INVALID_PASSWORD);
+                    expect(res.body.status).to.equal('Invalid password');
+                });
         });
 
         it('should not retrieve a token (user doesn\'t exist)', function () {
             return chai.request(app)
-            .get('/login?email=mikerooss@google.com&password=nullPass!')
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_UNAUTHORIZED);
-                expect(res.body.code).to.equal(constants.ERROR_USER_DOESNT_EXIST);
-                expect(res.body.status).to.equal('User doesn\'t exist');
-            });
+                .get('/login?email=mikerooss@google.com&password=nullPass!')
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_UNAUTHORIZED);
+                    expect(res.body.code).to.equal(constants.ERROR_USER_DOESNT_EXIST);
+                    expect(res.body.status).to.equal('User doesn\'t exist');
+                });
         });
 
         it('should not access /me/ without a token', function () {
             return chai.request(app)
-            .get('/me')
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_FORBIDDEN);
-                expect(res.body.success).to.equal(false);
-                expect(res.body.message).to.equal('No token provided.');
-            })
+                .get('/me')
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_FORBIDDEN);
+                    expect(res.body.success).to.equal(false);
+                    expect(res.body.message).to.equal('No token provided.');
+                });
         });
 
         it('should access /me/ with a token', function () {
@@ -134,11 +134,11 @@ describe('Test group for BeneficiaryModel', function () {
                 userType: 'Beneficiary'
             }, constants.TOKEN_SECRET, {expiresIn: 60 * 60 * 24 * 365}));
             return chai.request(app)
-            .get('/me?token=' + token)
-            .then(function (res) {
-                expect(res).to.have.status(constants.STATUS_OK);
-                expect(res.body.success).to.equal(true);
-            });
+                .get('/me?token=' + token)
+                .then(function (res) {
+                    expect(res).to.have.status(constants.STATUS_OK);
+                    expect(res.body.success).to.equal(true);
+                });
         });
     });
 

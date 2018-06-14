@@ -16,7 +16,7 @@ chai.use(chai_http);
 const expect = chai.expect;
 const mockgoose = new Mockgoose(mongoose);
 
-describe ("Operations that involve orders", function () {
+describe("Operations that involve orders", function () {
 
     let entityId;
     let entityValidationCode;
@@ -171,12 +171,12 @@ describe ("Operations that involve orders", function () {
     after(function (done) {
         // Drop test database
         mockgoose.helper.reset().then(() => {
-            done()
+            done();
         });
     });
 
-    describe ("Check order", function () {
-        it ("should check usability of goods (success)", function (done) {
+    describe("Check order", function () {
+        it("should check usability of goods (success)", function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -194,7 +194,7 @@ describe ("Operations that involve orders", function () {
                 });
         });
 
-        it ("should check usability of goods (sold out goods)", function (done) {
+        it("should check usability of goods (sold out goods)", function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -213,7 +213,7 @@ describe ("Operations that involve orders", function () {
                 });
         });
 
-        it ("should check usability of goods (non usable goods)", function (done) {
+        it("should check usability of goods (non usable goods)", function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -232,7 +232,7 @@ describe ("Operations that involve orders", function () {
                 });
         });
 
-        it ("should detect database errors when finding beneficiary", function (done) {
+        it("should detect database errors when finding beneficiary", function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -252,7 +252,7 @@ describe ("Operations that involve orders", function () {
                 });
         });
 
-        it ("should detect database errors when finding goods", function (done) {
+        it("should detect database errors when finding goods", function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -272,7 +272,7 @@ describe ("Operations that involve orders", function () {
                 });
         });
 
-        it ("should not allow wrong type of user", function (done) {
+        it("should not allow wrong type of user", function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'joanpuig@google.com',
                 userType: 'Entity'
@@ -290,8 +290,8 @@ describe ("Operations that involve orders", function () {
         });
     });
 
-    describe ("Check and store order", function () {
-        it ("should check and store order successfully", function (done) {
+    describe("Check and store order", function () {
+        it("should check and store order successfully", function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -322,7 +322,7 @@ describe ("Operations that involve orders", function () {
                 });
         });
 
-        it ("should check and store order with already bought goods successfully", function (done) {
+        it("should check and store order with already bought goods successfully", function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -356,7 +356,7 @@ describe ("Operations that involve orders", function () {
                 });
         });
 
-        it ("should detect invalid Validation Code", function (done) {
+        it("should detect invalid Validation Code", function (done) {
             let token = base64url.encode(jwt.sign({
                 userId: 'sbrin@google.com',
                 userType: 'Beneficiary'
@@ -371,6 +371,6 @@ describe ("Operations that involve orders", function () {
                     expect(res).to.have.status(constants.STATUS_FORBIDDEN);
                     done();
                 });
-        })
+        });
     });
 });

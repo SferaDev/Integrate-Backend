@@ -1,6 +1,6 @@
 // Test environment
-export const PORT = process.env.PORT || 3000;
 export const ENV = process.env.NODE_ENV || 'test';
+export const PORT = process.env.PORT || 3000;
 
 // MongoDB
 export const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/Integrate';
@@ -30,323 +30,77 @@ export const EMAIL_SERVICE = process.env.EMAIL_SERVICE || '';
 export const EMAIL_USER = process.env.EMAIL_USER || '';
 export const EMAIL_PASS = process.env.EMAIL_PASS || '';
 
+// Intervals
+export const INTERVALS = {
+    Day: 'days',
+    Week: 'weeks',
+    Month: 'months',
+    Year: 'years'
+};
+
 // Translate languages
 export const TRANSLATABLE = [
     'description',
     'productName',
     'message'
 ];
+
 export const LANGUAGES = [
-    {
-        "language": "af"
-    },
-    {
-        "language": "am"
-    },
-    {
-        "language": "ar"
-    },
-    {
-        "language": "az"
-    },
-    {
-        "language": "be"
-    },
-    {
-        "language": "bg"
-    },
-    {
-        "language": "bn"
-    },
-    {
-        "language": "bs"
-    },
-    {
-        "language": "ca"
-    },
-    {
-        "language": "ceb"
-    },
-    {
-        "language": "co"
-    },
-    {
-        "language": "cs"
-    },
-    {
-        "language": "cy"
-    },
-    {
-        "language": "da"
-    },
-    {
-        "language": "de"
-    },
-    {
-        "language": "el"
-    },
-    {
-        "language": "en"
-    },
-    {
-        "language": "eo"
-    },
-    {
-        "language": "es"
-    },
-    {
-        "language": "et"
-    },
-    {
-        "language": "eu"
-    },
-    {
-        "language": "fa"
-    },
-    {
-        "language": "fi"
-    },
-    {
-        "language": "fr"
-    },
-    {
-        "language": "fy"
-    },
-    {
-        "language": "ga"
-    },
-    {
-        "language": "gd"
-    },
-    {
-        "language": "gl"
-    },
-    {
-        "language": "gu"
-    },
-    {
-        "language": "ha"
-    },
-    {
-        "language": "haw"
-    },
-    {
-        "language": "hi"
-    },
-    {
-        "language": "hmn"
-    },
-    {
-        "language": "hr"
-    },
-    {
-        "language": "ht"
-    },
-    {
-        "language": "hu"
-    },
-    {
-        "language": "hy"
-    },
-    {
-        "language": "id"
-    },
-    {
-        "language": "ig"
-    },
-    {
-        "language": "is"
-    },
-    {
-        "language": "it"
-    },
-    {
-        "language": "iw"
-    },
-    {
-        "language": "ja"
-    },
-    {
-        "language": "jw"
-    },
-    {
-        "language": "ka"
-    },
-    {
-        "language": "kk"
-    },
-    {
-        "language": "km"
-    },
-    {
-        "language": "kn"
-    },
-    {
-        "language": "ko"
-    },
-    {
-        "language": "ku"
-    },
-    {
-        "language": "ky"
-    },
-    {
-        "language": "la"
-    },
-    {
-        "language": "lb"
-    },
-    {
-        "language": "lo"
-    },
-    {
-        "language": "lt"
-    },
-    {
-        "language": "lv"
-    },
-    {
-        "language": "mg"
-    },
-    {
-        "language": "mi"
-    },
-    {
-        "language": "mk"
-    },
-    {
-        "language": "ml"
-    },
-    {
-        "language": "mn"
-    },
-    {
-        "language": "mr"
-    },
-    {
-        "language": "ms"
-    },
-    {
-        "language": "mt"
-    },
-    {
-        "language": "my"
-    },
-    {
-        "language": "ne"
-    },
-    {
-        "language": "nl"
-    },
-    {
-        "language": "no"
-    },
-    {
-        "language": "ny"
-    },
-    {
-        "language": "pa"
-    },
-    {
-        "language": "pl"
-    },
-    {
-        "language": "ps"
-    },
-    {
-        "language": "pt"
-    },
-    {
-        "language": "ro"
-    },
-    {
-        "language": "ru"
-    },
-    {
-        "language": "sd"
-    },
-    {
-        "language": "si"
-    },
-    {
-        "language": "sk"
-    },
-    {
-        "language": "sl"
-    },
-    {
-        "language": "sm"
-    },
-    {
-        "language": "sn"
-    },
-    {
-        "language": "so"
-    },
-    {
-        "language": "sq"
-    },
-    {
-        "language": "sr"
-    },
-    {
-        "language": "st"
-    },
-    {
-        "language": "su"
-    },
-    {
-        "language": "sv"
-    },
-    {
-        "language": "sw"
-    },
-    {
-        "language": "ta"
-    },
-    {
-        "language": "te"
-    },
-    {
-        "language": "tg"
-    },
-    {
-        "language": "th"
-    },
-    {
-        "language": "tl"
-    },
-    {
-        "language": "tr"
-    },
-    {
-        "language": "uk"
-    },
-    {
-        "language": "ur"
-    },
-    {
-        "language": "uz"
-    },
-    {
-        "language": "vi"
-    },
-    {
-        "language": "xh"
-    },
-    {
-        "language": "yi"
-    },
-    {
-        "language": "yo"
-    },
-    {
-        "language": "zh"
-    },
-    {
-        "language": "zh-TW"
-    },
-    {
-        "language": "zu"
-    }
+    {language: 'af'},
+    {language: 'ar'},
+    {language: 'bn'},
+    {language: 'bg'},
+    {language: 'ca'},
+    {language: 'yue'},
+    {language: 'hr'},
+    {language: 'cs'},
+    {language: 'da'},
+    {language: 'nl'},
+    {language: 'en'},
+    {language: 'et'},
+    {language: 'fj'},
+    {language: 'fil'},
+    {language: 'fi'},
+    {language: 'fr'},
+    {language: 'de'},
+    {language: 'el'},
+    {language: 'ht'},
+    {language: 'he'},
+    {language: 'hi'},
+    {language: 'mww'},
+    {language: 'hu'},
+    {language: 'is'},
+    {language: 'id'},
+    {language: 'it'},
+    {language: 'ja'},
+    {language: 'sw'},
+    {language: 'tlh'},
+    {language: 'ko'},
+    {language: 'lv'},
+    {language: 'lt'},
+    {language: 'mg'},
+    {language: 'ms'},
+    {language: 'mt'},
+    {language: 'yua'},
+    {language: 'no'},
+    {language: 'otq'},
+    {language: 'fa'},
+    {language: 'pl'},
+    {language: 'pt'},
+    {language: 'ro'},
+    {language: 'ru'},
+    {language: 'sm'},
+    {language: 'sk'},
+    {language: 'sl'},
+    {language: 'es'},
+    {language: 'sv'},
+    {language: 'ty'},
+    {language: 'ta'},
+    {language: 'th'},
+    {language: 'to'},
+    {language: 'tr'},
+    {language: 'uk'},
+    {language: 'ur'},
+    {language: 'vi'},
+    {language: 'cy'}
 ];

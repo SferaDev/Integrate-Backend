@@ -1,10 +1,10 @@
-import {ENV, MONGODB_URI} from "../src/constants";
-import schedule from "node-schedule";
-import {loadBeneficiaries} from "../src/controllers/beneficiaryController";
-import {Mockgoose} from "mockgoose/built/mockgoose";
 import mongoose from "mongoose";
+import schedule from "node-schedule";
+import {Mockgoose} from "mockgoose/built/mockgoose";
 
-// Connect to the database
+import {ENV, MONGODB_URI} from "../src/constants";
+import {loadBeneficiaries} from "../src/controllers/beneficiaryController";
+
 mongoose.Promise = global.Promise;
 
 export default function constructor() {
@@ -27,7 +27,7 @@ export default function constructor() {
         });
     } else {
         const mockgoose = new Mockgoose(mongoose);
-        mockgoose.prepareStorage().then(function() {
+        mockgoose.prepareStorage().then(function () {
             mongoose.connect(MONGODB_URI, function (error) {
                 if (error) console.error(error);
                 else console.log('Mockgoose connected');

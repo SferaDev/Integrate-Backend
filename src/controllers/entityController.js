@@ -1,76 +1,37 @@
 import passwordGenerator from "password-generator";
 
-import {sendMail} from "../../common/mail";
 import {entityModel} from "../models/entityModel";
-import * as constants from "../constants";
 import {goodModel} from "../models/goodModel";
 import {beneficiaryModel} from "../models/beneficiaryModel";
-import {orderModel} from "../models/orderModel";
+
+import * as constants from "../constants";
+import * as mailUtils from "../../common/mail";
+import * as requestUtils from "../helpers/requestUtils";
 
 export function getEntities(req, res) {
     if (req.userType === 'Beneficiary') {
-        let latitude = req.query.latitude;
-        let longitude = req.query.longitude;
-        if (!latitude || !longitude)
-            res.status(constants.STATUS_BAD_REQUEST).send({message: "Missing query parameters"});
-        else {
-            // Build the query
-            let aggregate = entityModel.aggregate();
-            aggregate.near({
-                near: {type: "Point", coordinates: [parseFloat(longitude), parseFloat(latitude)]},
-                distanceField: "distance",
-                spherical: true
+        beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            let location = {latitude: req.query.latitude, longitude: req.query.longitude};
+            if (!location.latitude || !location.longitude)
+                return res.status(constants.STATUS_BAD_REQUEST).send({message: "Missing location parameters"});
+            entityModel.getEntities(req.params.id, beneficiary, location, function (err, entities) {
+                if (err) return res.status(err.code).send(err.message);
+                return res.status(constants.STATUS_OK).send(entities);
             });
-            aggregate.project({
-                name: 1,
-                description: 1,
-                addressName: 1,
-                coordinates: 1,
-                phone: 1,
-                picture: 1,
-                distance: 1
-            });
-            // Execute the query
-            aggregate.exec(function (err, entities) {
-                if (err) res.status(constants.STATUS_SERVER_ERROR).send(err);
-                else res.status(constants.STATUS_OK).send(entities);
-            });
-        }
+        });
     } else {
         res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
     }
 }
 
-export function getEntity (req, res) {
+export function getEntity(req, res) {
     if (req.userType === 'Beneficiary') {
-        let id = req.params.id;
-        let entityParams = {
-            name: 1,
-            email: 1,
-            description: 1,
-            addressName: 1,
-            coordinates: 1,
-            phone: 1,
-            picture: 1,
-            distance: 1
-        };
-        entityModel.findById(id, entityParams, function (err, entity) {
+        beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            if (entity === null) return res.status(constants.STATUS_NOT_FOUND).send({message: "Entity not found"});
-            beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
-                if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                goodModel.find({"owner.id": entity._id, pendingUnits: {$gt: 0}}, function (err, goods) {
-                    if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                    let entityJSON = entity.toObject();
-                    let goodsObject = [];
-                    for (let good of goods) {
-                        let goodObject = good.toObject();
-                        goodObject.isUsable = good.isUsable(beneficiary);
-                        goodsObject.push(goodObject);
-                    }
-                    entityJSON.goods = goodsObject;
-                    return res.status(constants.STATUS_OK).send(entityJSON);
-                });
+            entityModel.getEntity(req.params.id, beneficiary, function (err, entity) {
+                if (err) return res.status(err.code).send(err.message);
+                return res.status(constants.STATUS_OK).send(entity);
             });
         });
     } else {
@@ -79,24 +40,15 @@ export function getEntity (req, res) {
 }
 
 export function createNewEntity(req, res) {
-    let attributes = {};
-    for (let key in entityModel.schema.paths) {
-        if (entityModel.schema.paths.hasOwnProperty(key)) {
-            let value = entityModel.schema.paths[key];
-            if (value.isRequired) {
-                if (req.body[key]) attributes[key] = req.body[key];
-                else return res.status(constants.STATUS_BAD_REQUEST).send({message: "Missing parameter " + key});
-            }
-        }
-    }
-    entityModel.count({nif: req.body.nif}, function (err, count) {
-        if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-        if (count > 0) return res.status(constants.STATUS_CONFLICT).send({message: 'NIF already exists'});
+    requestUtils.getParameters(req.body, (err, attributes) => {
+        if (err) return res.status(constants.STATUS_BAD_REQUEST).send(err);
         entityModel.create(attributes, function (err, entity) {
-            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            if (err) {
+                if (err.code === 11000) return res.status(constants.STATUS_CONFLICT).send({message: 'NIF or email already exists'});
+                return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            }
             entity.password = passwordGenerator(8, false);
-            sendMail(entity.email, 'Welcome to Integrate!', 'Welcome!\n\nYour account has been successfully created.\n\nAccount: ' +
-                entity.nif + '\nPassword: ' + entity.password + '\n\nPlease change your password after your first login.');
+            mailUtils.sendRegisterMail(entity.email, entity.nif, entity.password);
             entity.save();
             res.status(constants.STATUS_CREATED).send();
         });
@@ -107,26 +59,67 @@ export function getEntityStats(req, res) {
     if (req.userType === 'Entity') {
         entityModel.findOne({email: req.userId}, function (err, entity) {
             if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-            goodModel.count({'owner.id': entity._id}, function (err, goodsCreated) {
+            entity.getStats((err, stats) => {
+                if (err) return res.status(err.code).send(err.message);
+                return res.status(constants.STATUS_OK).send(stats);
+            });
+        });
+    } else {
+        res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
+    }
+}
+
+export function getSalesChart(req, res) {
+    if (req.userType === 'Entity') {
+        entityModel.findOne({email: req.userId}, function (err, entity) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            entity.getSalesChart(req.query.interval, req.query.good, (err, chart) => {
+                if (err) return res.status(err.code).send(err.message);
+                return res.status(constants.STATUS_OK).send(chart);
+            });
+        });
+    } else {
+        res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
+    }
+}
+
+export function likeEntity(req, res) {
+    if (req.userType === 'Beneficiary') {
+        beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            beneficiary.likeEntity(req.params.id, (err, likes) => {
+                if (err) return res.status(err.code).send(err.message);
+                return res.status(constants.STATUS_OK).send(likes);
+            });
+        });
+    } else {
+        res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
+    }
+}
+
+export function dislikeEntity(req, res) {
+    if (req.userType === 'Beneficiary') {
+        beneficiaryModel.findOne({email: req.userId}, function (err, beneficiary) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            beneficiary.dislikeEntity(req.params.id, (err, likes) => {
+                if (err) return res.status(err.code).send(err.message);
+                return res.status(constants.STATUS_OK).send(likes);
+            });
+        });
+    } else {
+        res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
+    }
+}
+
+export function deactivateEntity(req, res) {
+    if (req.userType === 'Entity') {
+        entityModel.findOne({email: req.userId}, function (err, entity) {
+            if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
+            entity.delete();
+            goodModel.delete({'owner.id': entity._id}, function (err) {
                 if (err) return res.status(constants.STATUS_SERVER_ERROR).send(err);
-                let aggregate = orderModel.aggregate();
-                aggregate.group({
-                    _id: {entity: '$entity', beneficiary: '$beneficiary'},
-                    savedMoney: {$sum: '$totalDiscount'}
-                });
-                aggregate.exec(function (err, records) {
-                    let beneficiariesHelped = records.length;
-                    let totalSavedMoney = 0;
-                    for (let record of records) {
-                        totalSavedMoney += record.savedMoney;
-                    }
-                    res.status(constants.STATUS_OK).send({
-                        goodsCreated: goodsCreated,
-                        beneficiariesHelped: beneficiariesHelped,
-                        totalSavedMoney: totalSavedMoney
-                    });
-                });
-            })
+                return res.status(constants.STATUS_OK).send({message: "Entity deactivated"});
+            });
         });
     } else {
         res.status(constants.STATUS_FORBIDDEN).send({message: "You are not allowed to do this action"});
